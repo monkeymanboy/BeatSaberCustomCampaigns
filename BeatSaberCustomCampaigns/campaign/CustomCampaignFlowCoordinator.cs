@@ -13,6 +13,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -294,6 +295,16 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
                     _missionMapAnimationController.ScrollToTopMostNotClearedMission();
                     _playButton.interactable = true;
+
+                    //for some reason highlighting doesn't work the first time the campaign opens so this fixes that
+                    foreach(MissionNode missionNode in missionNodes)
+                    {
+                        missionNode.missionNodeVisualController.nodeWasSelectEvent += delegate
+                        {
+                            missionNode.missionNodeVisualController.GetPrivateField<MissionToggle>("_missionToggle").SetPrivateField("_selected", true);
+                            missionNode.missionNodeVisualController.GetPrivateField<MissionToggle>("_missionToggle").InvokeMethod("RefreshUI");
+                        };
+                    }
                 });
                 _missionNodeSelectionManager.didSelectMissionNodeEvent += HandleMissionNodeSelectionManagerDidSelectMissionNode;
             }
@@ -325,7 +336,7 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public async void LoadBeatmap(MissionNodeVisualController missionNodeVisualController, string songid)
         {
-            await Loader.BeatmapLevelsModelSO.GetBeatmapLevelAsync(songid, new System.Threading.CancellationToken());
+            await Loader.BeatmapLevelsModelSO.GetBeatmapLevelAsync(songid, CancellationToken.None);
             _missionLevelDetailViewController.didPressPlayButtonEvent += HandleMissionLevelDetailViewControllerDidPressPlayButtonPlay;
             _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode(missionNodeVisualController);
         }
