@@ -230,7 +230,7 @@ namespace BeatSaberCustomCampaigns.campaign
             try
             {
                 unlockAllMissions = campaign.info.allUnlocked;
-                _backgroundImage.color = new Color(1, 1, 1, 0.1f*campaign.info.backgroundAlpha);
+                _backgroundImage.color = new Color(1, 1, 1, campaign.info.backgroundAlpha);
                 _backgroundImage.sprite = campaign.background;
                 MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
                 curCampaignNodes = missionNodes;
