@@ -8,3 +8,4 @@ A plugin for adding custom campaigns into Beat Saber.
  
 ## Creating Campaigns
 Simply download the latest version of the [Campaign Editor](https://github.com/monkeymanboy/BeatSaberChallengeCreator/releases)
+For more information refer to the [README](https://github.com/monkeymanboy/BeatSaberChallengeCreator/blob/master/README.md) on the editor repository
