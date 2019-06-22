@@ -231,8 +231,15 @@ namespace BeatSaberCustomCampaigns.campaign
             try
             {
                 unlockAllMissions = campaign.info.allUnlocked;
-                _backgroundImage.color = new Color(1, 1, 1, campaign.info.backgroundAlpha);
-                _backgroundImage.sprite = campaign.background;
+                if (campaign.background == null)
+                {
+                    _backgroundImage.color = new Color(1, 1, 1, 0);
+                }
+                else
+                {
+                    _backgroundImage.color = new Color(1, 1, 1, campaign.info.backgroundAlpha);
+                    _backgroundImage.sprite = campaign.background;
+                }
                 MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
                 curCampaignNodes = missionNodes;
                 MissionStage[] missionStages;
@@ -399,7 +406,7 @@ namespace BeatSaberCustomCampaigns.campaign
             }
             if (errorList.Count==0)
             {
-                Gamemode.NextLevelIsIsolated("Challenges");
+                Gamemode.NextLevelIsIsolated("Custom Campaigns");
 
                 _campaignFlowCoordinator.HandleMissionLevelDetailViewControllerDidPressPlayButton(viewController);
             } else
@@ -413,7 +420,7 @@ namespace BeatSaberCustomCampaigns.campaign
             String failedMods = LoadExternalModifiers(challenge);
             if (failedMods.Length == 0)
             {
-                Gamemode.NextLevelIsIsolated("Challenges");
+                Gamemode.NextLevelIsIsolated("Custom Campaigns");
                 _campaignFlowCoordinator.HandleMissionResultsViewControllerRetryButtonPressed(_missionResultsViewController);
             }
         }
@@ -582,7 +589,19 @@ namespace BeatSaberCustomCampaigns.campaign
             _challengeName.text = challenge.name;
             _challengeName.alignment = TextAlignmentOptions.Bottom;
             List<GameplayModifierParamsSO> modParams = _gameplayModifiersModel.GetModifierParams(missionNode.missionData.gameplayModifiers);
-            foreach(UnlockableItem item in challenge.unlockableItems)
+            foreach(string modName in challenge.externalModifiers.Keys)
+            {
+                if (!ChallengeExternalModifiers.getInfo.ContainsKey(modName)) continue;
+                foreach(ExternalModifierInfo modInfo in ChallengeExternalModifiers.getInfo[modName](challenge.externalModifiers[modName]))
+                {
+                    GameplayModifierParamsSO modifierParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
+                    modifierParam.SetPrivateField("_modifierName", modInfo.name);
+                    modifierParam.SetPrivateField("_hintText", modInfo.desc);
+                    modifierParam.SetPrivateField("_icon", modInfo.icon);
+                    modParams.Add(modifierParam);
+                }
+            }
+            foreach (UnlockableItem item in challenge.unlockableItems)
             {
                 modParams.Add(item.GetModifierParam());
             }

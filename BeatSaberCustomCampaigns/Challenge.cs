@@ -1,4 +1,5 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
+using Newtonsoft.Json;
 using SongCore;
 using SongCore.Utilities;
 using System;
@@ -14,7 +15,6 @@ namespace BeatSaberCustomCampaigns
     public class Challenge
     {
         public string name;
-        public string desc;
         public string songid;
         public string customDownloadURL = "";
         public string characteristic = "Standard";
@@ -27,6 +27,7 @@ namespace BeatSaberCustomCampaigns
 
         public bool unlockMap = false;
 
+        [JsonIgnore]
         public string rawJSON;
 
         public MissionObjective[] GetMissionObjectives()
@@ -42,7 +43,7 @@ namespace BeatSaberCustomCampaigns
         {
             try
             {
-                CustomPreviewBeatmapLevel level = Loader.CustomLevelsCollection.beatmapLevels.First(x => ((x as CustomPreviewBeatmapLevel).customLevelPath.Contains("\\" + songid))) as CustomPreviewBeatmapLevel;
+                CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => (x.customLevelPath.Contains("\\" + songid)));
                 return level;
             } catch
             {

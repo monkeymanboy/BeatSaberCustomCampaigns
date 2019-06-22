@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatSaberCustomCampaigns
 {
     public class ChallengeExternalModifiers
     {
-        public static Dictionary<string, Func<string[], bool>> externalModifiers = new Dictionary<string, Func<string[], bool>>();//You don't need to touch this
+        //You don't need to touch these dictionaries
+        public static Dictionary<string, Func<string[], bool>> externalModifiers = new Dictionary<string, Func<string[], bool>>();
+        public static Dictionary<string, Func<string[], List<ExternalModifierInfo>>> getInfo = new Dictionary<string, Func<string[], List<ExternalModifierInfo>>>();
 
         public static Action onChallengeEnd;//this is called when returning to the menu after a challenge doesn't matter if they win, lose, or manually exit the challenge this will be called
         public static Action onChallengeFailedToLoad;//This is called after all Handlers run if any of them return false or one is missing, this means a mod is missing or likely needs to be updated
@@ -25,9 +28,16 @@ namespace BeatSaberCustomCampaigns
          * uses that functionality we don't want people on the old version of the mod to be able
          * to load the challenge
          */
-        public static void RegisterHandler(string modname, Func<string[],bool> onLoadChallenge)
+        public static void RegisterHandler(string modname, Func<string[],bool> onLoadChallenge, Func<string[],List<ExternalModifierInfo>> getInfo)
         {
             externalModifiers.Add(modname, onLoadChallenge);
         }
     }
+    public class ExternalModifierInfo
+    {
+        public string name;
+        public string desc;
+        public Sprite icon;
+    }
+
 }

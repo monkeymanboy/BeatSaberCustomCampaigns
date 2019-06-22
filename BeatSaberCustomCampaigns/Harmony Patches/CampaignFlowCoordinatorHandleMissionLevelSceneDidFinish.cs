@@ -20,12 +20,12 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
         static bool Prefix(MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupData, MissionCompletionResults missionCompletionResults, CampaignFlowCoordinator __instance, MissionLevelDetailViewController ____missionLevelDetailViewController)
         {
             if (!(____missionLevelDetailViewController.missionNode.missionData is CustomMissionDataSO)) return true;
+            ChallengeExternalModifiers.onChallengeEnd?.Invoke();
             if (missionCompletionResults.levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
             {
                 ____missionLevelDetailViewController.GetPrivateField<Action<MissionLevelDetailViewController>>("didPressPlayButtonEvent")(____missionLevelDetailViewController);
                 return false;
             }
-            ChallengeExternalModifiers.onChallengeEnd?.Invoke();
             if (missionCompletionResults.levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared)
             {
                 CustomMissionDataSO customMissionData = ____missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
