@@ -404,6 +404,17 @@ namespace BeatSaberCustomCampaigns.campaign
                     errorList.Add(errorParam);
                 }
             }
+            foreach(ChallengeRequirement requirement in challenge.requirements)
+            {
+                if (ChallengeRequirement.GetObjectiveName(requirement.type) == "ERROR")
+                {
+                    GameplayModifierParamsSO errorParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
+                    errorParam.SetPrivateField("_modifierName", "Error - Mission Objective Not Found");
+                    errorParam.SetPrivateField("_hintText", "You likely have a typo in the requirement name");
+                    errorParam.SetPrivateField("_icon", Assets.ErrorIcon);
+                    errorList.Add(errorParam);
+                }
+            }
             if (errorList.Count==0)
             {
                 Gamemode.NextLevelIsIsolated("Custom Campaigns");
