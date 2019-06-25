@@ -120,6 +120,8 @@
     <Compile Include="campaign\CampaignUnlockGate.cs" />
     <Compile Include="campaign\CampainMapPosition.cs" />
     <Compile Include="campaign\CustomCampaignFlowCoordinator.cs" />
+    <Compile Include="Custom Trackers\MillisecondObjectiveValueFormatterSO.cs" />
+    <Compile Include="Custom Trackers\TimeInWallMissionObjectiveChecker.cs" />
     <Compile Include="DetailResponse.cs" />
     <Compile Include="Harmony Patches\AchievementsEvaluationHandlerHandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults.cs" />
     <Compile Include="Harmony Patches\CampaignFlowCoordinatorStartLevel.cs" />

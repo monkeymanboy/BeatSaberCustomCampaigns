@@ -1,4 +1,5 @@
-﻿using BS_Utils.Utilities;
+﻿using BeatSaberCustomCampaigns.Custom_Trackers;
+using BS_Utils.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +23,25 @@ namespace BeatSaberCustomCampaigns
             MissionObjectiveTypeSO missionObjectiveTypeSO = ScriptableObject.CreateInstance<MissionObjectiveTypeSO>();
             missionObjectiveTypeSO.SetPrivateField("_objectiveName", GetObjectiveName(type));
             missionObjectiveTypeSO.SetPrivateField("_noConditionValue", GetNoCondition(type));
-            missionObjectiveTypeSO.SetPrivateField("_objectiveValueFormater", ScriptableObject.CreateInstance<ObjectiveValueFormatterSO>());
+            missionObjectiveTypeSO.SetPrivateField("_objectiveValueFormater", GetObjectiveValueFormater(type));
             objective.SetPrivateField("_type", missionObjectiveTypeSO);
             objective.SetPrivateField("_referenceValueComparisonType", isMax ? ReferenceValueComparisonType.Max : ReferenceValueComparisonType.Min);
             objective.SetPrivateField("_referenceValue", count);
             return objective;
+        }
+        public static ObjectiveValueFormatterSO GetObjectiveValueFormater(string type)
+        {
+            switch (type)
+            {
+                case "saberDistance":
+                    return ScriptableObject.CreateInstance<DistanceObjectiveValueFormatterSO>();
+                case "score":
+                    return ScriptableObject.CreateInstance<ScoreObjectiveValueFormatterSO>();
+                case "timeInWall":
+                    return ScriptableObject.CreateInstance<MillisecondObjectiveValueFormatterSO>();
+                default:
+                    return ScriptableObject.CreateInstance<ObjectiveValueFormatterSO>();
+            }
         }
         public static string GetObjectiveName(string type)
         {
@@ -48,6 +63,8 @@ namespace BeatSaberCustomCampaigns
                     return "Full Combo";
                 case "badCuts":
                     return "OBJECTIVE_BAD_CUTS";
+                case "timeInWall":
+                    return "Time In Wall";
             }
             return "ERROR";
         }

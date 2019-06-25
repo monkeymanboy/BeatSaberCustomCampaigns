@@ -24,6 +24,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
             List<MissionObjectiveChecker> customCheckers = new List<MissionObjectiveChecker>();
             customCheckers.Add(new GameObject().AddComponent<PerfectCutMissionObjectiveChecker>());
             customCheckers.Add(new GameObject().AddComponent<BombsHitMissionObjectiveChecker>());
+            customCheckers.Add(new GameObject().AddComponent<TimeInWallMissionObjectiveChecker>());
             foreach (MissionObjective missionObjective in missionObjectives)
             {
                 Console.WriteLine(missionObjective.type.name);
