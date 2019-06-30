@@ -37,7 +37,7 @@ namespace BeatSaberCustomCampaigns
                     return ScriptableObject.CreateInstance<DistanceObjectiveValueFormatterSO>();
                 case "score":
                     return ScriptableObject.CreateInstance<ScoreObjectiveValueFormatterSO>();
-                case "timeInWall":
+                case "headInWall": case "saberInWall":
                     return ScriptableObject.CreateInstance<MillisecondObjectiveValueFormatterSO>();
                 default:
                     return ScriptableObject.CreateInstance<ObjectiveValueFormatterSO>();
@@ -63,8 +63,10 @@ namespace BeatSaberCustomCampaigns
                     return "Full Combo";
                 case "badCuts":
                     return "OBJECTIVE_BAD_CUTS";
-                case "timeInWall":
-                    return "Time In Wall";
+                case "headInWall":
+                    return "Head In Wall";
+                case "saberInWall":
+                    return "Saber In Wall";
             }
             return "ERROR";
         }

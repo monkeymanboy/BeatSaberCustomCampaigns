@@ -9,7 +9,7 @@ using UnityEngine;
 namespace BeatSaberCustomCampaigns.Custom_Trackers
 {
 
-    public class TimeInWallMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, CustomTracker
+    public class HeadTimeInWallMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, CustomTracker
     {
         protected PlayerHeadAndObstacleInteraction playerHeadAndObstacleInteraction;
         protected float currentValue;
@@ -48,7 +48,6 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             if (playerHeadAndObstacleInteraction == null) return;
             if(playerHeadAndObstacleInteraction.intersectingObstacles.Count > 0)
             {
-                Console.WriteLine("intersect" + currentValue);
                 currentValue += Time.deltaTime;
                 base.checkedValue = (int)(currentValue*1000);
                 CheckAndUpdateStatus();
@@ -57,7 +56,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
         public string GetMissionObjectiveTypeName()
         {
-            return ChallengeRequirement.GetObjectiveName("timeInWall");
+            return ChallengeRequirement.GetObjectiveName("headInWall");
         }
     }
 }
