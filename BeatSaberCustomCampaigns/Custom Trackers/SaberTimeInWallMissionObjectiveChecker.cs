@@ -14,7 +14,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
         protected PlayerController playerController;
         protected Saber[] sabers;
         protected float currentValue;
-
+        bool loaded = false;
 
         protected override void Init()
         {
@@ -31,7 +31,6 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
         IEnumerator WaitForLoad()
         {
-            bool loaded = false;
             while (!loaded)
             {
                 activeObstaclesManager = Resources.FindObjectsOfTypeAll<ActiveObstaclesManager>().FirstOrDefault();
@@ -50,6 +49,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
         public void Update()
         {
+            if (!loaded) return;
             for (int i = 0; i < 2; i++)
             {
                 foreach (ObstacleController activeObstacleController in activeObstaclesManager.activeObstacleControllers)
