@@ -55,7 +55,11 @@ namespace BeatSaberCustomCampaigns.campaign
 
         public CampaignProgressModelSO _campaignProgressModel;
 
+        protected DismissableNavigationController _campaignListNavigationController;
         protected CampaignListViewController _campaignListViewController;
+        protected CampaignDetailViewController _campaignDetailViewController;
+        protected CampaignTotalLeaderboardViewController _campaignTotalLeaderboardViewController;
+
         protected CampaignChallengeLeaderboardViewController _campaignChallengeLeaderbaordViewController;
         protected UnlockedItemsViewController _unlockedItemsViewController;
 
@@ -125,16 +129,35 @@ namespace BeatSaberCustomCampaigns.campaign
                 _campaignProgressModel = _campaignFlowCoordinator.GetPrivateField<CampaignProgressModelSO>("_campaignProgressModel");
 
                 _campaignListViewController = BeatSaberUI.CreateViewController<CampaignListViewController>();
+                _campaignDetailViewController = BeatSaberUI.CreateViewController<CampaignDetailViewController>();
+                _campaignTotalLeaderboardViewController = BeatSaberUI.CreateViewController<CampaignTotalLeaderboardViewController>();
+                _campaignListNavigationController = Instantiate(Resources.FindObjectsOfTypeAll<DismissableNavigationController>().First());
+                _campaignListNavigationController.didFinishEvent += Dismiss;
+                _campaignListViewController.clickedCampaign += ShowDetails;
+                _campaignDetailViewController.clickedPlay += OpenCampaign;
+
                 _campaignChallengeLeaderbaordViewController = BeatSaberUI.CreateViewController<CampaignChallengeLeaderboardViewController>();
                 _unlockedItemsViewController = BeatSaberUI.CreateViewController<UnlockedItemsViewController>();
 
-                _campaignListViewController.clickedCampaign += OpenCampaign;
-                _campaignListViewController.backPressed += Dismiss;
             }
             if (activationType == ActivationType.AddedToHierarchy)
             {
                 SetBaseCampaignEnabled(false);
-                ProvideInitialViewControllers(_campaignListViewController);
+
+                SetViewControllerToNavigationConctroller(_campaignListNavigationController, _campaignListViewController);
+                ProvideInitialViewControllers(_campaignListNavigationController);
+            }
+        }
+
+        public void ShowDetails(Campaign campaign)
+        {
+            _campaignDetailViewController.campaign = campaign;
+            if (!_campaignDetailViewController.isInViewControllerHierarchy)
+            {
+                PushViewControllerToNavigationController(_campaignListNavigationController, _campaignDetailViewController);
+                SetRightScreenViewController(_campaignTotalLeaderboardViewController);
+                _campaignTotalLeaderboardViewController.lastClicked = campaign.info.leaderboardID;
+                _campaignTotalLeaderboardViewController.UpdateLeaderboards();
             }
         }
 
@@ -348,7 +371,7 @@ namespace BeatSaberCustomCampaigns.campaign
             _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode(missionNodeVisualController);
         }
 
-        public void Dismiss()
+        public void Dismiss(DismissableNavigationController navigationController)
         {
             (_mainFlowCoordinator as FlowCoordinator).InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, false });
         }

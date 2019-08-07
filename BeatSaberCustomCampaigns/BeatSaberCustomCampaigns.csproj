@@ -115,8 +115,10 @@
     <Compile Include="APITools.cs" />
     <Compile Include="campaign\Campaign.cs" />
     <Compile Include="campaign\CampaignChallengeLeaderboardViewController.cs" />
+    <Compile Include="campaign\CampaignDetailViewController.cs" />
     <Compile Include="campaign\CampaignInfo.cs" />
     <Compile Include="campaign\CampaignListViewController.cs" />
+    <Compile Include="campaign\CampaignTotalLeaderboardViewController.cs" />
     <Compile Include="campaign\CampaignUnlockGate.cs" />
     <Compile Include="campaign\CampainMapPosition.cs" />
     <Compile Include="campaign\CustomCampaignFlowCoordinator.cs" />

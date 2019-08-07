@@ -15,9 +15,7 @@ namespace BeatSaberCustomCampaigns.campaign
     public class CampaignListViewController : CustomListViewController
     {
         List<Campaign> campaigns = new List<Campaign>();
-
-        public Button backButton;
-        public Action backPressed;
+        
         public Action<Campaign> clickedCampaign;
         
         protected override void DidActivate(bool firstActivation, ActivationType type)
@@ -25,15 +23,10 @@ namespace BeatSaberCustomCampaigns.campaign
             if (firstActivation)
             {
                 reuseIdentifier = "CampaignListCell";
-                if (backButton == null)
-                {
-                    backButton = BeatSaberUI.CreateBackButton(rectTransform as RectTransform);
-                    backButton.onClick.AddListener(delegate ()
-                    {
-                        backPressed?.Invoke();
-                    });
-                }
                 DidSelectRowEvent += ClickedRow;
+                rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
+                rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
+                rectTransform.sizeDelta = new Vector3(65, 0, 0);
             }
             base.DidActivate(firstActivation, type);
             LoadCampaigns();
@@ -73,8 +66,8 @@ namespace BeatSaberCustomCampaigns.campaign
         public override TableCell CellForIdx(int idx)
         {
             LevelListTableCell _tableCell = GetTableCell();
-
-            _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").overflowMode = TextOverflowModes.Overflow;
+            
+            _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").rectTransform.anchorMax = new Vector3(2,1,0);
             _tableCell.SetText(Data[idx].text);
             _tableCell.SetSubText(Data[idx].subtext);
             _tableCell.SetIcon(Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
