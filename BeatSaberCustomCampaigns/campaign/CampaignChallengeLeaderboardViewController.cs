@@ -26,7 +26,7 @@ namespace BeatSaberCustomCampaigns
             {
                 table = Instantiate(Resources.FindObjectsOfTypeAll<LeaderboardTableView>().First(), rectTransform, false);
                 table.SetPrivateField("_rowHeight", 5.58f);
-                (table.transform as RectTransform).anchoredPosition = new Vector3(0, (table.transform as RectTransform).anchoredPosition.y + 5);
+                (table.transform as RectTransform).anchoredPosition = new Vector3(0, 0);
                 text = BeatSaberUI.CreateText(rectTransform, "Leaderboard", new Vector2(0, 35));
                 text.alignment = TextAlignmentOptions.Center;
                 text.fontSize = 6;
