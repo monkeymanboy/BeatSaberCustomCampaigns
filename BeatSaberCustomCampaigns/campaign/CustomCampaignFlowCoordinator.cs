@@ -152,13 +152,13 @@ namespace BeatSaberCustomCampaigns.campaign
         public void ShowDetails(Campaign campaign)
         {
             _campaignDetailViewController.campaign = campaign;
+            _campaignTotalLeaderboardViewController.lastClicked = campaign.leaderboardID;
             if (!_campaignDetailViewController.isInViewControllerHierarchy)
             {
                 PushViewControllerToNavigationController(_campaignListNavigationController, _campaignDetailViewController);
                 SetRightScreenViewController(_campaignTotalLeaderboardViewController);
-                _campaignTotalLeaderboardViewController.lastClicked = campaign.info.leaderboardID;
-                _campaignTotalLeaderboardViewController.UpdateLeaderboards();
             }
+            _campaignTotalLeaderboardViewController.UpdateLeaderboards();
         }
 
         protected override void DidDeactivate(DeactivationType deactivationType)
@@ -325,9 +325,8 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
                     _missionMapAnimationController.ScrollToTopMostNotClearedMission();
                     _playButton.interactable = true;
-
                     //for some reason highlighting doesn't work the first time the campaign opens so this fixes that
-                    foreach(MissionNode missionNode in missionNodes)
+                    foreach (MissionNode missionNode in missionNodes)
                     {
                         missionNode.missionNodeVisualController.nodeWasSelectEvent += delegate
                         {

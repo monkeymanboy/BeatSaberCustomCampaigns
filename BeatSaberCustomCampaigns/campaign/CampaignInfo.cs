@@ -11,7 +11,6 @@ namespace BeatSaberCustomCampaigns.campaign
         public string name;
         public string desc;
         public string bigDesc = "";
-        public string leaderboardID = "";
         public bool allUnlocked;
         public List<CampainMapPosition> mapPositions = new List<CampainMapPosition>();
         public List<CampaignUnlockGate> unlockGate = new List<CampaignUnlockGate>();

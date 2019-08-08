@@ -21,6 +21,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public List<Challenge> challenges;
         public Sprite background;
         public string path;
+        public string leaderboardID = "";
         public Campaign() : base("", "", null)
         {
         }
@@ -40,6 +41,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 challenges.Add(challenge);
                 i++;
             }
+            if (File.Exists(path + "/id")) leaderboardID = File.ReadAllText(path + "/id");
             text = info.name;
             subtext = info.desc;
         }
