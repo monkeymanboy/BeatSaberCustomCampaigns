@@ -39,6 +39,8 @@ namespace BeatSaberCustomCampaigns.campaign
                 text = BeatSaberUI.CreateText(rectTransform, "Placeholder Text", new Vector2(0, 35));
                 text.alignment = TextAlignmentOptions.Center;
                 text.fontSize = 6;
+                Image descBackground = Instantiate(Resources.FindObjectsOfTypeAll<Image>().First(x => x.name == "BG" && x.transform.parent.gameObject.name == "TextPageScrollView"), transform);
+                descBackground.rectTransform.anchorMin = new Vector3(0, -0.08f, 0);
                 desc = BeatSaberUI.CreateText(rectTransform, "Placeholder Text", new Vector2(0, 25));
                 desc.alignment = TextAlignmentOptions.Top;
                 desc.fontSize = 4;
