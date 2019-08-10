@@ -29,7 +29,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 rectTransform.sizeDelta = new Vector3(65, 0, 0);
             }
             base.DidActivate(firstActivation, type);
-            LoadCampaigns();
+            if(type==ActivationType.AddedToHierarchy) LoadCampaigns();
         }
 
         private void ClickedRow(TableView table, int row)
