@@ -50,7 +50,7 @@ namespace BeatSaberCustomCampaigns.campaign
         {
             if (!loadedSprites.ContainsKey(spritePath))
             {
-                using (var web = UnityWebRequestTexture.GetTexture(EncodePath(spritePath), true))
+                using (var web = UnityWebRequestTexture.GetTexture(APITools.EncodePath(spritePath), true))
                 {
                     yield return web.SendWebRequest();
                     if (web.isNetworkError || web.isHttpError)
@@ -76,13 +76,6 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 viewController._customListTableView.ReloadData();
             }
-        }
-        private static string EncodePath(string path)
-        {
-            path = Uri.EscapeDataString(path);
-            path = path.Replace("%2F", "/");
-            path = path.Replace("%3A", ":");
-            return path;
         }
     }
 }

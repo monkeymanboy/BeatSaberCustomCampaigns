@@ -325,16 +325,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
                     _missionMapAnimationController.ScrollToTopMostNotClearedMission();
                     _playButton.interactable = true;
-                    //for some reason highlighting doesn't work the first time the campaign opens so this fixes that
-                    foreach (MissionNode missionNode in missionNodes)
-                    {
-                        missionNode.missionNodeVisualController.nodeWasSelectEvent += delegate
-                        {
-                            missionNode.missionNodeVisualController.GetPrivateField<MissionToggle>("_missionToggle").SetPrivateField("_selected", true);
-                            missionNode.missionNodeVisualController.GetPrivateField<MissionToggle>("_missionToggle").InvokeMethod("RefreshUI");
-                        };
-                    }
-                });
+                }, false);
                 _missionNodeSelectionManager.didSelectMissionNodeEvent += HandleMissionNodeSelectionManagerDidSelectMissionNode;
             }
             catch (Exception ex)
@@ -440,7 +431,6 @@ namespace BeatSaberCustomCampaigns.campaign
             if (errorList.Count==0)
             {
                 Gamemode.NextLevelIsIsolated("Custom Campaigns");
-
                 _campaignFlowCoordinator.HandleMissionLevelDetailViewControllerDidPressPlayButton(viewController);
             } else
             {

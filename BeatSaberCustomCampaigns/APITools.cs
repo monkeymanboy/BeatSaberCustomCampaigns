@@ -54,5 +54,13 @@ namespace BeatSaberCustomCampaigns
             }
             return sb.ToString();
         }
+        
+        public static string EncodePath(string path)
+        {
+            path = Uri.EscapeDataString(path);
+            path = path.Replace("%2F", "/");
+            path = path.Replace("%3A", ":");
+            return path;
+        }
     }
 }

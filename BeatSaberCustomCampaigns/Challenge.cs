@@ -22,6 +22,7 @@ namespace BeatSaberCustomCampaigns
         public ChallengeModifiers modifiers;
         public ChallengeRequirement[] requirements;
         public Dictionary<string, string[]> externalModifiers = new Dictionary<string, string[]>();
+        public ChallengeInfo challengeInfo = null;
 
         public List<UnlockableItem> unlockableItems = new List<UnlockableItem>();
 
@@ -57,6 +58,15 @@ namespace BeatSaberCustomCampaigns
             data.challenge = this;
             data.SetPrivateField("_gameplayModifiers", modifiers.GetGameplayModifiers());
             data.SetPrivateField("_missionObjectives", GetMissionObjectives());
+
+            if (challengeInfo != null)
+            {
+                CustomMissionHelpSO missionHelp = ScriptableObject.CreateInstance<CustomMissionHelpSO>();
+                missionHelp.challengeInfo = challengeInfo;
+                missionHelp.imagePath = campaign.path + "/images/";
+                missionHelp.SetPrivateField("_missionHelpId", GetHash());
+                data.SetPrivateField("_missionHelp", missionHelp);
+            }
 
             data.SetPrivateField("_beatmapDifficulty", difficulty);
             CustomPreviewBeatmapLevel level = FindSong();

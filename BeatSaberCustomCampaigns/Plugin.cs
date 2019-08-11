@@ -5,6 +5,7 @@ using Harmony;
 using IPA;
 using Polyglot;
 using System;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using TMPro;
@@ -78,12 +79,25 @@ namespace BeatSaberCustomCampaigns
                         campaignFlowCoordinator = new GameObject("CustomCampaignFlowCoordinator").AddComponent<CustomCampaignFlowCoordinator>();
                         campaignFlowCoordinator._mainFlowCoordinator = _mainFlowCoordinator;
                     }
+                    campaignFlowCoordinator.StartCoroutine(InitializeMap());
                     _mainFlowCoordinator.InvokePrivateMethod("PresentFlowCoordinator", new object[] { campaignFlowCoordinator, null, false, false });
                 });
 
             }
         }
 
+        //Base game does a ton of stuff when everything gets enabled so this just makes sure that happens, without this some stuff will break
+        IEnumerator InitializeMap()
+        {
+            MissionSelectionMapViewController map = Resources.FindObjectsOfTypeAll<MissionSelectionMapViewController>().First();
+            bool mapState = map.gameObject.activeSelf;
+            bool parentState = map.transform.parent.gameObject.activeSelf;
+            map.gameObject.SetActive(true);
+            map.transform.parent.gameObject.SetActive(true);
+            yield return new WaitForFixedUpdate();
+            map.gameObject.SetActive(mapState);
+            map.transform.parent.gameObject.SetActive(parentState);
+        }
         public void OnSceneUnloaded(Scene scene)
         {
 

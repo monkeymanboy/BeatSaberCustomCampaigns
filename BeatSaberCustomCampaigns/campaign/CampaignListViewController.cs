@@ -30,6 +30,7 @@ namespace BeatSaberCustomCampaigns.campaign
             }
             base.DidActivate(firstActivation, type);
             if(type==ActivationType.AddedToHierarchy) LoadCampaigns();
+            _customListTableView.ReloadData();
         }
 
         private void ClickedRow(TableView table, int row)
@@ -61,7 +62,6 @@ namespace BeatSaberCustomCampaigns.campaign
                     }
                 }
             }
-            _customListTableView.ReloadData();
         }
         public override TableCell CellForIdx(int idx)
         {
