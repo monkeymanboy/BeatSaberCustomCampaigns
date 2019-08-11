@@ -276,6 +276,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 {
                     pair.baseColor = color;
                 }
+                customLights.SetPrivateField("_screensColor", color);
                 _campaignFlowCoordinator.SetPrivateField("_defaultLightsPreset", customLights);
                 MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
                 curCampaignNodes = missionNodes;
