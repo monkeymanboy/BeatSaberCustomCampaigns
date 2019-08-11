@@ -26,7 +26,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 DidSelectRowEvent += ClickedRow;
                 rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
                 rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
-                rectTransform.sizeDelta = new Vector3(65, 0, 0);
+                rectTransform.sizeDelta = new Vector3(70, 0, 0);
             }
             base.DidActivate(firstActivation, type);
             if(type==ActivationType.AddedToHierarchy) LoadCampaigns();
