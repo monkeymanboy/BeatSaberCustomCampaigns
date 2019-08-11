@@ -49,8 +49,8 @@ namespace BeatSaberCustomCampaigns.campaign
                 desc.enableWordWrapping = true;
                 desc.overflowMode = TextOverflowModes.Overflow;
                 playButton = BeatSaberUI.CreateUIButton(rectTransform, "PlayButton", new Vector2(0,-30), new Vector2(0, 8.8f), delegate { clickedPlay?.Invoke(campaign); }, "Play");
-                SetDetailsToActive();
             }
+            SetDetailsToActive();
         }
 
         protected void SetDetailsToActive()
