@@ -117,6 +117,7 @@
     <Compile Include="campaign\CampaignChallengeLeaderboardViewController.cs" />
     <Compile Include="campaign\CampaignDetailViewController.cs" />
     <Compile Include="campaign\CampaignInfo.cs" />
+    <Compile Include="campaign\CampaignLightColor.cs" />
     <Compile Include="campaign\CampaignListViewController.cs" />
     <Compile Include="campaign\CampaignTotalLeaderboardViewController.cs" />
     <Compile Include="campaign\CampaignUnlockGate.cs" />

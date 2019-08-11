@@ -20,6 +20,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using VRUI;
+using static MenuLightsPresetSO;
 using static SongCore.Data.ExtraSongData;
 
 namespace BeatSaberCustomCampaigns.campaign
@@ -70,6 +71,7 @@ namespace BeatSaberCustomCampaigns.campaign
         Sprite baseBackground;
         float baseBackAlpha;
         float baseMapHeight;
+        MenuLightsPresetSO baseDefaultLights;
 
         MissionNode[] curCampaignNodes;
         MissionStage[] curMissionStages;
@@ -185,6 +187,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     baseBackground = _backgroundImage.sprite;
                     baseBackAlpha = _backgroundImage.color.a;
                     baseMapHeight = _mapScrollView.GetPrivateField<RectTransform>("_contentRectTransform").sizeDelta.y;
+                    baseDefaultLights = _campaignFlowCoordinator.GetPrivateField<MenuLightsPresetSO>("_defaultLightsPreset");
                 }
                 foreach (MissionNode node in baseNodes)
                 {
@@ -198,6 +201,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionStagesManager.SetPrivateField("_missionStages", baseMissionStages);
                      _backgroundImage.sprite = baseBackground;
                     _backgroundImage.color = new Color(1, 1, 1, baseBackAlpha);
+                    _campaignFlowCoordinator.SetPrivateField("_defaultLightsPreset", baseDefaultLights);
                     _mapScrollView.GetPrivateField<RectTransform>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, baseMapHeight);
                     CampaignInit();
                 }
@@ -232,6 +236,7 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 Destroy(stage.gameObject);
             }
+            _campaignFlowCoordinator.GetPrivateField<MenuLightsManager>("_menuLightsManager").SetColorPreset(baseDefaultLights, animated: true);
             DismissFlowCoordinator(_campaignFlowCoordinator);
         }
         public void CampaignInit()
@@ -263,6 +268,15 @@ namespace BeatSaberCustomCampaigns.campaign
                     _backgroundImage.color = new Color(1, 1, 1, campaign.info.backgroundAlpha);
                     _backgroundImage.sprite = campaign.background;
                 }
+                MenuLightsPresetSO customLights = Instantiate(baseDefaultLights);
+
+                SimpleColorSO color = ScriptableObject.CreateInstance<SimpleColorSO>();
+                color.SetColor(new Color(campaign.info.lightColor.r, campaign.info.lightColor.g, campaign.info.lightColor.b));
+                foreach (LightIdColorPair pair in customLights.lightIdColorPairs)
+                {
+                    pair.baseColor = color;
+                }
+                _campaignFlowCoordinator.SetPrivateField("_defaultLightsPreset", customLights);
                 MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
                 curCampaignNodes = missionNodes;
                 MissionStage[] missionStages;

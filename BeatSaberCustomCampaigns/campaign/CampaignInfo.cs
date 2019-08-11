@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatSaberCustomCampaigns.campaign
 {
@@ -16,5 +17,6 @@ namespace BeatSaberCustomCampaigns.campaign
         public List<CampaignUnlockGate> unlockGate = new List<CampaignUnlockGate>();
         public int mapHeight = 500;
         public float backgroundAlpha = 1;
+        public CampaignLightColor lightColor = new CampaignLightColor(0.188f, 0.620f, 1);//if you're wondering what this is it's the games default light color
     }
 }
