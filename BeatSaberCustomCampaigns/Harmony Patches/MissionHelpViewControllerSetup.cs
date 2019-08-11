@@ -23,7 +23,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
 
         static void Postfix(MissionHelpSO missionHelp, MissionHelpViewController __instance)
         {
-            if(missionHelp is CustomMissionHelpSO)
+            if (missionHelp is CustomMissionHelpSO)
             {
                 ChallengeInfo challengeInfo = (missionHelp as CustomMissionHelpSO).challengeInfo;
                 string imagePath = (missionHelp as CustomMissionHelpSO).imagePath;
@@ -49,12 +49,20 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 {
                     Transform segment = GameObject.Instantiate(segmentPrefab, infoContainer);
                     GameObject.Destroy(segment.GetComponentInChildren<LocalizedTextMeshProUGUI>());
-                    segment.GetComponentInChildren<TextMeshProUGUI>().text = infoSegment.text;
+                    if (infoSegment.text == "")
+                    {
+                        GameObject.Destroy(segment.GetComponentInChildren<TextMeshProUGUI>().gameObject);
+                    }
+                    else
+                    {
+                        segment.GetComponentInChildren<TextMeshProUGUI>().text = infoSegment.text;
+                    }
                     Image image = segment.GetComponentInChildren<Image>();
-                    if(infoSegment.imageName == "")
+                    if (infoSegment.imageName == "")
                     {
                         GameObject.Destroy(image.gameObject);
-                    } else
+                    }
+                    else
                     {
                         image.sprite = null;
                         if (imageLoader == null) imageLoader = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
@@ -65,7 +73,8 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                         GameObject.Instantiate(seperatorPrefab, infoContainer);
                     }
                 }
-            } else
+            }
+            else
             {
                 __instance.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "NEW OBJECTIVE";
             }
