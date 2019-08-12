@@ -17,11 +17,7 @@ namespace BeatSaberCustomCampaigns
 
         public GameplayModifierParamsSO GetModifierParam()
         {
-            GameplayModifierParamsSO modifierParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-            modifierParam.SetPrivateField("_modifierName", "Unlockable " + type.ToString().ToCharArray()[0] + type.ToString().ToLower().Substring(1));
-            modifierParam.SetPrivateField("_hintText", "Unlock a new " + type.ToString().ToLower() + " on completion");
-            modifierParam.SetPrivateField("_icon", Assets.UnlockableIcons[(int)type]);
-            return modifierParam;
+            return APITools.CreateModifierParam(Assets.UnlockableIcons[(int)type], "Unlockable " + type.ToString().ToCharArray()[0] + type.ToString().ToLower().Substring(1), "Unlock a new " + type.ToString().ToLower() + " on completion");
         }
         public void UnlockItem(string activeCampaignPath)
         {

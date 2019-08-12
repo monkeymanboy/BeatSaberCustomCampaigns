@@ -128,7 +128,6 @@
     <Compile Include="Custom Trackers\SaberTimeInWallMissionObjectiveChecker.cs" />
     <Compile Include="Custom Trackers\HeadTimeInWallMissionObjectiveChecker.cs" />
     <Compile Include="CustomMissionHelpSO.cs" />
-    <Compile Include="DetailResponse.cs" />
     <Compile Include="Harmony Patches\AchievementsEvaluationHandlerHandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults.cs" />
     <Compile Include="Harmony Patches\CampaignFlowCoordinatorStartLevel.cs" />
     <Compile Include="Harmony Patches\LocalPlayerWasMissionHelpShowed.cs" />
@@ -136,6 +135,7 @@
     <Compile Include="Harmony Patches\MissionLevelDetailViewControllerRefreshContent.cs" />
     <Compile Include="Harmony Patches\MissionResultsViewControllerSetDataToUI.cs" />
     <Compile Include="Harmony Patches\MissionSelectionMapViewControllerHandleMissionNodeSelectionManagerDidSelectMissionNode.cs" />
+    <Compile Include="SongDownloader.cs" />
     <Compile Include="UnlockableItem.cs" />
     <Compile Include="Challenge.cs" />
     <Compile Include="ChallengeExternalModifiers.cs" />

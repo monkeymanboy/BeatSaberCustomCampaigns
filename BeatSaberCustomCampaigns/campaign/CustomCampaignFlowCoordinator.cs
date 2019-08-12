@@ -383,8 +383,22 @@ namespace BeatSaberCustomCampaigns.campaign
         public void HandleMissionLevelDetailViewControllerDidPressPlayButtonDownload(MissionLevelDetailViewController viewController)
         {
             Challenge challenge = ((CustomMissionDataSO)viewController.missionNode.missionData).challenge;
-            StartCoroutine(DownloadSongCoroutine(challenge.songid, challenge.GetDownloadURL(), challenge.customDownloadURL == ""));
 
+            _playButton.SetButtonText("DOWNLOADING...");
+            _playButton.interactable = false;
+            SongDownloader.instance.DownloadSong(challenge.songid, challenge.GetDownloadURL(), challenge.customDownloadURL == "", delegate {
+                isDownloading = false;
+                _playButton.interactable = true;
+                foreach (MissionNode node in curCampaignNodes)
+                {
+                    node.SetPrivateField("_missionDataSO", ((CustomMissionDataSO)node.missionData).challenge.GetMissionData(((CustomMissionDataSO)node.missionData).campaign));
+                }
+                _missionNodeSelectionManager.GetPrivateField<Action<MissionNodeVisualController>>("didSelectMissionNodeEvent")(downloadingNode.missionNodeVisualController);
+            }, delegate {
+                _playButton.interactable = true;
+                _playButton.SetButtonText("DOWNLOAD");
+                isDownloading = false;
+            });
         }
         public void HandleMissionLevelDetailViewControllerDidPressPlayButtonPlay(MissionLevelDetailViewController viewController)
         {
@@ -395,53 +409,25 @@ namespace BeatSaberCustomCampaigns.campaign
             if (failedMods.Length>0)
             {
                 foreach(string s in failedMods.Split(' '))
-                {
-                    GameplayModifierParamsSO errorParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    errorParam.SetPrivateField("_modifierName", "Error - External Mod");
-                    errorParam.SetPrivateField("_hintText", "Please install or update the following mod: " + s);
-                    errorParam.SetPrivateField("_icon", Assets.ErrorIcon);
-                    errorList.Add(errorParam);
-                }
+                    errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - External Mod", "Please install or update the following mod: " + s));
             }
             if (viewController.missionNode.missionData.beatmapCharacteristic.hintText == "ERROR NOT FOUND")
-            {
-                GameplayModifierParamsSO errorParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                errorParam.SetPrivateField("_modifierName", "Error - Characteristic Not Found");
-                errorParam.SetPrivateField("_hintText", "Could not find the characteristic \"" + challenge.characteristic + "\" for this map");
-                errorParam.SetPrivateField("_icon", Assets.ErrorIcon);
-                errorList.Add(errorParam);
-            }
+                errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Characteristic Not Found", "Could not find the characteristic \"" + challenge.characteristic + "\" for this map"));
             else if (BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded((missionData as CustomMissionDataSO).customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty) == null)
-            {
-                GameplayModifierParamsSO errorParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                errorParam.SetPrivateField("_modifierName", "Error - Difficulty Not Found");
-                errorParam.SetPrivateField("_hintText", "Could not find the difficulty \"" + challenge.difficulty.ToString() + "\" for this map");
-                errorParam.SetPrivateField("_icon", Assets.ErrorIcon);
-                errorList.Add(errorParam);
-            }
+                errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Difficulty Not Found", "Could not find the difficulty \"" + challenge.difficulty.ToString() + "\" for this map"));
             else
             {
                 DifficultyData difficultyData = Collections.RetrieveDifficultyData(BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded((missionData as CustomMissionDataSO).customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty));
                 foreach (string requirement in difficultyData.additionalDifficultyData._requirements)
                 {
                     if (Collections.capabilities.Contains(requirement) || requirement.StartsWith("Complete Campaign Challenge - ")) continue;
-                    GameplayModifierParamsSO errorParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    errorParam.SetPrivateField("_modifierName", "Error - Missing Level Requirement");
-                    errorParam.SetPrivateField("_hintText", "Could not find the capability to play levels with \"" + requirement + "\"");
-                    errorParam.SetPrivateField("_icon", Assets.ErrorIcon);
-                    errorList.Add(errorParam);
+                    errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Missing Level Requirement", "Could not find the capability to play levels with \"" + requirement + "\""));
                 }
             }
             foreach(ChallengeRequirement requirement in challenge.requirements)
             {
                 if (ChallengeRequirement.GetObjectiveName(requirement.type) == "ERROR")
-                {
-                    GameplayModifierParamsSO errorParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    errorParam.SetPrivateField("_modifierName", "Error - Mission Objective Not Found");
-                    errorParam.SetPrivateField("_hintText", "You likely have a typo in the requirement name");
-                    errorParam.SetPrivateField("_icon", Assets.ErrorIcon);
-                    errorList.Add(errorParam);
-                }
+                    errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Mission Objective Not Found", "You likely have a typo in the requirement name"));
             }
             if (errorList.Count==0)
             {
@@ -496,123 +482,6 @@ namespace BeatSaberCustomCampaigns.campaign
             if (failedToLoad) ChallengeExternalModifiers.onChallengeFailedToLoad?.Invoke();
             return modIssues;
         }
-        public IEnumerator DownloadSongCoroutine(string songid, string url, bool isBeatSaver)
-        {
-            _playButton.SetButtonText("DOWNLOADING...");
-            _playButton.interactable = false;
-            var www = UnityWebRequest.Get(url);
-
-            var timeout = false;
-            var time = 0f;
-
-            var asyncRequest = www.SendWebRequest();
-
-            while (!asyncRequest.isDone || asyncRequest.progress < 1f)
-            {
-                yield return null;
-
-                time += Time.deltaTime;
-
-                if (!(time >= 15f) || asyncRequest.progress != 0f) continue;
-                www.Abort();
-                timeout = true;
-            }
-
-            if (www.isNetworkError || www.isHttpError || timeout)
-            {
-                www.Abort();
-                _playButton.interactable = true;
-                _playButton.SetButtonText("DOWNLOAD");
-                isDownloading = false;
-            }
-            else
-            {
-                string docPath = "";
-                string customSongsPath = "";
-
-                byte[] data = www.downloadHandler.data;
-
-
-                string extra = "";
-                if (isBeatSaver)
-                {
-                    var www2 = UnityWebRequest.Get("https://beatsaver.com/api/maps/detail/" + songid);
-
-                    var timeout2 = false;
-                    var time2 = 0f;
-
-                    var asyncRequest2 = www2.SendWebRequest();
-
-                    while (!asyncRequest2.isDone || asyncRequest2.progress < 1f)
-                    {
-                        yield return null;
-
-                        time2 += Time.deltaTime;
-
-                        if (!(time2 >= 15f) || asyncRequest2.progress != 0f) continue;
-                        www2.Abort();
-                        timeout2 = true;
-                    }
-
-                    if (www2.isNetworkError || www2.isHttpError || timeout2)
-                    {
-                        www2.Abort();
-                    }
-                    else
-                    {
-                        DetailResponse response = JsonConvert.DeserializeObject<DetailResponse>(www2.downloadHandler.text);
-                        extra = " (" + response.metadata.songName + " - " + response.metadata.levelAuthorName + ")";
-                    }
-                }
-
-                Stream zipStream = null;
-                try
-                {
-                    docPath = Application.dataPath;
-                    docPath = docPath.Substring(0, docPath.Length - 5);
-                    docPath = docPath.Substring(0, docPath.LastIndexOf("/"));
-                    customSongsPath = docPath + "/Beat Saber_Data/CustomLevels/" + songid + extra + "/";
-                    if (!Directory.Exists(customSongsPath))
-                    {
-                        Directory.CreateDirectory(customSongsPath);
-                    }
-                    zipStream = new MemoryStream(data);
-                }
-                catch (Exception e)
-                {
-                    yield break;
-                }
-                Task extract = ExtractZipAsync(songid, zipStream, customSongsPath);
-                yield return new WaitWhile(() => !extract.IsCompleted);
-                Loader.SongsLoadedEvent += OnSongsLoaded;
-                Loader.Instance.RefreshSongs();
-            }
-        }
-        private async Task ExtractZipAsync(string songid, Stream zipStream, string customSongsPath)
-        {
-            try
-            {
-                ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
-                await Task.Run(() => archive.ExtractToDirectory(customSongsPath)).ConfigureAwait(false);
-                archive.Dispose();
-                zipStream.Close();
-            }
-            catch (Exception e)
-            {
-                return;
-            }
-        }
-        private void OnSongsLoaded(Loader songLoader, Dictionary<string, CustomPreviewBeatmapLevel> list)
-        {
-            isDownloading = false;
-            _playButton.interactable = true;
-            Loader.SongsLoadedEvent -= OnSongsLoaded;
-            foreach (MissionNode node in curCampaignNodes)
-            {
-                node.SetPrivateField("_missionDataSO", ((CustomMissionDataSO)node.missionData).challenge.GetMissionData(((CustomMissionDataSO)node.missionData).campaign));
-            }
-            _missionNodeSelectionManager.GetPrivateField<Action<MissionNodeVisualController>>("didSelectMissionNodeEvent")(downloadingNode.missionNodeVisualController);
-        }
         public void ResetProgressIds()
         {
             _campaignProgressModel.SetPrivateField("_missionIds", new HashSet<string>());
@@ -631,26 +500,12 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 if (!ChallengeExternalModifiers.getInfo.ContainsKey(modName)) continue;
                 foreach(ExternalModifierInfo modInfo in ChallengeExternalModifiers.getInfo[modName](challenge.externalModifiers[modName]))
-                {
-                    GameplayModifierParamsSO modifierParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    modifierParam.SetPrivateField("_modifierName", modInfo.name);
-                    modifierParam.SetPrivateField("_hintText", modInfo.desc);
-                    modifierParam.SetPrivateField("_icon", modInfo.icon);
-                    modParams.Add(modifierParam);
-                }
+                    modParams.Add(APITools.CreateModifierParam(modInfo.icon, modInfo.name, modInfo.desc));
             }
             foreach (UnlockableItem item in challenge.unlockableItems)
-            {
                 modParams.Add(item.GetModifierParam());
-            }
             if (challenge.unlockMap)
-            {
-                GameplayModifierParamsSO modifierParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                modifierParam.SetPrivateField("_modifierName", "Unlockable Song");
-                modifierParam.SetPrivateField("_hintText", "Unlock this song on completion");
-                modifierParam.SetPrivateField("_icon", Assets.UnlockableSongIcon);
-                modParams.Add(modifierParam);
-            }
+                modParams.Add(APITools.CreateModifierParam(Assets.UnlockableSongIcon, "Unlockable Song", "Unlock this song on completion"));
             LoadModifiersPanel(modParams);
         }
         public virtual void HandleMissionResultsViewControllerContinueButtonPressed(MissionResultsViewController viewController)

@@ -54,13 +54,22 @@ namespace BeatSaberCustomCampaigns
             }
             return sb.ToString();
         }
-        
+
         public static string EncodePath(string path)
         {
             path = Uri.EscapeDataString(path);
             path = path.Replace("%2F", "/");
             path = path.Replace("%3A", ":");
             return path;
+        }
+
+        public static GameplayModifierParamsSO CreateModifierParam(Sprite icon, string title, string desc)
+        {
+            GameplayModifierParamsSO param = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
+            param.SetPrivateField("_modifierName", title);
+            param.SetPrivateField("_hintText", desc);
+            param.SetPrivateField("_icon", icon);
+            return param;
         }
     }
 }

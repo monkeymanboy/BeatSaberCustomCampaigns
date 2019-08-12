@@ -34,13 +34,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     __result.Add(speedParamsSo);
                 }
                 if (gameplayModifiers.failOnSaberClash)
-                {
-                    GameplayModifierParamsSO clashParam = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    clashParam.SetPrivateField("_modifierName", "Fail On Saber Clash");
-                    clashParam.SetPrivateField("_hintText", "If your sabers touch, you fail.");
-                    clashParam.SetPrivateField("_icon", Assets.FailOnClashIcon);
-                    __result.Add(clashParam);
-                }
+                    __result.Add(APITools.CreateModifierParam(Assets.FailOnClashIcon, "Fail On Saber Clash", "If your sabers touch, you fail."));
             }
         }
     }
