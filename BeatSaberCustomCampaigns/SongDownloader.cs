@@ -29,6 +29,7 @@ namespace BeatSaberCustomCampaigns
             }
             this.onFail = onFail;
             this.onFinish = onFinish;
+            IsDownloading = true;
             StartCoroutine(DownloadSongCoroutine(songid, url, isBeatSaver));
         }
 
