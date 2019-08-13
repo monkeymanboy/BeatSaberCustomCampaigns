@@ -44,7 +44,7 @@ namespace BeatSaberCustomCampaigns
         {
             try
             {
-                CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => (x.customLevelPath.Contains("\\" + songid)));
+                CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => x.customLevelPath.Contains("\\" + songid + (customDownloadURL == "" ? " " : ""))); //Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
                 return level;
             } catch
             {
