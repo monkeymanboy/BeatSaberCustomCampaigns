@@ -127,6 +127,8 @@
     <Compile Include="Custom Trackers\MillisecondObjectiveValueFormatterSO.cs" />
     <Compile Include="Custom Trackers\SaberTimeInWallMissionObjectiveChecker.cs" />
     <Compile Include="Custom Trackers\HeadTimeInWallMissionObjectiveChecker.cs" />
+    <Compile Include="Custom Trackers\SpinsMissionObjectiveChecker.cs" />
+    <Compile Include="Custom Trackers\WallHeadbuttMissionObjectiveChecker.cs" />
     <Compile Include="CustomMissionHelpSO.cs" />
     <Compile Include="Harmony Patches\AchievementsEvaluationHandlerHandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults.cs" />
     <Compile Include="Harmony Patches\CampaignFlowCoordinatorStartLevel.cs" />

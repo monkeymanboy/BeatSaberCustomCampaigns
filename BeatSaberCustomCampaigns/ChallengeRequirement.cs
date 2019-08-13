@@ -67,6 +67,10 @@ namespace BeatSaberCustomCampaigns
                     return "Head In Wall";
                 case "saberInWall":
                     return "Saber In Wall";
+                case "wallHeadbutts":
+                    return "Wall Headbutts";
+                case "spins":
+                    return "Spins";
             }
             return "ERROR";
         }
