@@ -31,6 +31,7 @@ namespace BeatSaberCustomCampaigns
         public static void RegisterHandler(string modname, Func<string[],bool> onLoadChallenge, Func<string[],List<ExternalModifierInfo>> getInfo)
         {
             externalModifiers.Add(modname, onLoadChallenge);
+            ChallengeExternalModifiers.getInfo.Add(modname, getInfo);
         }
     }
     public class ExternalModifierInfo
