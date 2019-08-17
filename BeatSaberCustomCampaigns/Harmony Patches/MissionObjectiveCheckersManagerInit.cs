@@ -59,6 +59,14 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     UnityEngine.Debug.LogError("No missionObjectiveCheckers for missionOjective");
                 }
             }
+            foreach (MissionObjectiveChecker missionObjectiveChecker in list2)
+            {
+                GameObject.Destroy(missionObjectiveChecker.gameObject);
+            }
+            foreach (MissionObjectiveChecker missionObjectiveChecker in customCheckers)
+            {
+                GameObject.Destroy(missionObjectiveChecker.gameObject);
+            }
             __instance.SetPrivateField("_activeMissionObjectiveCheckers", list.ToArray());
             foreach (MissionObjectiveChecker missionObjectiveChecker2 in __instance.activeMissionObjectiveCheckers)
             {

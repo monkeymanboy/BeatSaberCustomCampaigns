@@ -73,6 +73,7 @@ namespace BeatSaberCustomCampaigns
                 customButton.GetComponent<HoverHint>().text = "Play compilations of challenges made by the community!";
                 customButton.GetComponentInChildren<TextMeshProUGUI>().text = "Custom Campaigns";
                 customButton.GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
+                customButton.GetComponentsInChildren<Image>().First(x => x.gameObject.name=="Icon").sprite = Assets.ButtonIcon;
                 customButton.onClick.AddListener(delegate {
                     if (campaignFlowCoordinator == null)
                     {
@@ -80,7 +81,10 @@ namespace BeatSaberCustomCampaigns
                         campaignFlowCoordinator._mainFlowCoordinator = _mainFlowCoordinator;
                     }
                     campaignFlowCoordinator.StartCoroutine(InitializeMap());
-                    _mainFlowCoordinator.InvokePrivateMethod("PresentFlowCoordinator", new object[] { campaignFlowCoordinator, null, false, false });
+                    _mainFlowCoordinator.InvokePrivateMethod("PresentFlowCoordinator", new object[] { campaignFlowCoordinator, new Action(delegate {
+                        //Quick fix for an issue where if they open the regular campaign first the map appears on the campaign list
+                        Resources.FindObjectsOfTypeAll<MissionSelectionMapViewController>().First().gameObject.SetActive(false);
+                    }), false, false });
                 });
 
             }

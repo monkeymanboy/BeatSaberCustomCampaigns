@@ -135,6 +135,7 @@
     <Compile Include="Harmony Patches\LocalPlayerWasMissionHelpShowed.cs" />
     <Compile Include="Harmony Patches\MissionHelpViewControllerSetup.cs" />
     <Compile Include="Harmony Patches\MissionLevelDetailViewControllerRefreshContent.cs" />
+    <Compile Include="Harmony Patches\MissionNodeGetFormattedMissionNodeName.cs" />
     <Compile Include="Harmony Patches\MissionResultsViewControllerSetDataToUI.cs" />
     <Compile Include="Harmony Patches\MissionSelectionMapViewControllerHandleMissionNodeSelectionManagerDidSelectMissionNode.cs" />
     <Compile Include="SongDownloader.cs" />
@@ -184,6 +185,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\UnlockableIcon_3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ButtonIcon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -10,12 +10,14 @@ namespace BeatSaberCustomCampaigns
 {
     public class Assets
     {
+        public static Sprite ButtonIcon;
         public static Sprite ErrorIcon;
         public static Sprite FailOnClashIcon;
         public static Sprite UnlockableSongIcon;
         public static Sprite[] UnlockableIcons;
         public static void Init()
         {
+            ButtonIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomCampaigns.Resources.ButtonIcon.png");
             ErrorIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomCampaigns.Resources.ErrorIcon.png");
             FailOnClashIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomCampaigns.Resources.FailOnClashIcon.png");
             UnlockableSongIcon = UIUtilities.LoadSpriteFromResources("BeatSaberCustomCampaigns.Resources.UnlockableSongIcon.png");
