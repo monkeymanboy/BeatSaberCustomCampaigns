@@ -43,6 +43,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 }
                 UnlockedItemsViewController unlockedItemsViewController = Resources.FindObjectsOfTypeAll<UnlockedItemsViewController>().First();
                 unlockedItemsViewController.items = challenge.unlockableItems;
+                unlockedItemsViewController.index = 0;
                 if(unlockedItemsViewController.items.Count>0) __instance.InvokePrivateMethod("SetBottomScreenViewController", new object[] { unlockedItemsViewController, false });
                 if (challenge.unlockMap)
                 {

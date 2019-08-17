@@ -18,7 +18,7 @@ namespace BeatSaberCustomCampaigns
         private TextMeshProUGUI _unlockText;
 
         public List<UnlockableItem> items;
-        int index;
+        public int index;
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
