@@ -40,8 +40,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="BeatSaberCustomUI">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BeatSaberCustomUI.dll</HintPath>
+    <Reference Include="BeatSaberCustomUI, Version=1.5.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BeatSaberCustomUI.dll</HintPath>
+    </Reference>
+    <Reference Include="BSML">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BSML.dll</HintPath>
     </Reference>
     <Reference Include="BS_Utils">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
@@ -114,12 +118,12 @@
   <ItemGroup>
     <Compile Include="APITools.cs" />
     <Compile Include="campaign\Campaign.cs" />
-    <Compile Include="campaign\CampaignChallengeLeaderboardViewController.cs" />
-    <Compile Include="campaign\CampaignDetailViewController.cs" />
+    <Compile Include="ViewControllers\CampaignChallengeLeaderboardViewController.cs" />
+    <Compile Include="ViewControllers\CampaignDetailViewController.cs" />
     <Compile Include="campaign\CampaignInfo.cs" />
     <Compile Include="campaign\CampaignLightColor.cs" />
-    <Compile Include="campaign\CampaignListViewController.cs" />
-    <Compile Include="campaign\CampaignTotalLeaderboardViewController.cs" />
+    <Compile Include="ViewControllers\CampaignListViewController.cs" />
+    <Compile Include="ViewControllers\CampaignTotalLeaderboardViewController.cs" />
     <Compile Include="campaign\CampaignUnlockGate.cs" />
     <Compile Include="campaign\CampainMapPosition.cs" />
     <Compile Include="campaign\CustomCampaignFlowCoordinator.cs" />
@@ -132,7 +136,7 @@
     <Compile Include="CustomMissionHelpSO.cs" />
     <Compile Include="Harmony Patches\AchievementsEvaluationHandlerHandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults.cs" />
     <Compile Include="Harmony Patches\CampaignFlowCoordinatorStartLevel.cs" />
-    <Compile Include="Harmony Patches\LocalPlayerWasMissionHelpShowed.cs" />
+    <Compile Include="Harmony Patches\PlayerDataWasMissionHelpShowed.cs" />
     <Compile Include="Harmony Patches\MissionHelpViewControllerSetup.cs" />
     <Compile Include="Harmony Patches\MissionLevelDetailViewControllerRefreshContent.cs" />
     <Compile Include="Harmony Patches\MissionNodeGetFormattedMissionNodeName.cs" />
@@ -159,7 +163,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Assets.cs" />
-    <Compile Include="UnlockedItemsViewController.cs" />
+    <Compile Include="ViewControllers\UnlockedItemsViewController.cs" />
     <Compile Include="UnlockedMaps.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +192,15 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ButtonIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\campaign-detail.bsml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\campaign-leaderboard.bsml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\challenge-leaderboard.bsml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

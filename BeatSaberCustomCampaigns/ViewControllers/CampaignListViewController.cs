@@ -63,7 +63,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 }
             }
         }
-        public override TableCell CellForIdx(int idx)
+        public override TableCell CellForIdx(TableView tableview, int idx)
         {
             LevelListTableCell _tableCell = GetTableCell();
             

@@ -1,4 +1,6 @@
-﻿using CustomUI.BeatSaber;
+﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
+using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +12,10 @@ using UnityEngine.UI;
 
 namespace BeatSaberCustomCampaigns.campaign
 {
-    public class CampaignDetailViewController : VRUI.VRUIViewController
+    public class CampaignDetailViewController : BSMLResourceViewController
     {
-        public Action<Campaign> clickedPlay;
+        public override string ResourceName => "BeatSaberCustomCampaigns.Views.campaign-detail.bsml";
+
         public Campaign campaign {
             get
             {
@@ -25,20 +28,20 @@ namespace BeatSaberCustomCampaigns.campaign
             }
         }
         private Campaign activeCampaign;
+
+        [UIComponent("description")]
         TextPageScrollView scrollView;
-        Button playButton;
+
+        public Action<Campaign> clickedPlay;
 
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
+            base.DidActivate(firstActivation, type);
             if (firstActivation)
             {
                 rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
                 rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
                 rectTransform.sizeDelta = new Vector3(70, 0, 0);
-                scrollView = Instantiate(Resources.FindObjectsOfTypeAll<TextPageScrollView>().First(x => x.transform.parent.gameObject.name == "ReleaseInfoViewController"), transform);
-                scrollView.enabled = true;
-                (scrollView.transform as RectTransform).anchorMin = new Vector3(0, 0.15f, 0);
-                playButton = BeatSaberUI.CreateUIButton(rectTransform, "PlayButton", new Vector2(0,-34), new Vector2(0, 8.8f), delegate { clickedPlay?.Invoke(campaign); }, "Play");
             }
             SetDetailsToActive();
         }
@@ -46,6 +49,11 @@ namespace BeatSaberCustomCampaigns.campaign
         protected void SetDetailsToActive()
         {
             scrollView.SetText(campaign.info.bigDesc);
+        }
+        [UIAction("play")]
+        private void ClickedPlay()
+        {
+            clickedPlay?.Invoke(campaign);
         }
     }
 }

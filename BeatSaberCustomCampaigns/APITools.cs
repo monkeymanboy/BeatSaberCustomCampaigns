@@ -66,8 +66,8 @@ namespace BeatSaberCustomCampaigns
         public static GameplayModifierParamsSO CreateModifierParam(Sprite icon, string title, string desc)
         {
             GameplayModifierParamsSO param = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-            param.SetPrivateField("_modifierName", title);
-            param.SetPrivateField("_hintText", desc);
+            param.SetPrivateField("_modifierNameLocalizationKey", title);
+            param.SetPrivateField("_descriptionLocalizationKey", desc);
             param.SetPrivateField("_icon", icon);
             return param;
         }

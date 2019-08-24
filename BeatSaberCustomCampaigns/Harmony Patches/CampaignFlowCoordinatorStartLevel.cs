@@ -22,7 +22,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 IDifficultyBeatmap difficultyBeatmap = BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(missionData.customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty);
                 GameplayModifiers gameplayModifiers = missionData.gameplayModifiers;
                 MissionObjective[] missionObjectives = missionData.missionObjectives;
-                PlayerSpecificSettings playerSpecificSettings = ____playerDataModel.currentLocalPlayer.playerSpecificSettings;
+                PlayerSpecificSettings playerSpecificSettings = ____playerDataModel.playerData.playerSpecificSettings;
                 ____menuTransitionsHelper.StartMissionLevel(difficultyBeatmap, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish);
                 return false;
             }

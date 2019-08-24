@@ -30,7 +30,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 {
                     ____songNameText.text = string.Format(Localization.Get("CAMPAIGN_SONG"), level.songName);
                     ____difficultyText.text = string.Format(Localization.Get("CAMPAIGN_DIFFICULTY"), BeatmapDifficultyMethods.Name(missionData.beatmapDifficulty));
-                    ____characteristicsText.text = string.Format(Localization.Get("CAMPAIGN_TYPE"), missionData.beatmapCharacteristic.characteristicNameLocalized);
+                    ____characteristicsText.text = string.Format(Localization.Get("CAMPAIGN_TYPE"), Localization.Get(missionData.beatmapCharacteristic.characteristicNameLocalizationKey));
                 }
                 MissionObjective[] missionObjectives = missionData.missionObjectives;
                 ____objectiveListItems.SetData((missionObjectives.Length == 0) ? 1 : missionObjectives.Length, delegate (int idx, ObjectiveListItem objectiveListItem)
@@ -64,8 +64,8 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 {
                     GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[idx];
                     gameplayModifierInfoListItem.modifierIcon = gameplayModifierParamsSO.icon;
-                    gameplayModifierInfoListItem.modifierName = gameplayModifierParamsSO.localizedModifierName;
-                    gameplayModifierInfoListItem.modifierDescription = gameplayModifierParamsSO.localizedHintText;
+                    gameplayModifierInfoListItem.modifierName = Localization.Get(gameplayModifierParamsSO.modifierNameLocalizationKey);
+                    gameplayModifierInfoListItem.modifierDescription = Localization.Get(gameplayModifierParamsSO.descriptionLocalizationKey);
                     gameplayModifierInfoListItem.showSeparator = (idx != modifierParamsList.Count - 1);
                 });
                 return false;

@@ -1,0 +1,6 @@
+<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='30' pad-right='30' horizontal-fit='PreferredSize'>
+    <text text='Leaderboard' align='Center' font-size='8'></text>
+  </horizontal>
+  <leaderboard id='leaderboard' cell-size='5.58'></leaderboard>
+</vertical>

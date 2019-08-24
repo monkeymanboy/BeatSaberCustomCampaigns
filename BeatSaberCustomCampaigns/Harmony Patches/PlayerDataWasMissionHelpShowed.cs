@@ -8,9 +8,9 @@ using static PlayerDataModelSO;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
-    [HarmonyPatch(typeof(LocalPlayer), "WasMissionHelpShowed",
+    [HarmonyPatch(typeof(PlayerData), "WasMissionHelpShowed",
         new Type[] {typeof(MissionHelpSO)})]
-    class LocalPlayerWasMissionHelpShowed
+    class PlayerDataWasMissionHelpShowed
     {
         static bool Prefix(MissionHelpSO missionHelp, ref bool __result)
         {

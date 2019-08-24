@@ -55,11 +55,11 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
         {
             if (data.noteType == NoteType.Bomb || !info.allIsOK) return;
             bool didDone = false;
-            info.afterCutSwingRatingCounter.didFinishEvent += e =>
+            info.swingRatingCounter.didFinishEvent += e =>
             {
                 if (didDone) return;
                 didDone = true;
-                ScoreController.RawScoreWithoutMultiplier(info, info.afterCutSwingRatingCounter, out int before, out int after, out int cutDist);
+                ScoreController.RawScoreWithoutMultiplier(info, out int before, out int after, out int cutDist);
                 int total = before + after;
                 if (total == 115) base.checkedValue++;
                 CheckAndUpdateStatus();

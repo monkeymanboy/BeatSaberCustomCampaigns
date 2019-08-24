@@ -2,6 +2,7 @@
 using CustomUI.BeatSaber;
 using IPA;
 using Newtonsoft.Json;
+using Polyglot;
 using SongCore;
 using SongCore.Data;
 using SongCore.Utilities;
@@ -110,7 +111,7 @@ namespace BeatSaberCustomCampaigns.campaign
 
                 _pageUpModifiersButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageUpButton")), _modifiersPanelGO.transform.parent.parent);
 
-                _pageUpModifiersButton.transform.localPosition = new Vector3(0, 1f, 0);
+                _pageUpModifiersButton.transform.localPosition = new Vector3(0, 5f, 0);
                 _pageUpModifiersButton.transform.localScale = new Vector3(1, 0.5f, 1);
                 _pageUpModifiersButton.interactable = true;
                 _pageUpModifiersButton.onClick.AddListener(delegate ()
@@ -118,7 +119,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     ModifiersPageUp();
                 });
                 _pageDownModifiersButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageDownButton")), _modifiersPanelGO.transform.parent.parent);
-                _pageDownModifiersButton.transform.localPosition = new Vector3(0, -17f, 0);
+                _pageDownModifiersButton.transform.localPosition = new Vector3(0, -21f, 0);
                 _pageDownModifiersButton.transform.localScale = new Vector3(1, 0.5f, 1);
                 _pageDownModifiersButton.interactable = true;
                 _pageDownModifiersButton.onClick.AddListener(delegate ()
@@ -276,7 +277,6 @@ namespace BeatSaberCustomCampaigns.campaign
                 {
                     pair.baseColor = color;
                 }
-                customLights.SetPrivateField("_screensColor", color);
                 _campaignFlowCoordinator.SetPrivateField("_defaultLightsPreset", customLights);
                 MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
                 curCampaignNodes = missionNodes;
@@ -411,7 +411,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 foreach(string s in failedMods.Split(' '))
                     errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - External Mod", "Please install or update the following mod: " + s));
             }
-            if (viewController.missionNode.missionData.beatmapCharacteristic.hintText == "ERROR NOT FOUND")
+            if (viewController.missionNode.missionData.beatmapCharacteristic.descriptionLocalizationKey == "ERROR NOT FOUND")
                 errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Characteristic Not Found", "Could not find the characteristic \"" + challenge.characteristic + "\" for this map"));
             else if (BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded((missionData as CustomMissionDataSO).customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty) == null)
                 errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Difficulty Not Found", "Could not find the difficulty \"" + challenge.difficulty.ToString() + "\" for this map"));
@@ -541,15 +541,8 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[modifierParamsPageNumber * 2 + idx];
                 gameplayModifierInfoListItem.modifierIcon = gameplayModifierParamsSO.icon;
-                if (gameplayModifierParamsSO.localizedModifierName == null)
-                {
-                    gameplayModifierInfoListItem.modifierName = gameplayModifierParamsSO.modifierName;
-                    gameplayModifierInfoListItem.modifierDescription = gameplayModifierParamsSO.hintText;
-                } else
-                {
-                    gameplayModifierInfoListItem.modifierName = gameplayModifierParamsSO.localizedModifierName;
-                    gameplayModifierInfoListItem.modifierDescription = gameplayModifierParamsSO.localizedHintText;
-                }
+                gameplayModifierInfoListItem.modifierName = Localization.Get(gameplayModifierParamsSO.modifierNameLocalizationKey);
+                gameplayModifierInfoListItem.modifierDescription = Localization.Get(gameplayModifierParamsSO.descriptionLocalizationKey);
                 gameplayModifierInfoListItem.showSeparator = idx==0&& modifierParamsPageNumber * 2 != modifierParamsList.Count - 1;//(idx != modifierParamsList.Count - 1);
             });
         }

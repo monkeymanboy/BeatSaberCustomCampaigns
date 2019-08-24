@@ -1,0 +1,6 @@
+<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='20' pad-right='20' horizontal-fit='PreferredSize'>
+    <text text='Total Leaderboard' align='Center' font-size='8'></text>
+  </horizontal>
+  <leaderboard id='leaderboard' cell-size='5.58'></leaderboard>
+</vertical>
