@@ -1,4 +1,7 @@
-﻿using CustomUI.BeatSaber;
+﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.ViewControllers;
+using CustomUI.BeatSaber;
 using CustomUI.Utilities;
 using HMUI;
 using System;
@@ -12,36 +15,37 @@ using VRUI;
 
 namespace BeatSaberCustomCampaigns.campaign
 {
-    public class CampaignListViewController : CustomListViewController
+    public class CampaignListViewController : BSMLResourceViewController
     {
-        List<Campaign> campaigns = new List<Campaign>();
+        public override string ResourceName => "BeatSaberCustomCampaigns.Views.campaign-list.bsml";
+
+        [UIComponent("list")]
+        public CustomListTableData customListTableData;
         
         public Action<Campaign> clickedCampaign;
         
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
+            base.DidActivate(firstActivation, type);
             if (firstActivation)
             {
-                reuseIdentifier = "CampaignListCell";
-                DidSelectRowEvent += ClickedRow;
                 rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
                 rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
                 rectTransform.sizeDelta = new Vector3(70, 0, 0);
             }
-            base.DidActivate(firstActivation, type);
             if(type==ActivationType.AddedToHierarchy) LoadCampaigns();
-            _customListTableView.ReloadData();
+            customListTableData.tableView.ReloadData();
         }
 
+        [UIAction("campaign-click")]
         private void ClickedRow(TableView table, int row)
         {
-            clickedCampaign(campaigns[row]);
+            clickedCampaign(customListTableData.data[row] as Campaign);
         }
 
         private void LoadCampaigns()
         {
-            campaigns.Clear();
-            Data.Clear();
+            customListTableData.data.Clear();
             string path = Environment.CurrentDirectory.Replace('\\', '/');
             var folders = Directory.GetDirectories(path + "/CustomCampaigns").ToList();
 
@@ -54,25 +58,13 @@ namespace BeatSaberCustomCampaigns.campaign
                     try
                     {
                         Campaign curr = new Campaign(this, campaignPath);
-                        campaigns.Add(curr);
-                        Data.Add(curr);
+                        customListTableData.data.Add(curr);
                     } catch
                     {
                         Console.WriteLine("[Challenges] failed to load campaign at " + campaignPath);
                     }
                 }
             }
-        }
-        public override TableCell CellForIdx(TableView tableview, int idx)
-        {
-            LevelListTableCell _tableCell = GetTableCell();
-            
-            _tableCell.GetPrivateField<TextMeshProUGUI>("_songNameText").rectTransform.anchorMax = new Vector3(2,1,0);
-            _tableCell.SetText(Data[idx].text);
-            _tableCell.SetSubText(Data[idx].subtext);
-            _tableCell.SetIcon(Data[idx].icon == null ? UIUtilities.BlankSprite : Data[idx].icon);
-
-            return _tableCell;
         }
     }
 }

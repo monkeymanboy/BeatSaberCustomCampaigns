@@ -205,5 +205,10 @@
   <ItemGroup>
     <EmbeddedResource Include="Views\unlocked-items.bsml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\campaign-list.bsml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,5 +1,4 @@
-﻿using CustomUI.BeatSaber;
-using HMUI;
+﻿using HMUI;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -11,12 +10,13 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
 namespace BeatSaberCustomCampaigns.campaign
 {
     public class Campaign : CustomCellInfo
     {
-        private static Dictionary<string, Sprite> loadedSprites = new Dictionary<string, Sprite>();
+        private static Dictionary<string, Texture2D> loadedTextures = new Dictionary<string, Texture2D>();
         public CampaignInfo info;
         public List<Challenge> challenges;
         public Sprite background;
@@ -48,7 +48,7 @@ namespace BeatSaberCustomCampaigns.campaign
 
         private IEnumerator LoadSprite(CampaignListViewController viewController, string spritePath, bool isBackground)
         {
-            if (!loadedSprites.ContainsKey(spritePath))
+            if (!loadedTextures.ContainsKey(spritePath))
             {
                 using (var web = UnityWebRequestTexture.GetTexture(APITools.EncodePath(spritePath), true))
                 {
@@ -59,22 +59,23 @@ namespace BeatSaberCustomCampaigns.campaign
                     }
                     else
                     {
-                        var tex = DownloadHandlerTexture.GetContent(web);
-                        Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
-                        loadedSprites.Add(spritePath, sprite);
-                        if (isBackground) background = sprite;
-                        else icon = sprite;
+                        Texture2D tex = DownloadHandlerTexture.GetContent(web);
+                        //Sprite sprite = ;
+                        loadedTextures.Add(spritePath, tex);
+                        if (isBackground) background = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
+                        else icon = tex;
                     }
                 }
             }
             else
             {
-                if (isBackground) background = loadedSprites[spritePath];
-                else icon = loadedSprites[spritePath];
+                Texture2D tex = loadedTextures[spritePath];
+                if (isBackground) background = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
+                else icon = tex;
             }
             if (!isBackground)
             {
-                viewController._customListTableView.ReloadData();
+                viewController.customListTableData.tableView.ReloadData();
             }
         }
     }
