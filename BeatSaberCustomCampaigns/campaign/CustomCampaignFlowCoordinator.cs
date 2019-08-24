@@ -340,9 +340,6 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
                     _missionMapAnimationController.ScrollToTopMostNotClearedMission();
                     _playButton.interactable = true;
-
-                    _unlockedItemsViewController.items = campaign.challenges[0].unlockableItems;
-                    _campaignFlowCoordinator.InvokePrivateMethod("SetBottomScreenViewController", new object[] { _unlockedItemsViewController, false });
                 }, false);
                 _missionNodeSelectionManager.didSelectMissionNodeEvent += HandleMissionNodeSelectionManagerDidSelectMissionNode;
             }
