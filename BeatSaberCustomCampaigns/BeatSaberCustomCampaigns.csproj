@@ -202,5 +202,8 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\challenge-leaderboard.bsml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\unlocked-items.bsml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,4 +1,6 @@
-﻿using CustomUI.BeatSaber;
+﻿using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.ViewControllers;
+using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,59 +13,35 @@ using VRUI;
 
 namespace BeatSaberCustomCampaigns
 {
-    public class UnlockedItemsViewController : VRUIViewController
+    public class UnlockedItemsViewController : BSMLResourceViewController
     {
+        public override string ResourceName => "BeatSaberCustomCampaigns.Views.unlocked-items.bsml";
+
+        [UIComponent("left-button")]
         private Button _pageLeftButton;
+        [UIComponent("right-button")]
         private Button _pageRightButton;
+        [UIComponent("text")]
         private TextMeshProUGUI _unlockText;
 
         public List<UnlockableItem> items;
         public int index;
 
+        
         protected override void DidActivate(bool firstActivation, ActivationType type)
         {
-            if (firstActivation)
-            {
-                _pageLeftButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageLeftButton")), transform);
-                RectTransform buttonTransform = _pageLeftButton.transform.Find("BG") as RectTransform;
-                RectTransform glow = Instantiate(Resources.FindObjectsOfTypeAll<GameObject>().Last(x => (x.name == "GlowContainer")), _pageLeftButton.transform).transform as RectTransform;
-                glow.localPosition = buttonTransform.localPosition;
-                glow.anchoredPosition = buttonTransform.anchoredPosition;
-                glow.anchorMin = buttonTransform.anchorMin;
-                glow.anchorMax = buttonTransform.anchorMax;
-                glow.sizeDelta = buttonTransform.sizeDelta;
-                _pageLeftButton.transform.localPosition = new Vector3(-70, 0, 0);
-                _pageLeftButton.interactable = true;
-                _pageLeftButton.onClick.AddListener(delegate ()
-                {
-                    PageLeft();
-                });
-                _pageRightButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageRightButton")), transform);
-                buttonTransform = _pageRightButton.transform.Find("BG") as RectTransform;
-                glow = Instantiate(Resources.FindObjectsOfTypeAll<GameObject>().Last(x => (x.name == "GlowContainer")), _pageRightButton.transform).transform as RectTransform;
-                glow.localPosition = buttonTransform.localPosition;
-                glow.anchoredPosition = buttonTransform.anchoredPosition;
-                glow.anchorMin = buttonTransform.anchorMin;
-                glow.anchorMax = buttonTransform.anchorMax;
-                glow.sizeDelta = buttonTransform.sizeDelta;
-                _pageRightButton.transform.localPosition = new Vector3(70, 0, 0);
-                _pageRightButton.interactable = true;
-                _pageRightButton.onClick.AddListener(delegate ()
-                {
-                    PageRight();
-                });
-                _unlockText = BeatSaberUI.CreateText(rectTransform, "", new Vector2(0, 0));
-                _unlockText.alignment = TextAlignmentOptions.Center;
-                _unlockText.fontSize = 6;
-            }
+            base.DidActivate(firstActivation, type);
             if (type == ActivationType.AddedToHierarchy) UpdatePageStatus();
         }
+
+        [UIAction("left-click")]
         public void PageLeft()
         {
             index--;
             if (index < 0) index = 0;
             UpdatePageStatus();
         }
+        [UIAction("right-click")]
         public void PageRight()
         {
             index++;
