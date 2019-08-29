@@ -1,8 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
-using CustomUI.BeatSaber;
-using CustomUI.Utilities;
 using HMUI;
 using System;
 using System.Collections.Generic;

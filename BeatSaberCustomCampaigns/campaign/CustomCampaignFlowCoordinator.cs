@@ -1,5 +1,5 @@
-﻿using BS_Utils.Gameplay;
-using CustomUI.BeatSaber;
+﻿using BeatSaberMarkupLanguage;
+using BS_Utils.Gameplay;
 using IPA;
 using Newtonsoft.Json;
 using Polyglot;

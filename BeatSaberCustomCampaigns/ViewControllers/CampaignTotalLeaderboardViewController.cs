@@ -2,7 +2,6 @@
 using BeatSaberMarkupLanguage.ViewControllers;
 using BS_Utils.Utilities;
 using CustomCampaignLeaderboardLibrary;
-using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;

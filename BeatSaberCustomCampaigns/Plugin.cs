@@ -1,6 +1,5 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
-using CustomUI.MenuButton;
-using CustomUI.Utilities;
+using BS_Utils.Utilities;
 using Harmony;
 using IPA;
 using Polyglot;
@@ -81,7 +80,7 @@ namespace BeatSaberCustomCampaigns
                         campaignFlowCoordinator._mainFlowCoordinator = _mainFlowCoordinator;
                     }
                     campaignFlowCoordinator.StartCoroutine(InitializeMap());
-                    _mainFlowCoordinator.InvokePrivateMethod("PresentFlowCoordinator", new object[] { campaignFlowCoordinator, new Action(delegate {
+                    _mainFlowCoordinator.InvokeMethod("PresentFlowCoordinator", new object[] { campaignFlowCoordinator, new Action(delegate {
                         //Quick fix for an issue where if they open the regular campaign first the map appears on the campaign list
                         Resources.FindObjectsOfTypeAll<MissionSelectionMapViewController>().First().gameObject.SetActive(false);
                     }), false, false });

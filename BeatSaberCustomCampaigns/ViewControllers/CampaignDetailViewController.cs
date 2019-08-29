@@ -1,6 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using CustomUI.BeatSaber;
 using System;
 using System.Collections.Generic;
 using System.Linq;

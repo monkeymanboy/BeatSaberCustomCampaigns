@@ -1,8 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using CustomCampaignLeaderboardLibrary;
-using CustomUI.BeatSaber;
-using CustomUI.Utilities;
 using HMUI;
 using Newtonsoft.Json;
 using System;
