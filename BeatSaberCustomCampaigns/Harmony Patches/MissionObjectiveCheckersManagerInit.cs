@@ -30,7 +30,6 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
             customCheckers.Add(new GameObject().AddComponent<SpinsMissionObjectiveChecker>());
             foreach (MissionObjective missionObjective in missionObjectives)
             {
-                Console.WriteLine(missionObjective.type.name);
                 bool flag = false;
                 foreach (MissionObjectiveChecker missionObjectiveChecker in list2)
                 {

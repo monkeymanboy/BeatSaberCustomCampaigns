@@ -21,14 +21,14 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 if(challenge.songSpeed==GameplayModifiers.SongSpeed.Normal && challenge.speedMul != 1)
                 {
                     GameplayModifierParamsSO speedParamsSo = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    speedParamsSo.SetPrivateField("_modifierName", "Song Speed - " + (int)(challenge.speedMul * 100) + "%");
+                    speedParamsSo.SetPrivateField("_modifierNameLocalizationKey", "Song Speed - " + (int)(challenge.speedMul * 100) + "%");
                     if (challenge.speedMul < 1)
                     {
-                        speedParamsSo.SetPrivateField("_hintText", "Song will play slower.");
+                        speedParamsSo.SetPrivateField("_descriptionLocalizationKey", "Song will play slower.");
                         speedParamsSo.SetPrivateField("_icon", ____slowerSong.icon);
                     } else
                     {
-                        speedParamsSo.SetPrivateField("_hintText", "Song will play faster.");
+                        speedParamsSo.SetPrivateField("_descriptionLocalizationKey", "Song will play faster.");
                         speedParamsSo.SetPrivateField("_icon", ____fasterSong.icon);
                     }
                     __result.Add(speedParamsSo);

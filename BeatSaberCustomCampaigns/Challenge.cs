@@ -42,7 +42,6 @@ namespace BeatSaberCustomCampaigns
         }
         public CustomPreviewBeatmapLevel FindSong()
         {
-            Console.WriteLine(Loader.CustomLevels.Count);
             try
             {
                 CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => x.customLevelPath.Contains("\\" + songid + (customDownloadURL == "" ? " " : ""))); //Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
@@ -80,8 +79,8 @@ namespace BeatSaberCustomCampaigns
                 } catch
                 {
                     BeatmapCharacteristicSO characteristicSO = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
-                    characteristicSO.SetPrivateField("_characteristicName", characteristic);
-                    characteristicSO.SetPrivateField("_hintText", "ERROR NOT FOUND");
+                    characteristicSO.SetPrivateField("_characteristicNameLocalizationKey", characteristic);
+                    characteristicSO.SetPrivateField("_descriptionLocalizationKey", "ERROR NOT FOUND");
                     data.SetPrivateField("_beatmapCharacteristic", characteristicSO);
                 }
                 data.SetPrivateField("_level", APITools.stubLevel);

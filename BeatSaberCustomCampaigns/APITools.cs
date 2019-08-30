@@ -14,7 +14,8 @@ namespace BeatSaberCustomCampaigns
 {
     public class APITools
     {
-        public static string LeaderboardServer = "https://bsaber.com";
+        public static string LeaderboardServer = "http://127.0.0.1:5778";
+        //public static string LeaderboardServer = "https://bsaber.com";
         public static string Username { get { return GetUserInfo.GetUserName(); } }
         public static string UserID { get { return GetUserInfo.GetUserID() + ""; } }
         public static BeatmapLevelSO stubLevel
