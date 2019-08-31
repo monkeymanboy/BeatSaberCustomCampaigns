@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Attributes;
 using BS_Utils.Gameplay;
 using IPA;
 using Newtonsoft.Json;
@@ -51,8 +52,11 @@ namespace BeatSaberCustomCampaigns.campaign
         public GameObject _modifiersPanelGO;
         public GameplayModifiersModelSO _gameplayModifiersModel;
 
+        [UIComponent("page-up-button")]
         public Button _pageUpModifiersButton;
+        [UIComponent("page-down-button")]
         public Button _pageDownModifiersButton;
+        [UIComponent("challenge-name")]
         public TextMeshProUGUI _challengeName;
 
         public CampaignProgressModelSO _campaignProgressModel;
@@ -109,25 +113,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 _modifiersPanelGO = _missionLevelDetailViewController.GetPrivateField<GameObject>("_modifiersPanelGO");
                 _gameplayModifiersModel = _missionLevelDetailViewController.GetPrivateField<GameplayModifiersModelSO>("_gameplayModifiersModel");
 
-                _pageUpModifiersButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageUpButton")), _modifiersPanelGO.transform.parent.parent);
-
-                _pageUpModifiersButton.transform.localPosition = new Vector3(0, 5f, 0);
-                _pageUpModifiersButton.transform.localScale = new Vector3(1, 0.5f, 1);
-                _pageUpModifiersButton.interactable = true;
-                _pageUpModifiersButton.onClick.AddListener(delegate ()
-                {
-                    ModifiersPageUp();
-                });
-                _pageDownModifiersButton = Instantiate(Resources.FindObjectsOfTypeAll<Button>().Last(x => (x.name == "PageDownButton")), _modifiersPanelGO.transform.parent.parent);
-                _pageDownModifiersButton.transform.localPosition = new Vector3(0, -21f, 0);
-                _pageDownModifiersButton.transform.localScale = new Vector3(1, 0.5f, 1);
-                _pageDownModifiersButton.interactable = true;
-                _pageDownModifiersButton.onClick.AddListener(delegate ()
-                {
-                    ModifiersPageDown();
-                });
-                _challengeName = BeatSaberUI.CreateText((_modifiersPanelGO.transform.parent.parent as RectTransform), "Challenge Name", new Vector2(0, 38));
-                _challengeName.alignment = TextAlignmentOptions.Bottom;
+                BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCustomCampaigns.Views.challenge-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
 
                 _campaignProgressModel = _campaignFlowCoordinator.GetPrivateField<CampaignProgressModelSO>("_campaignProgressModel");
 
@@ -522,11 +508,13 @@ namespace BeatSaberCustomCampaigns.campaign
             _modifiersPanelGO.SetActive(modifierParamsList.Count > 0);
             UpdateModifiers();
         }
+        [UIAction("page-down")]
         public void ModifiersPageDown()
         {
             modifierParamsPageNumber = Math.Min(modifierParamsList.Count/2, modifierParamsPageNumber + 1);
             UpdateModifiers();
         }
+        [UIAction("page-up")]
         public void ModifiersPageUp()
         {
             modifierParamsPageNumber = Math.Max(0,modifierParamsPageNumber-1);
@@ -534,9 +522,9 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public void UpdateModifiers()
         {
-            _pageDownModifiersButton.interactable = modifierParamsPageNumber*2<modifierParamsList.Count-1;
-            if (modifierParamsList.Count <= 2) _pageDownModifiersButton.interactable = false;
-            _pageUpModifiersButton.interactable = modifierParamsPageNumber!=0;
+            _pageDownModifiersButton.gameObject.SetActive(modifierParamsPageNumber*2<modifierParamsList.Count-1);
+            if (modifierParamsList.Count <= 2) _pageDownModifiersButton.gameObject.SetActive(false);
+            _pageUpModifiersButton.gameObject.SetActive(modifierParamsPageNumber!=0);
             _gameplayModifierInfoListItemsList.SetData(modifierParamsPageNumber * 2 == modifierParamsList.Count - 1? 1 : Math.Min(2, modifierParamsList.Count), delegate (int idx, GameplayModifierInfoListItem gameplayModifierInfoListItem)
             {
                 GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[modifierParamsPageNumber * 2 + idx];

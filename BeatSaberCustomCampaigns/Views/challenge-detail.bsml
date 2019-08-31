@@ -1,0 +1,7 @@
+<bg>
+  <horizontal bg='panel-top' pad-left='7' pad-right='7' horizontal-fit='PreferredSize' anchor-max-y='0.95' anchor-min-y='1'>
+    <text id='challenge-name' text='Placeholder' align='Center' font-size='4'></text>
+  </horizontal>
+  <page-button id='page-up-button' direction='Up' on-click='page-up' anchor-pos-x='30' anchor-pos-y='-31' button-width='6'></page-button>
+  <page-button id='page-down-button' direction='Down' on-click='page-down' anchor-pos-x='30' anchor-pos-y='-65' button-width='6'></page-button>
+</bg>
