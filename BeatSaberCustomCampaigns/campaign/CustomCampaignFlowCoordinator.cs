@@ -525,6 +525,8 @@ namespace BeatSaberCustomCampaigns.campaign
             _pageDownModifiersButton.gameObject.SetActive(modifierParamsPageNumber*2<modifierParamsList.Count-1);
             if (modifierParamsList.Count <= 2) _pageDownModifiersButton.gameObject.SetActive(false);
             _pageUpModifiersButton.gameObject.SetActive(modifierParamsPageNumber!=0);
+            _pageDownModifiersButton.interactable = true;
+            _pageUpModifiersButton.interactable = true;
             _gameplayModifierInfoListItemsList.SetData(modifierParamsPageNumber * 2 == modifierParamsList.Count - 1? 1 : Math.Min(2, modifierParamsList.Count), delegate (int idx, GameplayModifierInfoListItem gameplayModifierInfoListItem)
             {
                 GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[modifierParamsPageNumber * 2 + idx];
