@@ -1,5 +1,5 @@
 <bg size-delta-y='0'>
-  <page-button on-click='list#PageUp' direction='Up' anchor-max-y='1'></page-button>
+  <page-button event-click='list#PageUp' direction='Up' anchor-max-y='1'></page-button>
   <list id='list' select-cell='campaign-click' expand-cell='true'></list>
-  <page-button on-click='list#PageDown' direction='Down' anchor-min-y='0'></page-button>
+  <page-button event-click='list#PageDown' direction='Down' anchor-min-y='0'></page-button>
 </bg>
