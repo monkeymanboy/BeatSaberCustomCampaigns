@@ -2,6 +2,7 @@
 using BS_Utils.Utilities;
 using CustomCampaignLeaderboardLibrary;
 using Harmony;
+using SongCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -49,7 +50,19 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 {
                     UnlockedMaps.CompletedChallenge(challenge.name);
                 }
+                //Score submission
+                if (customMissionData.gameplayModifiers.songSpeedMul==1f && customMissionData.gameplayModifiers.fastNotes == false && customMissionData.gameplayModifiers.failOnSaberClash == false) {
+                    SoloFreePlayFlowCoordinator freePlayCoordinator = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
 
+                    PlayerDataModelSO dataModel = freePlayCoordinator.GetPrivateField<PlayerDataModelSO>("_playerDataModel");
+
+                    PlayerData currentLocalPlayer = dataModel.playerData;
+                    IDifficultyBeatmap difficultyBeatmap = Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(customMissionData.customLevel.levelID).beatmapLevelData.GetDifficultyBeatmap(customMissionData.beatmapCharacteristic, customMissionData.beatmapDifficulty);
+                    PlayerLevelStatsData playerLevelStatsData = currentLocalPlayer.GetPlayerLevelStatsData(difficultyBeatmap.level.levelID, difficultyBeatmap.difficulty, difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic);
+                    LevelCompletionResults levelCompletionResults = missionCompletionResults.levelCompletionResults;
+                    playerLevelStatsData.UpdateScoreData(levelCompletionResults.modifiedScore, levelCompletionResults.maxCombo, levelCompletionResults.fullCombo, levelCompletionResults.rank);
+                    freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").AddScoreFromComletionResults(difficultyBeatmap, levelCompletionResults);
+                }
 
                 __instance.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
             }

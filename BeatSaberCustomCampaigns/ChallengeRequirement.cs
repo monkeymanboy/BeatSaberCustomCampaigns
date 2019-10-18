@@ -39,6 +39,8 @@ namespace BeatSaberCustomCampaigns
                     return ScriptableObject.CreateInstance<ScoreObjectiveValueFormatterSO>();
                 case "headInWall": case "saberInWall":
                     return ScriptableObject.CreateInstance<MillisecondObjectiveValueFormatterSO>();
+                case "accuracy": case "maintainAccuracy":
+                    return ScriptableObject.CreateInstance<PercentageObjectiveValueFormatterSO>();
                 default:
                     return ScriptableObject.CreateInstance<ObjectiveValueFormatterSO>();
             }
@@ -71,6 +73,10 @@ namespace BeatSaberCustomCampaigns
                     return "Wall Headbutts";
                 case "spins":
                     return "Spins";
+                case "accuracy":
+                    return "Accuracy";
+                case "maintainAccuracy":
+                    return "Maintain Acc";
             }
             return "ERROR";
         }

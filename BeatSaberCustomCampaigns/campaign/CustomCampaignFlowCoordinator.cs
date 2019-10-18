@@ -120,7 +120,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 _campaignListViewController = BeatSaberUI.CreateViewController<CampaignListViewController>();
                 _campaignDetailViewController = BeatSaberUI.CreateViewController<CampaignDetailViewController>();
                 _campaignTotalLeaderboardViewController = BeatSaberUI.CreateViewController<CampaignTotalLeaderboardViewController>();
-                _campaignListNavigationController = Instantiate(Resources.FindObjectsOfTypeAll<DismissableNavigationController>().First());
+                _campaignListNavigationController = BeatSaberUI.CreateDismissableNavigationController();
                 _campaignListNavigationController.didFinishEvent += Dismiss;
                 _campaignListViewController.clickedCampaign += ShowDetails;
                 _campaignDetailViewController.clickedPlay += OpenCampaign;

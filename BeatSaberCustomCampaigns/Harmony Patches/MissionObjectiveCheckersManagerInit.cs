@@ -28,6 +28,8 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
             customCheckers.Add(new GameObject().AddComponent<SaberTimeInWallMissionObjectiveChecker>());
             customCheckers.Add(new GameObject().AddComponent<WallHeadbuttMissionObjectiveChecker>());
             customCheckers.Add(new GameObject().AddComponent<SpinsMissionObjectiveChecker>());
+            customCheckers.Add(new GameObject().AddComponent<AccuracyMissionObjectiveChecker>());
+            customCheckers.Add(new GameObject().AddComponent<MaintainAccuracyMissionObjectiveChecker>());
             foreach (MissionObjective missionObjective in missionObjectives)
             {
                 bool flag = false;
