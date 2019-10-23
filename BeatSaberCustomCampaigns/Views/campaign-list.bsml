@@ -2,4 +2,7 @@
   <page-button event-click='list#PageUp' direction='Up' anchor-max-y='1'></page-button>
   <list id='list' select-cell='campaign-click' expand-cell='true'></list>
   <page-button event-click='list#PageDown' direction='Down' anchor-min-y='0'></page-button>
+  <horizontal anchor-pos-x='65' anchor-pos-y='-35'>
+    <clickable-text text='Download More' hover-hint='This will open in your browser' on-click='download-click'></clickable-text>
+  </horizontal>
 </bg>

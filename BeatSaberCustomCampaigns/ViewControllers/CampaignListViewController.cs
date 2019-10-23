@@ -40,6 +40,11 @@ namespace BeatSaberCustomCampaigns.campaign
         {
             clickedCampaign(customListTableData.data[row] as Campaign);
         }
+        [UIAction("download-click")]
+        private void DownloadClick()
+        {
+            System.Diagnostics.Process.Start("https://docs.google.com/spreadsheets/d/15e9M541X6XJrdRVgWnUK3pt5EX27h1cx_uTNeIog-10/edit?usp=sharing");
+        }
 
         private void LoadCampaigns()
         {
