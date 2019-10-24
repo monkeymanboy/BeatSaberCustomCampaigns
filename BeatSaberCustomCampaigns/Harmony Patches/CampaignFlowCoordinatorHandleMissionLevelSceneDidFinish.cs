@@ -27,7 +27,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 ____missionLevelDetailViewController.GetPrivateField<Action<MissionLevelDetailViewController>>("didPressPlayButtonEvent")(____missionLevelDetailViewController);
                 return false;
             }
-            if (missionCompletionResults.levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared)
+            if (missionCompletionResults.levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared && missionCompletionResults.IsMissionComplete)
             {
                 CustomMissionDataSO customMissionData = ____missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
                 Campaign campaign = customMissionData.campaign;
