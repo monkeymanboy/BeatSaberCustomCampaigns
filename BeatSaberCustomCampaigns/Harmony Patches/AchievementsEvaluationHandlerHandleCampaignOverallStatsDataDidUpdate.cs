@@ -1,18 +1,14 @@
 ﻿using Harmony;
 using SongCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
-    [HarmonyPatch(typeof(AchievementsEvaluationHandler), "HandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults",
-        new Type[] { typeof(CampaignFlowCoordinator), typeof(MissionNode), typeof(MissionCompletionResults) })]
-    class AchievementsEvaluationHandlerHandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults
+    [HarmonyPatch(typeof(AchievementsEvaluationHandler), "HandleCampaignOverallStatsDataDidUpdate",
+        new Type[] { typeof(MissionCompletionResults), typeof(MissionNode) })]
+    class AchievementsEvaluationHandlerHandleCampaignOverallStatsDataDidUpdate
     {
-        static bool Prefix(CampaignFlowCoordinator campaignFlowCoordinator, MissionNode missionNode, MissionCompletionResults missionCompletionResults, AchievementsEvaluationHandler __instance)
+        static bool Prefix(MissionCompletionResults missionCompletionResults, MissionNode missionNode, AchievementsEvaluationHandler __instance)
         {
             if (missionNode.missionData is CustomMissionDataSO)
             {

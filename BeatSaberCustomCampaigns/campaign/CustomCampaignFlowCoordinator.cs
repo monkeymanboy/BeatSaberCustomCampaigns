@@ -1,29 +1,21 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BS_Utils.Gameplay;
-using IPA;
-using Newtonsoft.Json;
+using HMUI;
 using Polyglot;
 using SongCore;
-using SongCore.Data;
 using SongCore.Utilities;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
-using VRUI;
 using static MenuLightsPresetSO;
 using static SongCore.Data.ExtraSongData;
+using Image = UnityEngine.UI.Image;
 
 namespace BeatSaberCustomCampaigns.campaign
 {
@@ -41,7 +33,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public MissionConnectionsGenerator _missionConnectionsGenerator;
         public MissionSelectionMapViewController _missionSelectionMapViewController;
         public MissionNodeSelectionManager _missionNodeSelectionManager;
-        public DismissableNavigationController _navigationController;
+        public MissionSelectionNavigationController _missionSelectionNavigationController;
         public MissionLevelDetailViewController _missionLevelDetailViewController;
         public MissionResultsViewController _missionResultsViewController;
         public Button _playButton;
@@ -61,7 +53,7 @@ namespace BeatSaberCustomCampaigns.campaign
 
         public CampaignProgressModelSO _campaignProgressModel;
 
-        protected DismissableNavigationController _campaignListNavigationController;
+        protected NavigationController _campaignListNavigationController;
         protected CampaignListViewController _campaignListViewController;
         protected CampaignDetailViewController _campaignDetailViewController;
         protected CampaignTotalLeaderboardViewController _campaignTotalLeaderboardViewController;
@@ -94,6 +86,8 @@ namespace BeatSaberCustomCampaigns.campaign
             if (firstActivation)
             {
                 base.title = "Custom Campaigns";
+                showBackButton = true;
+
                 _campaignFlowCoordinator = Resources.FindObjectsOfTypeAll<CampaignFlowCoordinator>().First();
                 _missionMapAnimationController = Resources.FindObjectsOfTypeAll<MissionMapAnimationController>().First();
                 _missionNodesManager = Resources.FindObjectsOfTypeAll<MissionNodesManager>().First();
@@ -108,7 +102,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 _mapScrollView = _missionSelectionMapViewController.GetPrivateField<ScrollView>("_mapScrollView");
                 _mapScrollViewItemsVisibilityController = _mapScrollView.GetComponent<ScrollViewItemsVisibilityController>();
                 _backgroundImage = _mapScrollView.GetComponentsInChildren<Image>().First(x => x.name == "Map");
-                _navigationController = _campaignFlowCoordinator.GetPrivateField<DismissableNavigationController>("_navigationController");
+                _missionSelectionNavigationController = _campaignFlowCoordinator.GetPrivateField<MissionSelectionNavigationController>("_missionSelectionNavigationController");
                 _gameplayModifierInfoListItemsList = _missionLevelDetailViewController.GetPrivateField<GameplayModifierInfoListItemsList>("_gameplayModifierInfoListItemsList");
                 _modifiersPanelGO = _missionLevelDetailViewController.GetPrivateField<GameObject>("_modifiersPanelGO");
                 _gameplayModifiersModel = _missionLevelDetailViewController.GetPrivateField<GameplayModifiersModelSO>("_gameplayModifiersModel");
@@ -120,8 +114,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 _campaignListViewController = BeatSaberUI.CreateViewController<CampaignListViewController>();
                 _campaignDetailViewController = BeatSaberUI.CreateViewController<CampaignDetailViewController>();
                 _campaignTotalLeaderboardViewController = BeatSaberUI.CreateViewController<CampaignTotalLeaderboardViewController>();
-                _campaignListNavigationController = BeatSaberUI.CreateDismissableNavigationController();
-                _campaignListNavigationController.didFinishEvent += Dismiss;
+                _campaignListNavigationController = BeatSaberUI.CreateViewController<NavigationController>();
                 _campaignListViewController.clickedCampaign += ShowDetails;
                 _campaignDetailViewController.clickedPlay += OpenCampaign;
 
@@ -201,13 +194,13 @@ namespace BeatSaberCustomCampaigns.campaign
                 Console.WriteLine(ex.StackTrace);
             }
         }
-        public void CloseCampaign(DismissableNavigationController navigationController)
+        public void CloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
         {
             _campaignFlowCoordinator.SetProperty("title", "Campaign");
-            _navigationController.didFinishEvent += _campaignFlowCoordinator.HandleNavigationControllerDidFinish;
-            _navigationController.didFinishEvent -= CloseCampaign;
+            _campaignFlowCoordinator.didFinishEvent += _mainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
+            _campaignFlowCoordinator.didFinishEvent -= CloseCampaign;
             _missionNodeSelectionManager.didSelectMissionNodeEvent -= HandleMissionNodeSelectionManagerDidSelectMissionNode;
-            _missionLevelDetailViewController.didPressPlayButtonEvent += _campaignFlowCoordinator.HandleMissionLevelDetailViewControllerDidPressPlayButton;
+            _missionLevelDetailViewController.didPressPlayButtonEvent += _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
             _missionResultsViewController.retryButtonPressedEvent -= HandleMissionResultsViewControllerRetryButtonPressed;
             _missionSelectionMapViewController.didSelectMissionLevelEvent -= HandleMissionSelectionMapViewControllerDidSelectMissionLevel;
             _missionResultsViewController.continueButtonPressedEvent -= HandleMissionResultsViewControllerContinueButtonPressed;
@@ -317,11 +310,11 @@ namespace BeatSaberCustomCampaigns.campaign
                 {
                     _campaignFlowCoordinator.SetProperty("title", campaign.info.name);
                     _missionNodeSelectionManager.didSelectMissionNodeEvent -= _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode;
-                    _missionLevelDetailViewController.didPressPlayButtonEvent -= _campaignFlowCoordinator.HandleMissionLevelDetailViewControllerDidPressPlayButton;
+                    _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
                     _missionResultsViewController.retryButtonPressedEvent += HandleMissionResultsViewControllerRetryButtonPressed;
                     _missionResultsViewController.retryButtonPressedEvent -= _campaignFlowCoordinator.HandleMissionResultsViewControllerRetryButtonPressed;
-                    _navigationController.didFinishEvent -= _campaignFlowCoordinator.HandleNavigationControllerDidFinish;
-                    _navigationController.didFinishEvent += CloseCampaign;
+                    _campaignFlowCoordinator.didFinishEvent -= _mainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
+                    _campaignFlowCoordinator.didFinishEvent += CloseCampaign;
                     _missionSelectionMapViewController.didSelectMissionLevelEvent += HandleMissionSelectionMapViewControllerDidSelectMissionLevel;
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
                     _missionMapAnimationController.ScrollToTopMostNotClearedMission();
@@ -338,7 +331,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public void HandleMissionNodeSelectionManagerDidSelectMissionNode(MissionNodeVisualController missionNodeVisualController)
         {
             if (isDownloading) return;
-            _missionLevelDetailViewController.didPressPlayButtonEvent -= _campaignFlowCoordinator.HandleMissionLevelDetailViewControllerDidPressPlayButton;
+            _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
             _missionLevelDetailViewController.didPressPlayButtonEvent -= HandleMissionLevelDetailViewControllerDidPressPlayButtonPlay;
             _missionLevelDetailViewController.didPressPlayButtonEvent -= HandleMissionLevelDetailViewControllerDidPressPlayButtonDownload;
             CustomPreviewBeatmapLevel song = ((CustomMissionDataSO)missionNodeVisualController.missionNode.missionData).customLevel;
@@ -362,7 +355,7 @@ namespace BeatSaberCustomCampaigns.campaign
             _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode(missionNodeVisualController);
         }
 
-        public void Dismiss(DismissableNavigationController navigationController)
+        protected override void BackButtonWasPressed(ViewController topViewController)
         {
             (_mainFlowCoordinator as FlowCoordinator).InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, false });
         }
@@ -418,7 +411,7 @@ namespace BeatSaberCustomCampaigns.campaign
             if (errorList.Count==0)
             {
                 Gamemode.NextLevelIsIsolated("Custom Campaigns");
-                _campaignFlowCoordinator.HandleMissionLevelDetailViewControllerDidPressPlayButton(viewController);
+                _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton(viewController);
             } else
             {
                 LoadModifiersPanel(errorList);

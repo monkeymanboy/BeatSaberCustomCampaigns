@@ -1,14 +1,9 @@
 ﻿using BS_Utils.Gameplay;
 using BS_Utils.Utilities;
-using Oculus.Platform;
-using Oculus.Platform.Models;
-using SongCore;
-using SongCore.Data;
 using System;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
-using static SongCore.Data.ExtraSongData;
 
 namespace BeatSaberCustomCampaigns
 {

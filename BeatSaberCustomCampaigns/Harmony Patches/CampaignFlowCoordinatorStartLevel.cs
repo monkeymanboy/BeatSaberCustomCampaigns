@@ -1,10 +1,6 @@
 ﻿using Harmony;
 using SongCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
@@ -12,18 +8,21 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
         new Type[] { typeof(Action)})]
     class CampaignFlowCoordinatorStartLevel
     {
-        static bool Prefix(Action beforeSceneSwitchCallback, CampaignFlowCoordinator __instance, MissionLevelDetailViewController ____missionLevelDetailViewController, MenuTransitionsHelperSO ____menuTransitionsHelper, PlayerDataModelSO ____playerDataModel)
+        static bool Prefix(Action beforeSceneSwitchCallback, CampaignFlowCoordinator __instance, MissionSelectionNavigationController ____missionSelectionNavigationController, MenuTransitionsHelper ____menuTransitionsHelper, PlayerDataModelSO ____playerDataModel)
         {
 
-            if (____missionLevelDetailViewController.missionNode.missionData is CustomMissionDataSO)
+            if (____missionSelectionNavigationController.selectedMissionNode.missionData is CustomMissionDataSO)
             {
-                CustomMissionDataSO missionData = ____missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
+                CustomMissionDataSO missionData = ____missionSelectionNavigationController.selectedMissionNode.missionData as CustomMissionDataSO;
                 
                 IDifficultyBeatmap difficultyBeatmap = BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(missionData.customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty);
                 GameplayModifiers gameplayModifiers = missionData.gameplayModifiers;
                 MissionObjective[] missionObjectives = missionData.missionObjectives;
                 PlayerSpecificSettings playerSpecificSettings = ____playerDataModel.playerData.playerSpecificSettings;
-                ____menuTransitionsHelper.StartMissionLevel(difficultyBeatmap, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish);
+                OverrideEnvironmentSettings overrideEnvironmentSettings = ____playerDataModel.playerData.overrideEnvironmentSettings;
+                ColorSchemesSettings colorSchemesSettings = ____playerDataModel.playerData.colorSchemesSettings;
+                ColorScheme overrideColorScheme = colorSchemesSettings.overrideDefaultColors ? colorSchemesSettings.GetSelectedColorScheme() : null;
+                ____menuTransitionsHelper.StartMissionLevel(difficultyBeatmap, overrideEnvironmentSettings, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish);
                 return false;
             }
             return true;

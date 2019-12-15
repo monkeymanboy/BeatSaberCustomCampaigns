@@ -36,10 +36,6 @@
     <Reference Include="0Harmony">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="BSML">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BSML.dll</HintPath>
     </Reference>
@@ -50,9 +46,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\CustomCampaignLeaderboardLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="HMLib">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\HMLib.dll</HintPath>
+    </Reference>
+    <Reference Include="HMUI">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\HMUI.dll</HintPath>
+    </Reference>
     <Reference Include="IPA.Loader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
+    </Reference>
+    <Reference Include="MainAssembly">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\MainAssembly.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Newtonsoft.Json.dll</HintPath>
@@ -61,7 +66,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Polyglot.Scripts.dll</HintPath>
     </Reference>
-    <Reference Include="SongCore">
+    <Reference Include="SongCore, Version=2.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\SongCore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -137,7 +143,7 @@
     <Compile Include="Custom Trackers\SpinsMissionObjectiveChecker.cs" />
     <Compile Include="Custom Trackers\WallHeadbuttMissionObjectiveChecker.cs" />
     <Compile Include="CustomMissionHelpSO.cs" />
-    <Compile Include="Harmony Patches\AchievementsEvaluationHandlerHandleCampaignFlowCoordinatorDidUpdateOverallStatsDataWithLevelCompletionResults.cs" />
+    <Compile Include="Harmony Patches\AchievementsEvaluationHandlerHandleCampaignOverallStatsDataDidUpdate.cs" />
     <Compile Include="Harmony Patches\CampaignFlowCoordinatorStartLevel.cs" />
     <Compile Include="Harmony Patches\PlayerDataWasMissionHelpShowed.cs" />
     <Compile Include="Harmony Patches\MissionHelpViewControllerSetup.cs" />
@@ -161,7 +167,7 @@
     <Compile Include="Harmony Patches\GameplayModifiersGetSongSpeedMul.cs" />
     <Compile Include="Harmony Patches\GameplayModifiersModelSOGetModifierParams.cs" />
     <Compile Include="Harmony Patches\MissionNodeGetMissionId.cs" />
-    <Compile Include="Harmony Patches\MissionObjectiveCheckersManagerInit.cs" />
+    <Compile Include="Harmony Patches\MissionObjectiveCheckersManagerStart.cs" />
     <Compile Include="Harmony Patches\MissionObjectiveGameUIViewRefreshValuecs.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

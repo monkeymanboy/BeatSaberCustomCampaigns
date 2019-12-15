@@ -1,17 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using CustomCampaignLeaderboardLibrary;
-using HMUI;
-using Newtonsoft.Json;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using UnityEngine;
-using UnityEngine.Networking;
-using VRUI;
-using static LeaderboardTableView;
 
 namespace BeatSaberCustomCampaigns
 {

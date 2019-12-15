@@ -3,22 +3,20 @@ using BS_Utils.Utilities;
 using Harmony;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
 
-    [HarmonyPatch(typeof(MissionObjectiveCheckersManager), "Init",
-        new Type[] { typeof(MissionObjective[])})]
-    class MissionObjectiveCheckersManagerInit
+    [HarmonyPatch(typeof(MissionObjectiveCheckersManager), "Start",
+        new Type[] { })]
+    class MissionObjectiveCheckersManagerStart
     {
-        static bool Prefix(MissionObjective[] missionObjectives, MissionObjectiveCheckersManager __instance, MissionObjectiveChecker[] ____missionObjectiveCheckers)
+        static bool Prefix(MissionObjectiveCheckersManager.InitData ____initData, MissionObjectiveCheckersManager __instance, MissionObjectiveChecker[] ____missionObjectiveCheckers, ILevelEndActions ____gameplayManager)
         {
-            __instance.SetPrivateField("_isInitialized",true);
+            ____gameplayManager.levelFailedEvent += __instance.HandleLevelFailed;
+            ____gameplayManager.levelFinishedEvent += __instance.HandleLevelFinished;
+            MissionObjective[] missionObjectives = ____initData.missionObjectives;
             List<MissionObjectiveChecker> list = new List<MissionObjectiveChecker>(____missionObjectiveCheckers.Length);
             List<MissionObjectiveChecker> list2 = new List<MissionObjectiveChecker>(____missionObjectiveCheckers);
             List<MissionObjectiveChecker> customCheckers = new List<MissionObjectiveChecker>();

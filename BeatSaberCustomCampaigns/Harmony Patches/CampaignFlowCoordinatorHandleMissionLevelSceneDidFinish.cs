@@ -18,18 +18,18 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
         new Type[] { typeof(MissionLevelScenesTransitionSetupDataSO), typeof(MissionCompletionResults) })]
     class CampaignFlowCoordinatorHandleMissionLevelSceneDidFinish
     {
-        static bool Prefix(MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupData, MissionCompletionResults missionCompletionResults, CampaignFlowCoordinator __instance, MissionLevelDetailViewController ____missionLevelDetailViewController)
+        static bool Prefix(MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupData, MissionCompletionResults missionCompletionResults, CampaignFlowCoordinator __instance, MissionSelectionNavigationController ____missionSelectionNavigationController)
         {
-            if (!(____missionLevelDetailViewController.missionNode.missionData is CustomMissionDataSO)) return true;
+            if (!(____missionSelectionNavigationController.selectedMissionNode.missionData is CustomMissionDataSO)) return true;
             ChallengeExternalModifiers.onChallengeEnd?.Invoke();
             if (missionCompletionResults.levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
             {
-                ____missionLevelDetailViewController.GetPrivateField<Action<MissionLevelDetailViewController>>("didPressPlayButtonEvent")(____missionLevelDetailViewController);
+                ____missionSelectionNavigationController.GetPrivateField<Action<MissionSelectionNavigationController>>("didPressPlayButtonEvent")(____missionSelectionNavigationController);
                 return false;
             }
             if (missionCompletionResults.levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared && missionCompletionResults.IsMissionComplete)
             {
-                CustomMissionDataSO customMissionData = ____missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
+                CustomMissionDataSO customMissionData = ____missionSelectionNavigationController.selectedMissionNode.missionData as CustomMissionDataSO;
                 Campaign campaign = customMissionData.campaign;
                 Challenge challenge = customMissionData.challenge;
                 foreach(UnlockableItem item in challenge.unlockableItems)
@@ -61,7 +61,8 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     PlayerLevelStatsData playerLevelStatsData = currentLocalPlayer.GetPlayerLevelStatsData(difficultyBeatmap.level.levelID, difficultyBeatmap.difficulty, difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic);
                     LevelCompletionResults levelCompletionResults = missionCompletionResults.levelCompletionResults;
                     playerLevelStatsData.UpdateScoreData(levelCompletionResults.modifiedScore, levelCompletionResults.maxCombo, levelCompletionResults.fullCombo, levelCompletionResults.rank);
-                    freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").AddScoreFromComletionResults(difficultyBeatmap, levelCompletionResults);
+                    //todo Need change???
+                    //freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").AddScoreFromComletionResults(difficultyBeatmap, levelCompletionResults);
                 }
 
                 __instance.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
