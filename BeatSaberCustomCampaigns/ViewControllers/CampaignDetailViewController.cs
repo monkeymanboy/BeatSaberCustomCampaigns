@@ -1,11 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,9 +22,18 @@ namespace BeatSaberCustomCampaigns.campaign
             }
         }
         private Campaign activeCampaign;
-
-        [UIComponent("description")]
-        TextPageScrollView scrollView;
+        
+        private string descriptionText;
+        [UIValue("description-text")]
+        public string DescriptionText
+        {
+            get => descriptionText;
+            set
+            {
+                descriptionText = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public Action<Campaign> clickedPlay;
 
@@ -47,7 +51,7 @@ namespace BeatSaberCustomCampaigns.campaign
 
         protected void SetDetailsToActive()
         {
-            scrollView.SetText(campaign.info.bigDesc);
+            DescriptionText = campaign.info.bigDesc;
         }
         [UIAction("play")]
         private void ClickedPlay()

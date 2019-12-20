@@ -100,15 +100,12 @@ namespace BeatSaberCustomCampaigns
                 customButton.GetComponentsInChildren<Image>().First(x => x.gameObject.name == "Icon").sprite = Assets.ButtonIcon;
                 customButton.onClick.AddListener(delegate {
                     if (campaignFlowCoordinator == null)
-                    {
                         campaignFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<CustomCampaignFlowCoordinator>();
-                        campaignFlowCoordinator._mainFlowCoordinator = _mainFlowCoordinator;
-                    }
                     campaignFlowCoordinator.StartCoroutine(InitializeMap());
-                    _mainFlowCoordinator.InvokeMethod("PresentFlowCoordinator", new object[] { campaignFlowCoordinator, new Action(delegate {
+                    BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(campaignFlowCoordinator, new Action(delegate {
                         //Quick fix for an issue where if they open the regular campaign first the map appears on the campaign list
                         Resources.FindObjectsOfTypeAll<MissionSelectionMapViewController>().First().gameObject.SetActive(false);
-                    }), false, false });
+                    }));
                 });
 
             }

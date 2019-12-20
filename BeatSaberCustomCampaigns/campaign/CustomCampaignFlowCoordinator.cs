@@ -24,7 +24,6 @@ namespace BeatSaberCustomCampaigns.campaign
         public const float EDITOR_TO_GAME_UNITS = 30f / 111;
         public const float HEIGHT_OFFSET = 20;
 
-        public MainFlowCoordinator _mainFlowCoordinator;
         public CampaignFlowCoordinator _campaignFlowCoordinator;
 
         public MissionMapAnimationController _missionMapAnimationController;
@@ -197,7 +196,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public void CloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
         {
             _campaignFlowCoordinator.SetProperty("title", "Campaign");
-            _campaignFlowCoordinator.didFinishEvent += _mainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
+            _campaignFlowCoordinator.didFinishEvent += BeatSaberUI.MainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
             _campaignFlowCoordinator.didFinishEvent -= CloseCampaign;
             _missionNodeSelectionManager.didSelectMissionNodeEvent -= HandleMissionNodeSelectionManagerDidSelectMissionNode;
             _missionLevelDetailViewController.didPressPlayButtonEvent += _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
@@ -313,7 +312,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
                     _missionResultsViewController.retryButtonPressedEvent += HandleMissionResultsViewControllerRetryButtonPressed;
                     _missionResultsViewController.retryButtonPressedEvent -= _campaignFlowCoordinator.HandleMissionResultsViewControllerRetryButtonPressed;
-                    _campaignFlowCoordinator.didFinishEvent -= _mainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
+                    _campaignFlowCoordinator.didFinishEvent -= BeatSaberUI.MainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
                     _campaignFlowCoordinator.didFinishEvent += CloseCampaign;
                     _missionSelectionMapViewController.didSelectMissionLevelEvent += HandleMissionSelectionMapViewControllerDidSelectMissionLevel;
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
@@ -357,7 +356,7 @@ namespace BeatSaberCustomCampaigns.campaign
 
         protected override void BackButtonWasPressed(ViewController topViewController)
         {
-            (_mainFlowCoordinator as FlowCoordinator).InvokePrivateMethod("DismissFlowCoordinator", new object[] { this, null, false });
+            BeatSaberUI.MainFlowCoordinator.DismissFlowCoordinator(this);
         }
         public void HandleMissionLevelDetailViewControllerDidPressPlayButtonDownload(MissionLevelDetailViewController viewController)
         {
