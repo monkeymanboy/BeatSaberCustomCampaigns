@@ -4,6 +4,7 @@ using BS_Utils.Utilities;
 using Harmony;
 using HMUI;
 using IPA;
+using IPA.Loader;
 using Polyglot;
 using System;
 using System.Collections;
@@ -19,7 +20,15 @@ namespace BeatSaberCustomCampaigns
 {
     public class Plugin : IBeatSaberPlugin
     {
-        CustomCampaignFlowCoordinator campaignFlowCoordinator;
+        public static SemVer.Version version;
+
+        private CustomCampaignFlowCoordinator campaignFlowCoordinator;
+
+        public void Init(IPA.Logging.Logger log, PluginLoader.PluginMetadata metadata)
+        {
+            version = metadata?.Version;
+        }
+
         public void OnApplicationStart()
         {
 

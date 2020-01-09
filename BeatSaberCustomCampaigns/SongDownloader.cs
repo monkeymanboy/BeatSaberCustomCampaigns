@@ -5,8 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -36,6 +34,7 @@ namespace BeatSaberCustomCampaigns
         private IEnumerator DownloadSongCoroutine(string songid, string url, bool isBeatSaver)
         {
             var www = UnityWebRequest.Get(url);
+            www.SetRequestHeader("User-Agent", $"CustomCampaigns/v{Plugin.version}");
 
             var timeout = false;
             var time = 0f;
@@ -71,6 +70,7 @@ namespace BeatSaberCustomCampaigns
                 if (isBeatSaver)
                 {
                     var www2 = UnityWebRequest.Get("https://beatsaver.com/api/maps/detail/" + songid);
+                    www2.SetRequestHeader("User-Agent", $"CustomCampaigns/v{Plugin.version}");
 
                     var timeout2 = false;
                     var time2 = 0f;

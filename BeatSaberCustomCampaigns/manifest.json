@@ -2,14 +2,14 @@
   "$schema": "https://raw.githubusercontent.com/nike4613/ModSaber-MetadataFileSchema/master/Schema.json",
   "author": "monkeymanboy",
   "description": "Adds the ability to load custom campaigns into the game. Includes a special campaign to celebrate the 1 year anniversary of the Beat Saber Modding Group.",
-  "gameVersion": "1.6.0",
+  "gameVersion": "1.6.1",
   "id": "Custom Campaigns",
   "name": "Custom Campaigns",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "dependsOn": {
-    "SongCore": "^2.7.2",
-	"BeatSaberMarkupLanguage": "^1.1.0",
-	"BS Utils": "^1.4.0",
+    "SongCore": "^2.7.5",
+	"BeatSaberMarkupLanguage": "^1.1.2",
+	"BS Utils": "^1.4.1",
 	"CustomCampaignLeaderboardLibrary": "^1.1.0"
   },
   "features": [

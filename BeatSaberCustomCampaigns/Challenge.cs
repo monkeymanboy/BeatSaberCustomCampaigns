@@ -75,7 +75,7 @@ namespace BeatSaberCustomCampaigns
             {
                 try
                 {
-                    data.SetPrivateField("_beatmapCharacteristic", level.beatmapCharacteristics.First(x => x.serializedName == characteristic));
+                    data.SetPrivateField("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
                 } catch
                 {
                     BeatmapCharacteristicSO characteristicSO = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
@@ -89,7 +89,7 @@ namespace BeatSaberCustomCampaigns
         }
         public string GetDownloadURL()
         {
-            return customDownloadURL == "" ? ("https://www.beatsaver.com/api/download/key/" + songid) : (customDownloadURL);
+            return customDownloadURL == "" ? ("https://beatsaver.com/api/download/key/" + songid) : (customDownloadURL);
         }
         public string GetHash()
         {
