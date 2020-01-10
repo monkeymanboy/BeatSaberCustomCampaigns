@@ -46,6 +46,7 @@ namespace BeatSaberCustomCampaigns.campaign
         {
             customListTableData.data.Clear();
             string path = Environment.CurrentDirectory.Replace('\\', '/');
+            Directory.CreateDirectory(path + "/CustomCampaigns");
             var folders = Directory.GetDirectories(path + "/CustomCampaigns").ToList();
 
             foreach (string campaign in folders)
