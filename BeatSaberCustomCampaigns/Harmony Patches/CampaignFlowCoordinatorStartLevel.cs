@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using SongCore;
 using System;
 
@@ -8,7 +8,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
         new Type[] { typeof(Action)})]
     class CampaignFlowCoordinatorStartLevel
     {
-        static bool Prefix(Action beforeSceneSwitchCallback, CampaignFlowCoordinator __instance, MissionSelectionNavigationController ____missionSelectionNavigationController, MenuTransitionsHelper ____menuTransitionsHelper, PlayerDataModelSO ____playerDataModel)
+        static bool Prefix(Action beforeSceneSwitchCallback, CampaignFlowCoordinator __instance, MissionSelectionNavigationController ____missionSelectionNavigationController, MenuTransitionsHelper ____menuTransitionsHelper, PlayerDataModel ____playerDataModel)
         {
 
             if (____missionSelectionNavigationController.selectedMissionNode.missionData is CustomMissionDataSO)

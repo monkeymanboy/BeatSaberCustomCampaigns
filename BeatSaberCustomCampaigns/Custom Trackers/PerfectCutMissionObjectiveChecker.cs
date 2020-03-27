@@ -59,7 +59,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             {
                 if (didDone) return;
                 didDone = true;
-                ScoreController.RawScoreWithoutMultiplier(info, out int before, out int after, out int cutDist);
+                ScoreModel.RawScoreWithoutMultiplier(info, out int before, out int after, out int cutDist);
                 int total = before + after + cutDist;
                 if (total == 115)
                 {

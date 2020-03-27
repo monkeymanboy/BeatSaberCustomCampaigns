@@ -1,6 +1,6 @@
 ﻿using BeatSaberCustomCampaigns.Custom_Trackers;
 using BS_Utils.Utilities;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using UnityEngine;

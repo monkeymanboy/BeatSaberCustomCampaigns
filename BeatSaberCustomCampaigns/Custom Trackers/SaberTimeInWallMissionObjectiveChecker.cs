@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IPA.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 {
     public class SaberTimeInWallMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, CustomTracker
     {
-        protected ActiveObstaclesManager activeObstaclesManager;
+        protected ObstacleController.Pool obstaclePool;
         protected PlayerController playerController;
         protected Saber[] sabers;
         protected float currentValue;
@@ -33,9 +34,9 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
         {
             while (!loaded)
             {
-                activeObstaclesManager = Resources.FindObjectsOfTypeAll<ActiveObstaclesManager>().FirstOrDefault();
+                obstaclePool = Resources.FindObjectsOfTypeAll<PlayerHeadAndObstacleInteraction>().FirstOrDefault()?.GetField<ObstacleController.Pool, PlayerHeadAndObstacleInteraction>("_obstaclePool");
                 playerController = Resources.FindObjectsOfTypeAll<PlayerController>().FirstOrDefault();
-                if (activeObstaclesManager == null || playerController == null)
+                if (obstaclePool == null || playerController == null)
                     yield return new WaitForSeconds(0.1f);
                 else
                     loaded = true;
@@ -52,7 +53,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             if (!loaded) return;
             for (int i = 0; i < 2; i++)
             {
-                foreach (ObstacleController activeObstacleController in activeObstaclesManager.activeObstacleControllers)
+                foreach (ObstacleController activeObstacleController in obstaclePool.activeItems)
                 {
                     Bounds bounds = activeObstacleController.bounds;
                     if (sabers[i].isActiveAndEnabled && isSaberInWall(bounds, activeObstacleController.transform, sabers[i].saberBladeBottomPos, sabers[i].saberBladeTopPos))

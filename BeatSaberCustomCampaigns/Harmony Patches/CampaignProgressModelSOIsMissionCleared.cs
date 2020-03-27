@@ -1,5 +1,5 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
-using Harmony;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
-    [HarmonyPatch(typeof(CampaignProgressModelSO), "IsMissionCleared",
+    [HarmonyPatch(typeof(CampaignProgressModel), "IsMissionCleared",
         new Type[] { typeof(string)})]
     class CampaignProgressModelSOIsMissionCleared
     {

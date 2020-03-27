@@ -1,7 +1,7 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
 using BS_Utils.Utilities;
 using CustomCampaignLeaderboardLibrary;
-using Harmony;
+using HarmonyLib;
 using SongCore;
 using System;
 using System.Collections;
@@ -50,11 +50,12 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 {
                     UnlockedMaps.CompletedChallenge(challenge.name);
                 }
+                /*
                 //Score submission
                 if (customMissionData.gameplayModifiers.songSpeedMul==1f && customMissionData.gameplayModifiers.fastNotes == false && customMissionData.gameplayModifiers.failOnSaberClash == false) {
                     SoloFreePlayFlowCoordinator freePlayCoordinator = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
 
-                    PlayerDataModelSO dataModel = freePlayCoordinator.GetPrivateField<PlayerDataModelSO>("_playerDataModel");
+                    PlayerDataModel dataModel = freePlayCoordinator.GetPrivateField<PlayerDataModel>("_playerDataModel");
 
                     PlayerData currentLocalPlayer = dataModel.playerData;
                     IDifficultyBeatmap difficultyBeatmap = Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(customMissionData.customLevel.levelID).beatmapLevelData.GetDifficultyBeatmap(customMissionData.beatmapCharacteristic, customMissionData.beatmapDifficulty);
@@ -64,7 +65,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     //todo Need change???
                     //freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").AddScoreFromComletionResults(difficultyBeatmap, levelCompletionResults);
                 }
-
+                */
                 __instance.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
             }
             return true;

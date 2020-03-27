@@ -50,7 +50,7 @@ namespace BeatSaberCustomCampaigns.campaign
         [UIComponent("challenge-name")]
         public TextMeshProUGUI _challengeName;
 
-        public CampaignProgressModelSO _campaignProgressModel;
+        public CampaignProgressModel _campaignProgressModel;
 
         protected NavigationController _campaignListNavigationController;
         protected CampaignListViewController _campaignListViewController;
@@ -108,7 +108,7 @@ namespace BeatSaberCustomCampaigns.campaign
 
                 BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCustomCampaigns.Views.challenge-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
 
-                _campaignProgressModel = _campaignFlowCoordinator.GetPrivateField<CampaignProgressModelSO>("_campaignProgressModel");
+                _campaignProgressModel = _campaignFlowCoordinator.GetPrivateField<CampaignProgressModel>("_campaignProgressModel");
 
                 _campaignListViewController = BeatSaberUI.CreateViewController<CampaignListViewController>();
                 _campaignDetailViewController = BeatSaberUI.CreateViewController<CampaignDetailViewController>();
@@ -125,7 +125,7 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 SetBaseCampaignEnabled(false);
 
-                SetViewControllerToNavigationConctroller(_campaignListNavigationController, _campaignListViewController);
+                SetViewControllerToNavigationController(_campaignListNavigationController, _campaignListViewController);
                 ProvideInitialViewControllers(_campaignListNavigationController);
             }
         }

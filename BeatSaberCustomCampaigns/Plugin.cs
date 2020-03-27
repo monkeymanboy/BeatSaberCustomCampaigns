@@ -1,7 +1,7 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
 using BeatSaberMarkupLanguage;
 using BS_Utils.Utilities;
-using Harmony;
+using HarmonyLib;
 using HMUI;
 using IPA;
 using IPA.Loader;
@@ -13,28 +13,31 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 
 namespace BeatSaberCustomCampaigns
 {
-    public class Plugin : IBeatSaberPlugin
+    [Plugin(RuntimeOptions.SingleStartInit)]
+    public class Plugin
     {
         public static SemVer.Version version;
 
         private CustomCampaignFlowCoordinator campaignFlowCoordinator;
 
-        public void Init(IPA.Logging.Logger log, PluginLoader.PluginMetadata metadata)
+        [Init]
+        public void Init(IPA.Logging.Logger log, PluginMetadata metadata)
         {
             version = metadata?.Version;
         }
-
+        [OnStart]
         public void OnApplicationStart()
         {
 
             try
             {
-                var harmony = HarmonyInstance.Create("com.monkeymanboy.BeatSaber.BeatSaberCustomCampaigns");
+                var harmony = new Harmony("com.monkeymanboy.BeatSaber.BeatSaberCustomCampaigns");
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
             catch (Exception e)
@@ -43,23 +46,7 @@ namespace BeatSaberCustomCampaigns
                     "installed the plugin properly, as the Harmony DLL should have been installed with it.");
                 Console.WriteLine(e);
             }
-        }
-
-        public void OnApplicationQuit()
-        {
-
-        }
-
-        public void OnUpdate()
-        {
-        }
-
-        public void OnFixedUpdate()
-        {
-        }
-
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-        {
+            SceneManager.activeSceneChanged += OnActiveSceneChanged;
         }
 
         //Base game does a ton of stuff when everything gets enabled so this just makes sure that happens, without this some stuff will break
@@ -73,10 +60,6 @@ namespace BeatSaberCustomCampaigns
             yield return new WaitForFixedUpdate();
             map.gameObject.SetActive(mapState);
             map.transform.parent.gameObject.SetActive(parentState);
-        }
-        public void OnSceneUnloaded(Scene scene)
-        {
-
         }
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
