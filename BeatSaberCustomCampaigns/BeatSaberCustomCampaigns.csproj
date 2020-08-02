@@ -123,6 +123,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.VRModule">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
     </Reference>
@@ -134,6 +138,7 @@
   <ItemGroup>
     <Compile Include="APITools.cs" />
     <Compile Include="campaign\Campaign.cs" />
+    <Compile Include="CompleteSubmission.cs" />
     <Compile Include="Custom Trackers\AccuracyMissionObjectiveChecker.cs" />
     <Compile Include="Custom Trackers\Formatters\PercentageObjectiveValueFormatterSO.cs" />
     <Compile Include="Custom Trackers\MaintainAccuracyMissionObjectiveChecker.cs" />

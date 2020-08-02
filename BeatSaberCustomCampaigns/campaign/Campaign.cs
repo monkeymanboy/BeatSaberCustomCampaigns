@@ -22,6 +22,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public Sprite background;
         public string path;
         public string leaderboardID = "";
+        public string completionPost = "";
         public Campaign() : base("", "", null)
         {
         }
@@ -42,6 +43,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 i++;
             }
             if (File.Exists(path + "/id")) leaderboardID = File.ReadAllText(path + "/id");
+            if (File.Exists(path + "/completion_post")) completionPost = File.ReadAllText(path + "/completion_post");
             text = info.name;
             subtext = info.desc;
         }

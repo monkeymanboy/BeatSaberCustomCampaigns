@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -27,8 +28,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
                 rectTransform.sizeDelta = new Vector3(70, 0, 0);
             }
-            if(type==ActivationType.AddedToHierarchy) LoadCampaigns();
-            customListTableData.tableView.ReloadData();
+            if(type==ActivationType.AddedToHierarchy) StartCoroutine(LoadCampaigns());
         }
 
         [UIAction("campaign-click")]
@@ -42,7 +42,7 @@ namespace BeatSaberCustomCampaigns.campaign
             System.Diagnostics.Process.Start("https://docs.google.com/spreadsheets/d/15e9M541X6XJrdRVgWnUK3pt5EX27h1cx_uTNeIog-10/edit?usp=sharing");
         }
 
-        private void LoadCampaigns()
+        private IEnumerator LoadCampaigns()
         {
             customListTableData.data.Clear();
             string path = Environment.CurrentDirectory.Replace('\\', '/');
@@ -63,8 +63,10 @@ namespace BeatSaberCustomCampaigns.campaign
                     {
                         Console.WriteLine("[Challenges] failed to load campaign at " + campaignPath);
                     }
+                    yield return null;
                 }
             }
+            customListTableData.tableView.ReloadData();
         }
     }
 }

@@ -2,15 +2,9 @@
 using BS_Utils.Utilities;
 using CustomCampaignLeaderboardLibrary;
 using HarmonyLib;
-using SongCore;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
@@ -25,6 +19,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
             if (missionCompletionResults.levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
             {
                 ____missionSelectionNavigationController.GetPrivateField<Action<MissionSelectionNavigationController>>("didPressPlayButtonEvent")(____missionSelectionNavigationController);
+                Resources.FindObjectsOfTypeAll<CustomCampaignFlowCoordinator>().First().LoadExternalModifiers((____missionSelectionNavigationController.selectedMissionNode.missionData as CustomMissionDataSO).challenge);
                 return false;
             }
             if (missionCompletionResults.levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared && missionCompletionResults.IsMissionComplete)
@@ -66,6 +61,21 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     //freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").AddScoreFromComletionResults(difficultyBeatmap, levelCompletionResults);
                 }
                 */
+                if (!string.IsNullOrWhiteSpace(campaign.completionPost))
+                {
+                    CompleteSubmission submission = new CompleteSubmission();
+                    submission.challengeHash = challenge.GetHash();
+                    submission.score = missionCompletionResults.levelCompletionResults.rawScore;
+                    submission.userID = APITools.UserID;
+                    foreach(MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
+                    {
+                        Requirement requirement = new Requirement();
+                        requirement.name = objective.missionObjective.type.objectiveName;
+                        requirement.value = objective.value;
+                        submission.requirements.Add(requirement);
+                    }
+                    __instance.StartCoroutine(submission.Submit(campaign.completionPost));
+                }
                 __instance.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
             }
             return true;
