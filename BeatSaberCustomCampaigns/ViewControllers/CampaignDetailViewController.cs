@@ -37,9 +37,9 @@ namespace BeatSaberCustomCampaigns.campaign
 
         public Action<Campaign> clickedPlay;
 
-        protected override void DidActivate(bool firstActivation, ActivationType type)
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            base.DidActivate(firstActivation, type);
+            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (firstActivation)
             {
                 rectTransform.anchorMin = new Vector3(0.5f, 0, 0);

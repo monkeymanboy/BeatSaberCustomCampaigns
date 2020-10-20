@@ -53,7 +53,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
         public virtual void HandleNoteWasCut(NoteData data, NoteCutInfo info, int combo)
         {
-            if (data.noteType == NoteType.Bomb || !info.allIsOK) return;
+            if (data.colorType == ColorType.None || !info.allIsOK) return;
             bool didDone = false;
             info.swingRatingCounter.didFinishEvent += e =>
             {

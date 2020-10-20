@@ -1,6 +1,6 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
 using BeatSaberMarkupLanguage;
-using BS_Utils.Utilities;
+using BeatSaberMarkupLanguage.MenuButtons;
 using HarmonyLib;
 using HMUI;
 using IPA;
@@ -69,38 +69,51 @@ namespace BeatSaberCustomCampaigns
                 Assets.Init();
                 UnlockedMaps.Load();
 
-                MainFlowCoordinator _mainFlowCoordinator = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
+                //MainFlowCoordinator _mainFlowCoordinator = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
+                //Button campaignButton = Resources.FindObjectsOfTypeAll<MainMenuViewController>().First().GetPrivateField<Button>("_campaignButton");
+                //RectTransform rectTransform = campaignButton.transform as RectTransform;
+                //(rectTransform.Find("Wrapper") as RectTransform).localPosition = new Vector2(20, 7.5f);
+                //(rectTransform.Find("Wrapper") as RectTransform).sizeDelta = new Vector2(0, -16);
+                //(rectTransform.Find("Wrapper").Find("Content").Find("Text") as RectTransform).anchoredPosition = new Vector2(4, 0);
+                //(rectTransform.Find("Wrapper").Find("Content").Find("Icon") as RectTransform).anchoredPosition = new Vector2(-12, 0);
+                //(rectTransform.Find("Wrapper").Find("Content").Find("Icon") as RectTransform).anchorMax = new Vector2(1, 1);
+                //GameObject newWrapper = GameObject.Instantiate(campaignButton, campaignButton.transform.parent).gameObject;
+                //newWrapper.transform.SetAsFirstSibling();
+                ////newWrapper.transform.Find("Wrapper").gameObject.SetActive(false);
+                //newWrapper.GetComponent<HoverHint>().enabled = false;
+                //campaignButton.transform.parent = newWrapper.transform;
+                //Button customButton = GameObject.Instantiate(campaignButton, newWrapper.transform);
+                //(customButton.transform.Find("Wrapper") as RectTransform).localPosition = new Vector2(20, -7.5f);
+                //customButton.GetComponent<LocalizedHoverHint>().enabled = false;
+                //customButton.GetComponent<HoverHint>().text = "Play compilations of challenges made by the community!";
+                //customButton.GetComponentInChildren<TextMeshProUGUI>().text = "Custom Campaigns";
+                //customButton.GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
+                //customButton.GetComponentsInChildren<Image>().First(x => x.gameObject.name == "Icon").sprite = Assets.ButtonIcon;
+                //customButton.onClick.AddListener(delegate {
+                //    if (campaignFlowCoordinator == null)
+                //        campaignFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<CustomCampaignFlowCoordinator>();
+                //    campaignFlowCoordinator.StartCoroutine(InitializeMap());
+                //    BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(campaignFlowCoordinator, new Action(delegate {
+                //        //Quick fix for an issue where if they open the regular campaign first the map appears on the campaign list
+                //        Resources.FindObjectsOfTypeAll<MissionSelectionMapViewController>().First().gameObject.SetActive(false);
+                //    }));
+                //});
 
-                Button campaignButton = Resources.FindObjectsOfTypeAll<MainMenuViewController>().First().GetPrivateField<Button>("_campaignButton");
-                RectTransform rectTransform = campaignButton.transform as RectTransform;
-                (rectTransform.Find("Wrapper") as RectTransform).localPosition = new Vector2(20, 7.5f);
-                (rectTransform.Find("Wrapper") as RectTransform).sizeDelta = new Vector2(0, -16);
-                (rectTransform.Find("Wrapper").Find("Content").Find("Text") as RectTransform).anchoredPosition = new Vector2(4, 0);
-                (rectTransform.Find("Wrapper").Find("Content").Find("Icon") as RectTransform).anchoredPosition = new Vector2(-12, 0);
-                (rectTransform.Find("Wrapper").Find("Content").Find("Icon") as RectTransform).anchorMax = new Vector2(1, 1);
-                GameObject newWrapper = GameObject.Instantiate(campaignButton, campaignButton.transform.parent).gameObject;
-                newWrapper.transform.SetAsFirstSibling();
-                newWrapper.transform.Find("Wrapper").gameObject.SetActive(false);
-                newWrapper.GetComponent<HoverHint>().enabled = false;
-                campaignButton.transform.parent = newWrapper.transform;
-                Button customButton = GameObject.Instantiate(campaignButton, newWrapper.transform);
-                (customButton.transform.Find("Wrapper") as RectTransform).localPosition = new Vector2(20, -7.5f);
-                customButton.GetComponent<LocalizedHoverHint>().enabled = false;
-                customButton.GetComponent<HoverHint>().text = "Play compilations of challenges made by the community!";
-                customButton.GetComponentInChildren<TextMeshProUGUI>().text = "Custom Campaigns";
-                customButton.GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
-                customButton.GetComponentsInChildren<Image>().First(x => x.gameObject.name == "Icon").sprite = Assets.ButtonIcon;
-                customButton.onClick.AddListener(delegate {
+                MenuButton customButton = new MenuButton("Custom Campaigns", "Play compilations of challenges made by the community!", new Action(delegate {
                     if (campaignFlowCoordinator == null)
                         campaignFlowCoordinator = BeatSaberUI.CreateFlowCoordinator<CustomCampaignFlowCoordinator>();
+
                     campaignFlowCoordinator.StartCoroutine(InitializeMap());
-                    BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(campaignFlowCoordinator, new Action(delegate {
+                    BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(campaignFlowCoordinator, new Action(delegate
+                    {
                         //Quick fix for an issue where if they open the regular campaign first the map appears on the campaign list
                         Resources.FindObjectsOfTypeAll<MissionSelectionMapViewController>().First().gameObject.SetActive(false);
                     }));
-                });
+                }), true);
 
+                MenuButtons.instance.RegisterButton(customButton);
             }
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IPA.Utilities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             bool loaded = false;
             while (!loaded)
             {
-                playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<PlayerHeadAndObstacleInteraction>().FirstOrDefault();
+                playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault()?.GetField<PlayerHeadAndObstacleInteraction, ScoreController>("_playerHeadAndObstacleInteraction");
                 if (playerHeadAndObstacleInteraction == null)
                     yield return new WaitForSeconds(0.1f);
                 else

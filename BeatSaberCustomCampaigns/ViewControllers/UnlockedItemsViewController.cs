@@ -21,10 +21,10 @@ namespace BeatSaberCustomCampaigns
         public int index;
 
         
-        protected override void DidActivate(bool firstActivation, ActivationType type)
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            base.DidActivate(firstActivation, type);
-            if (type == ActivationType.AddedToHierarchy) UpdatePageStatus();
+            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            if (addedToHierarchy) UpdatePageStatus();
         }
 
         [UIAction("left-click")]

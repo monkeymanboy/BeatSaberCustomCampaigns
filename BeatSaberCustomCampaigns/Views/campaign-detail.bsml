@@ -1,4 +1,4 @@
 <bg child-control-height='false' anchor-min-x='0' anchor-min-y='0' anchor-max-x='1' anchor-max-y='1'>
   <text-page text='~description-text' anchor-min-x='0' anchor-min-y='0.2' anchor-max-x='1' anchor-max-y='1'></text-page>
-  <button on-click='play' text='Play' glow-color='blue' anchor-pos-y='-70'></button>
+  <action-button on-click='play' text='Play' anchor-pos-y='-70'></action-button>
 </bg>

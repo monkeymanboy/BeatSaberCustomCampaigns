@@ -80,11 +80,11 @@ namespace BeatSaberCustomCampaigns.campaign
 
         public static bool unlockAllMissions = false;
 
-        protected override void DidActivate(bool firstActivation, ActivationType activationType)
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             if (firstActivation)
             {
-                base.title = "Custom Campaigns";
+                SetTitle("Custom Campaigns");
                 showBackButton = true;
 
                 _campaignFlowCoordinator = Resources.FindObjectsOfTypeAll<CampaignFlowCoordinator>().First();
@@ -121,7 +121,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 _unlockedItemsViewController = BeatSaberUI.CreateViewController<UnlockedItemsViewController>();
 
             }
-            if (activationType == ActivationType.AddedToHierarchy)
+            if (addedToHierarchy)
             {
                 SetBaseCampaignEnabled(false);
 
@@ -137,14 +137,14 @@ namespace BeatSaberCustomCampaigns.campaign
             if (!_campaignDetailViewController.isInViewControllerHierarchy)
             {
                 PushViewControllerToNavigationController(_campaignListNavigationController, _campaignDetailViewController);
-                SetRightScreenViewController(_campaignTotalLeaderboardViewController);
+                SetRightScreenViewController(_campaignTotalLeaderboardViewController, ViewController.AnimationType.None);
             }
             _campaignTotalLeaderboardViewController.UpdateLeaderboards();
         }
 
-        protected override void DidDeactivate(DeactivationType deactivationType)
+        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
         {
-            if (deactivationType == DeactivationType.RemovedFromHierarchy)
+            if (removedFromHierarchy)
             {
                 SetBaseCampaignEnabled(true);
             }
@@ -170,7 +170,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 }
                 foreach (MissionNode node in baseNodes)
                 {
-                    node.transform.localPosition += new Vector3(enabled ? 10000 : -10000, 0, 0);
+                    node.transform.localPosition += new Vector3(0, enabled ? 10000 : -10000, 0);
                     node.gameObject.SetActive(true);
                 }
                 if (enabled)
@@ -195,7 +195,7 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public void CloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
         {
-            _campaignFlowCoordinator.SetProperty("title", "Campaign");
+            _campaignFlowCoordinator.InvokePrivateMethod("SetTitle", new object[] { "Campaign", ViewController.AnimationType.In });
             _campaignFlowCoordinator.didFinishEvent += BeatSaberUI.MainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
             _campaignFlowCoordinator.didFinishEvent -= CloseCampaign;
             _missionNodeSelectionManager.didSelectMissionNodeEvent -= HandleMissionNodeSelectionManagerDidSelectMissionNode;
@@ -307,7 +307,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 CampaignInit();
                 PresentFlowCoordinator(_campaignFlowCoordinator, delegate()
                 {
-                    _campaignFlowCoordinator.SetProperty("title", campaign.info.name);
+                    _campaignFlowCoordinator.InvokePrivateMethod("SetTitle", new object[] { campaign.info.name, ViewController.AnimationType.In });
                     _missionNodeSelectionManager.didSelectMissionNodeEvent -= _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode;
                     _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
                     _missionResultsViewController.retryButtonPressedEvent += HandleMissionResultsViewControllerRetryButtonPressed;
@@ -318,7 +318,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     _missionResultsViewController.continueButtonPressedEvent += HandleMissionResultsViewControllerContinueButtonPressed;
                     _missionMapAnimationController.ScrollToTopMostNotClearedMission();
                     _playButton.interactable = true;
-                }, false);
+                });
                 _missionNodeSelectionManager.didSelectMissionNodeEvent += HandleMissionNodeSelectionManagerDidSelectMissionNode;
             }
             catch (Exception ex)
@@ -469,7 +469,7 @@ namespace BeatSaberCustomCampaigns.campaign
         {
             Challenge challenge = (missionNode.missionData as CustomMissionDataSO).challenge;
             _campaignChallengeLeaderbaordViewController.lastClicked = challenge;
-            _campaignFlowCoordinator.InvokePrivateMethod("SetRightScreenViewController", new object[]{_campaignChallengeLeaderbaordViewController, false});
+            _campaignFlowCoordinator.InvokePrivateMethod("SetRightScreenViewController", new object[] { _campaignChallengeLeaderbaordViewController, ViewController.AnimationType.In });
             _campaignChallengeLeaderbaordViewController.UpdateLeaderboards();
             _challengeName.text = challenge.name;
             _challengeName.alignment = TextAlignmentOptions.Bottom;
@@ -488,7 +488,7 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public virtual void HandleMissionResultsViewControllerContinueButtonPressed(MissionResultsViewController viewController)
         {
-            _campaignFlowCoordinator.InvokePrivateMethod("SetBottomScreenViewController", new object[] { null, false });
+            _campaignFlowCoordinator.InvokePrivateMethod("SetBottomScreenViewController", new object[] { null, ViewController.AnimationType.In });
             LoadModifiersPanel(modifierParamsList);
         }
         public void LoadModifiersPanel(List<GameplayModifierParamsSO> modifierParamsList)
@@ -523,9 +523,7 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[modifierParamsPageNumber * 2 + idx];
                 gameplayModifierInfoListItem.modifierIcon = gameplayModifierParamsSO.icon;
-                gameplayModifierInfoListItem.modifierName = Localization.Get(gameplayModifierParamsSO.modifierNameLocalizationKey);
-                gameplayModifierInfoListItem.modifierDescription = Localization.Get(gameplayModifierParamsSO.descriptionLocalizationKey);
-                gameplayModifierInfoListItem.showSeparator = idx==0&& modifierParamsPageNumber * 2 != modifierParamsList.Count - 1;//(idx != modifierParamsList.Count - 1);
+                gameplayModifierInfoListItem.hoverHintText = Localization.Get(gameplayModifierParamsSO.modifierNameLocalizationKey) + " - " + Localization.Get(gameplayModifierParamsSO.descriptionLocalizationKey);
             });
         }
     }
