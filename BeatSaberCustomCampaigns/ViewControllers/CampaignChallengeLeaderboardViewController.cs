@@ -10,7 +10,7 @@ namespace BeatSaberCustomCampaigns
         public override string ResourceName => "BeatSaberCustomCampaigns.Views.challenge-leaderboard.bsml";
 
         [UIComponent("leaderboard")]
-        LeaderboardTableView table;
+        internal LeaderboardTableView table;
         TextMeshProUGUI text;
         public Challenge lastClicked;
         

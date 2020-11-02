@@ -32,7 +32,7 @@ namespace BeatSaberCustomCampaigns
             version = metadata?.Version;
         }
         [OnStart]
-        public void OnApplicationStart()
+        public async void OnApplicationStart()
         {
 
             try
@@ -47,6 +47,7 @@ namespace BeatSaberCustomCampaigns
                 Console.WriteLine(e);
             }
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
+            await APITools.InitializeUserInfo();
         }
 
         //Base game does a ton of stuff when everything gets enabled so this just makes sure that happens, without this some stuff will break

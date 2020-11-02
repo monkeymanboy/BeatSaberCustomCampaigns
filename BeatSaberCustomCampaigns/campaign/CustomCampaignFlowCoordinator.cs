@@ -138,6 +138,7 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 PushViewControllerToNavigationController(_campaignListNavigationController, _campaignDetailViewController);
                 SetRightScreenViewController(_campaignTotalLeaderboardViewController, ViewController.AnimationType.None);
+                (_campaignTotalLeaderboardViewController.table.transform.GetChild(1).GetChild(0).transform as RectTransform).localScale = new Vector3(1, 0.9f, 1);
             }
             _campaignTotalLeaderboardViewController.UpdateLeaderboards();
         }
@@ -320,6 +321,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     _playButton.interactable = true;
                 });
                 _missionNodeSelectionManager.didSelectMissionNodeEvent += HandleMissionNodeSelectionManagerDidSelectMissionNode;
+                (_campaignChallengeLeaderbaordViewController.table.transform.GetChild(1).GetChild(0).transform as RectTransform).localScale = new Vector3(1, 0.9f, 1);
             }
             catch (Exception ex)
             {
