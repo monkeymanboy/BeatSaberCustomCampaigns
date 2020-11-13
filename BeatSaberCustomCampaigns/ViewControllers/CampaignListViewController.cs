@@ -19,16 +19,16 @@ namespace BeatSaberCustomCampaigns.campaign
         
         public Action<Campaign> clickedCampaign;
         
-        protected override void DidActivate(bool firstActivation, ActivationType type)
+        protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            base.DidActivate(firstActivation, type);
+            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (firstActivation)
             {
                 rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
                 rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
                 rectTransform.sizeDelta = new Vector3(70, 0, 0);
             }
-            if(type==ActivationType.AddedToHierarchy) StartCoroutine(LoadCampaigns());
+            if(addedToHierarchy) StartCoroutine(LoadCampaigns());
         }
 
         [UIAction("campaign-click")]

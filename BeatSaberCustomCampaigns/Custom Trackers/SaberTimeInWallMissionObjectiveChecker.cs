@@ -11,8 +11,8 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 {
     public class SaberTimeInWallMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, CustomTracker
     {
-        protected ObstacleController.Pool obstaclePool;
-        protected PlayerController playerController;
+        protected BeatmapObjectManager beatmapObjectManager;
+        protected SaberManager saberManager;
         protected Saber[] sabers;
         protected float currentValue;
         bool loaded = false;
@@ -34,9 +34,10 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
         {
             while (!loaded)
             {
-                obstaclePool = Resources.FindObjectsOfTypeAll<PlayerHeadAndObstacleInteraction>().FirstOrDefault()?.GetField<ObstacleController.Pool, PlayerHeadAndObstacleInteraction>("_obstaclePool");
-                playerController = Resources.FindObjectsOfTypeAll<PlayerController>().FirstOrDefault();
-                if (obstaclePool == null || playerController == null)
+                var playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault()?.GetField< PlayerHeadAndObstacleInteraction, ScoreController>("_playerHeadAndObstacleInteraction");
+                beatmapObjectManager = playerHeadAndObstacleInteraction?.GetField<BeatmapObjectManager, PlayerHeadAndObstacleInteraction>("_beatmapObjectManager");
+                saberManager = Resources.FindObjectsOfTypeAll<SaberManager>().FirstOrDefault();
+                if (beatmapObjectManager == null || saberManager == null)
                     yield return new WaitForSeconds(0.1f);
                 else
                     loaded = true;
@@ -44,8 +45,8 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
             yield return new WaitForSeconds(0.1f);
             sabers = new Saber[2];
-            sabers[0] = playerController.leftSaber;
-            sabers[1] = playerController.rightSaber;
+            sabers[0] = saberManager.leftSaber;
+            sabers[1] = saberManager.rightSaber;
         }
 
         public void Update()
@@ -53,7 +54,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             if (!loaded) return;
             for (int i = 0; i < 2; i++)
             {
-                foreach (ObstacleController activeObstacleController in obstaclePool.activeItems)
+                foreach (ObstacleController activeObstacleController in beatmapObjectManager.activeObstacleControllers)
                 {
                     Bounds bounds = activeObstacleController.bounds;
                     if (sabers[i].isActiveAndEnabled && isSaberInWall(bounds, activeObstacleController.transform, sabers[i].saberBladeBottomPos, sabers[i].saberBladeTopPos))

@@ -27,21 +27,25 @@ namespace BeatSaberCustomCampaigns
         public float speedMul;
         public GameplayModifiers GetGameplayModifiers()
         {
-            CustomGameplayModifiers modifiers = new CustomGameplayModifiers(GameplayModifiers.defaultModifiers);
+            var defaultModifiers = new GameplayModifiers();
+            CustomGameplayModifiers modifiers = new CustomGameplayModifiers( new GameplayModifiers(
+                defaultModifiers.demoNoFail,
+                defaultModifiers.demoNoObstacles,
+                energyType,
+                noFail,
+                instaFail,
+                failOnSaberClash,
+                enabledObstacleType,
+                noBombs,
+                fastNotes,
+                strictAngles,
+                disappearingArrows,
+                defaultModifiers.songSpeed,
+                noArrows,
+                ghostNotes
+            ));
+
             modifiers.challengeModifiers = this;
-            modifiers.fastNotes = fastNotes;
-            modifiers.noBombs = noBombs;
-            modifiers.disappearingArrows = disappearingArrows;
-            modifiers.strictAngles = strictAngles;
-            modifiers.noObstacles = noObstacles;
-            modifiers.batteryEnergy = batteryEnergy;
-            modifiers.failOnSaberClash = failOnSaberClash;
-            modifiers.instaFail = instaFail;
-            modifiers.noFail = noFail;
-            modifiers.energyType = energyType;
-            modifiers.enabledObstacleType = enabledObstacleType;
-            modifiers.noArrows = noArrows;
-            modifiers.ghostNotes = ghostNotes;
             return modifiers;
         }
     }

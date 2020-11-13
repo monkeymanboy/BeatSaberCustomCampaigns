@@ -37,18 +37,18 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
         IEnumerator WaitForLoad()
         {
-            PlayerController playerController = null;
+            PlayerTransforms playerTransforms = null;
             bool loaded = false;
             while (!loaded)
             {
-                playerController = Resources.FindObjectsOfTypeAll<PlayerController>().FirstOrDefault();
+                playerTransforms = Resources.FindObjectsOfTypeAll<PlayerTransforms>().FirstOrDefault();
                 pauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
-                if (playerController == null || pauseMenuManager == null)
+                if (playerTransforms == null || pauseMenuManager == null)
                     yield return new WaitForSeconds(0.1f);
                 else
                     loaded = true;
             }
-            headTransform = playerController.GetPrivateField<Transform>("_headTransform");
+            headTransform = playerTransforms.GetPrivateField<Transform>("_headTransform");
             yield return new WaitForSeconds(0.1f);
         }
 

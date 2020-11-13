@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using CustomCampaignLeaderboardLibrary;
 using IPA.Utilities;
 using TMPro;
+using UnityEngine;
 
 namespace BeatSaberCustomCampaigns.campaign
 {
@@ -11,7 +12,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public override string ResourceName => "BeatSaberCustomCampaigns.Views.campaign-leaderboard.bsml";
 
         [UIComponent("leaderboard")]
-        LeaderboardTableView table;
+        internal LeaderboardTableView table;
         public string lastClicked = "";
         
         public void UpdateLeaderboards()

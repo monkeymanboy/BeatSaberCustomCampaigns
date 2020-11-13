@@ -51,7 +51,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
 
         public virtual void HandleNoteWasCut(NoteData data, NoteCutInfo info, int combo)
         {
-            if (data.noteType == NoteType.Bomb)
+            if (data.colorType == ColorType.None)
             {
                 base.checkedValue++;
                 CheckAndUpdateStatus();

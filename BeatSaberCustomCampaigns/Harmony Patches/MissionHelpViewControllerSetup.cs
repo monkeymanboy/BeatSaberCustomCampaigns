@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using HMUI;
 using Polyglot;
 using System;
 using System.Collections;
@@ -28,13 +29,17 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 ChallengeInfo challengeInfo = (missionHelp as CustomMissionHelpSO).challengeInfo;
                 string imagePath = (missionHelp as CustomMissionHelpSO).imagePath;
                 Transform content = __instance.transform.GetChild(0);
-                TextMeshProUGUI title = content.GetChild(0).GetComponent<TextMeshProUGUI>();
-                Transform seperatorPrefab = content.GetChild(1).GetChild(1);
-                Transform segmentPrefab = content.GetChild(1).GetChild(2);
+                CurvedTextMeshPro title = content.GetChild(0).GetChild(1).GetComponent<CurvedTextMeshPro>();
+
+                Transform seperatorPrefab = content.GetChild(6).GetChild(1);
+                Transform segmentPrefab = content.GetChild(1).GetChild(1);
 
                 GameObject.Destroy(title.GetComponent<LocalizedTextMeshProUGUI>());
                 title.text = challengeInfo.title;
+                title.richText = true;
                 Transform infoContainer = GameObject.Instantiate(content.GetChild(1), content);
+                infoContainer.SetSiblingIndex(content.childCount - 2);
+
                 infoContainer.gameObject.SetActive(true);
                 if (lastInfo != null)
                 {
@@ -51,22 +56,23 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     GameObject.Destroy(segment.GetComponentInChildren<LocalizedTextMeshProUGUI>());
                     if (infoSegment.text == "")
                     {
-                        GameObject.Destroy(segment.GetComponentInChildren<TextMeshProUGUI>().gameObject);
+                        GameObject.Destroy(segment.GetComponentInChildren<CurvedTextMeshPro>().gameObject);
                     }
                     else
                     {
-                        segment.GetComponentInChildren<TextMeshProUGUI>().text = infoSegment.text;
+                        segment.GetComponentInChildren<CurvedTextMeshPro>().text = infoSegment.text;
                     }
-                    Image image = segment.GetComponentInChildren<Image>();
+
+                    ImageView imageView = segment.GetComponentInChildren<ImageView>();
                     if (infoSegment.imageName == "")
                     {
-                        GameObject.Destroy(image.gameObject);
+                        GameObject.Destroy(imageView.gameObject);
                     }
                     else
                     {
-                        image.sprite = null;
+                        imageView.sprite = null;
                         if (imageLoader == null) imageLoader = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
-                        imageLoader.StartCoroutine(LoadSprite("file:///" + imagePath + infoSegment.imageName, image));
+                        imageLoader.StartCoroutine(LoadSprite("file:///" + imagePath + infoSegment.imageName, imageView));
                     }
                     if (infoSegment.hasSeperator)
                     {
@@ -76,7 +82,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
             }
             else
             {
-                __instance.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = "NEW OBJECTIVE";
+                __instance.transform.GetChild(0).GetComponentInChildren<CurvedTextMeshPro>().text = "NEW OBJECTIVE";
             }
         }
 

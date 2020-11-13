@@ -65,7 +65,7 @@ namespace BeatSaberCustomCampaigns.campaign
                         //Sprite sprite = ;
                         loadedTextures.Add(spritePath, tex);
                         if (isBackground) background = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
-                        else icon = tex;
+                        else icon = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100.0f);
                     }
                 }
             }
@@ -73,7 +73,7 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 Texture2D tex = loadedTextures[spritePath];
                 if (isBackground) background = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.one * 0.5f, 100, 1);
-                else icon = tex;
+                else icon = Sprite.Create(tex, new Rect(0.0f, 0.0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100.0f);
             }
             if (!isBackground)
             {
