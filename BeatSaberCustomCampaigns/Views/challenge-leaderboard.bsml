@@ -2,5 +2,5 @@
   <horizontal bg='panel-top' pad-left='30' pad-right='30' horizontal-fit='PreferredSize'>
     <text text='Leaderboard' align='Center' font-size='8'></text>
   </horizontal>
-  <leaderboard id='leaderboard' cell-size='6.1'></leaderboard>
+  <leaderboard id='leaderboard' cell-size='6.1' size-delta-y='66'></leaderboard>
 </vertical>
