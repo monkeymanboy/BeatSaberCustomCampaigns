@@ -2,7 +2,6 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BS_Utils.Gameplay;
 using HMUI;
-using Polyglot;
 using SongCore;
 using SongCore.Utilities;
 using System;
@@ -460,7 +459,7 @@ namespace BeatSaberCustomCampaigns.campaign
             _campaignChallengeLeaderbaordViewController.UpdateLeaderboards();
             _challengeName.text = challenge.name;
             _challengeName.alignment = TextAlignmentOptions.Bottom;
-            List<GameplayModifierParamsSO> modParams = _gameplayModifiersModel.GetModifierParams(missionNode.missionData.gameplayModifiers);
+            List<GameplayModifierParamsSO> modParams = _gameplayModifiersModel.CreateModifierParamsList(missionNode.missionData.gameplayModifiers);
             foreach(string modName in challenge.externalModifiers.Keys)
             {
                 if (!ChallengeExternalModifiers.getInfo.ContainsKey(modName)) continue;
@@ -490,8 +489,7 @@ namespace BeatSaberCustomCampaigns.campaign
             _gameplayModifierInfoListItemsList.SetData(modifierParamsList.Count, delegate (int idx, GameplayModifierInfoListItem gameplayModifierInfoListItem)
             {
                 GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[idx];
-                gameplayModifierInfoListItem.modifierIcon = gameplayModifierParamsSO.icon;
-                gameplayModifierInfoListItem.hoverHintText = Localization.Get(gameplayModifierParamsSO.modifierNameLocalizationKey) + " - " + Localization.Get(gameplayModifierParamsSO.descriptionLocalizationKey);
+                gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
             });
         }
     }

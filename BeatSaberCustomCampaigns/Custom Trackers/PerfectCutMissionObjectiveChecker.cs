@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using UnityEngine;
-using BS_Utils.Utilities;
 using System.Collections;
 
 namespace BeatSaberCustomCampaigns.Custom_Trackers
@@ -51,27 +46,47 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             }
         }
 
-        public virtual void HandleNoteWasCut(NoteData data, NoteCutInfo info, int combo)
+        public virtual void HandleNoteWasCut(NoteData data, in NoteCutInfo info, int multiplier)
         {
             if (data.colorType == ColorType.None || !info.allIsOK) return;
-            bool didDone = false;
-            info.swingRatingCounter.didFinishEvent += e =>
-            {
-                if (didDone) return;
-                didDone = true;
-                ScoreModel.RawScoreWithoutMultiplier(info, out int before, out int after, out int cutDist);
-                int total = before + after + cutDist;
-                if (total == 115)
-                {
-                    base.checkedValue++;
-                    CheckAndUpdateStatus();
-                }
-            };
+
+            info.swingRatingCounter.RegisterDidFinishReceiver(new PerfectCutMissionObjectiveReceiver(this, info));
         }
 
         public string GetMissionObjectiveTypeName()
         {
             return ChallengeRequirement.GetObjectiveName("perfectCuts");
+        }
+
+        public void IncrementCheckAndUpdateStatus()
+        {
+            checkedValue++;
+            CheckAndUpdateStatus();
+        }
+    }
+
+    public class PerfectCutMissionObjectiveReceiver : ISaberSwingRatingCounterDidFinishReceiver
+    {
+        private readonly PerfectCutMissionObjectiveChecker _checker;
+        private readonly NoteCutInfo _noteCutInfo;
+
+        public PerfectCutMissionObjectiveReceiver(PerfectCutMissionObjectiveChecker checker, NoteCutInfo noteCutInfo)
+        {
+            _checker = checker;
+            _noteCutInfo = noteCutInfo;
+        }
+
+        public void HandleSaberSwingRatingCounterDidFinish(ISaberSwingRatingCounter saberSwingRatingCounter)
+        {
+            ScoreModel.RawScoreWithoutMultiplier(saberSwingRatingCounter, _noteCutInfo.cutDistanceToCenter, out var beforeCutRawScore, out var afterCutRawScore, out var cutDistanceRawScore);
+            var total = beforeCutRawScore + afterCutRawScore + cutDistanceRawScore;
+
+            saberSwingRatingCounter.UnregisterDidFinishReceiver(this);
+
+            if (total == 115)
+            {
+                _checker.IncrementCheckAndUpdateStatus();
+            }
         }
     }
 }

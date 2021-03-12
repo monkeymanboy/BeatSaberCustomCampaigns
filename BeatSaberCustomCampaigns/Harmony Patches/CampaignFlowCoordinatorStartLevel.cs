@@ -21,7 +21,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 PlayerSpecificSettings playerSpecificSettings = ____playerDataModel.playerData.playerSpecificSettings;
                 ColorSchemesSettings colorSchemesSettings = ____playerDataModel.playerData.colorSchemesSettings;
                 ColorScheme overrideColorScheme = colorSchemesSettings.overrideDefaultColors ? colorSchemesSettings.GetSelectedColorScheme() : null;
-                ____menuTransitionsHelper.StartMissionLevel("", difficultyBeatmap, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish);
+                ____menuTransitionsHelper.StartMissionLevel("", difficultyBeatmap, missionData.level, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish);
                 return false;
             }
             return true;

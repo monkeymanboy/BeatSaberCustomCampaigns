@@ -2,14 +2,11 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
-    [HarmonyPatch(typeof(GameplayModifiersModelSO), "GetModifierParams",
+    [HarmonyPatch(typeof(GameplayModifiersModelSO), "CreateModifierParamsList",
         new Type[] { typeof(GameplayModifiers) })]
     class GameplayModifiersModelSOGetModifierParams
     {

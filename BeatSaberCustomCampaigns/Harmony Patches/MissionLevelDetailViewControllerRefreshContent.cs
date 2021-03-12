@@ -59,13 +59,12 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                         }
                     }
                 });
-                List<GameplayModifierParamsSO> modifierParamsList = ____gameplayModifiersModel.GetModifierParams(missionData.gameplayModifiers);
+                List<GameplayModifierParamsSO> modifierParamsList = ____gameplayModifiersModel.CreateModifierParamsList(missionData.gameplayModifiers);
                 ____modifiersPanelGO.SetActive(modifierParamsList.Count > 0);
                 ____gameplayModifierInfoListItemsList.SetData(modifierParamsList.Count, delegate (int idx, GameplayModifierInfoListItem gameplayModifierInfoListItem)
                 {
                     GameplayModifierParamsSO gameplayModifierParamsSO = modifierParamsList[idx];
-                    gameplayModifierInfoListItem.modifierIcon = gameplayModifierParamsSO.icon;
-                    gameplayModifierInfoListItem.hoverHintText = Localization.Get(gameplayModifierParamsSO.modifierNameLocalizationKey) + " - " + Localization.Get(gameplayModifierParamsSO.descriptionLocalizationKey);
+                    gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
                 });
                 return false;
             }
