@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
-    [HarmonyPatch(typeof(GameplayModifiersModelSO), "GetModifierParams",
+    [HarmonyPatch(typeof(GameplayModifiersModelSO), "CreateModifierParamsList",
         new Type[] { typeof(GameplayModifiers) })]
     class GameplayModifiersModelSOGetModifierParams
     {

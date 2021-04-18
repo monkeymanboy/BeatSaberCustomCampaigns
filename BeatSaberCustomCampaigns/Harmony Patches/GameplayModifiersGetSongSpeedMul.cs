@@ -23,6 +23,9 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     case SongSpeed.Faster:
                         __result = 1.2f;
                         break;
+                    case SongSpeed.SuperFast:
+                        __result = 1.5f;
+                        break;
                     default:
                         __result = ((CustomGameplayModifiers)__instance).challengeModifiers.speedMul;
                         break;

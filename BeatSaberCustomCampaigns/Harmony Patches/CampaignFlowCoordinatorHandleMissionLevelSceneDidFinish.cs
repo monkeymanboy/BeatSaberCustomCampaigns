@@ -2,6 +2,7 @@
 using BS_Utils.Utilities;
 using CustomCampaignLeaderboardLibrary;
 using HarmonyLib;
+using SongCore;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -40,7 +41,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 UnlockedItemsViewController unlockedItemsViewController = Resources.FindObjectsOfTypeAll<UnlockedItemsViewController>().First();
                 unlockedItemsViewController.items = challenge.unlockableItems;
                 unlockedItemsViewController.index = 0;
-                if(unlockedItemsViewController.items.Count>0) __instance.InvokeMethod("SetBottomScreenViewController", new object[] { unlockedItemsViewController, false });
+                if(unlockedItemsViewController.items.Count>0) __instance.InvokeMethod("SetBottomScreenViewController", new object[] { unlockedItemsViewController, HMUI.ViewController.AnimationType.None });
                 if (challenge.unlockMap)
                 {
                     UnlockedMaps.CompletedChallenge(challenge.name);
@@ -50,7 +51,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 if (customMissionData.gameplayModifiers.songSpeedMul==1f && customMissionData.gameplayModifiers.fastNotes == false && customMissionData.gameplayModifiers.failOnSaberClash == false) {
                     SoloFreePlayFlowCoordinator freePlayCoordinator = Resources.FindObjectsOfTypeAll<SoloFreePlayFlowCoordinator>().First();
 
-                    PlayerDataModel dataModel = freePlayCoordinator.GetPrivateField<PlayerDataModel>("_playerDataModel");
+                    PlayerDataModel dataModel = freePlayCoordinator.GetPrivateField<PlayerDataModel>("playerDataModel");
 
                     PlayerData currentLocalPlayer = dataModel.playerData;
                     IDifficultyBeatmap difficultyBeatmap = Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(customMissionData.customLevel.levelID).beatmapLevelData.GetDifficultyBeatmap(customMissionData.beatmapCharacteristic, customMissionData.beatmapDifficulty);
@@ -58,7 +59,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     LevelCompletionResults levelCompletionResults = missionCompletionResults.levelCompletionResults;
                     playerLevelStatsData.UpdateScoreData(levelCompletionResults.modifiedScore, levelCompletionResults.maxCombo, levelCompletionResults.fullCombo, levelCompletionResults.rank);
                     //todo Need change???
-                    //freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").AddScoreFromComletionResults(difficultyBeatmap, levelCompletionResults);
+                    //freePlayCoordinator.GetPrivateField<PlatformLeaderboardsModel>("_platformLeaderboardsModel").UploadScore(difficultyBeatmap, levelCompletionResults.rawScore, levelCompletionResults.modifiedScore, levelCompletionResults.fullCombo, levelCompletionResults.goodCutsCount, levelCompletionResults.badCutsCount, levelCompletionResults.missedCount, levelCompletionResults.maxCombo, levelCompletionResults.energy, levelCompletionResults.gameplayModifiers);
                 }
                 */
                 if (!string.IsNullOrWhiteSpace(campaign.completionPost))
