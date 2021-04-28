@@ -9,9 +9,10 @@ using System.Collections;
 
 namespace BeatSaberCustomCampaigns.Custom_Trackers
 {
-    public class PerfectCutMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, CustomTracker
+    public class PerfectCutMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, CustomTracker, ISaberSwingRatingCounterDidFinishReceiver
     {
         protected ScoreController scoreController;
+        private Dictionary<ISaberSwingRatingCounter, NoteCutInfo> cutNotes = new Dictionary<ISaberSwingRatingCounter, NoteCutInfo>();
 
         protected override void Init()
         {
@@ -51,27 +52,33 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             }
         }
 
-        public virtual void HandleNoteWasCut(NoteData data, NoteCutInfo info, int combo)
+        public virtual void HandleNoteWasCut(NoteData data, in NoteCutInfo info, int multiplier)
         {
             if (data.colorType == ColorType.None || !info.allIsOK) return;
-            bool didDone = false;
-            info.swingRatingCounter.didFinishEvent += e =>
+            cutNotes.Add(info.swingRatingCounter, info);
+            info.swingRatingCounter.RegisterDidFinishReceiver(this);
+        }
+
+        public string GetMissionObjectiveTypeName()
+        {
+            return ChallengeRequirement.GetObjectiveName("perfectCuts");
+        }
+
+        public void HandleSaberSwingRatingCounterDidFinish(ISaberSwingRatingCounter saberSwingRatingCounter)
+        {
+            saberSwingRatingCounter.UnregisterDidFinishReceiver(this);
+            if (cutNotes.ContainsKey(saberSwingRatingCounter))
             {
-                if (didDone) return;
-                didDone = true;
-                ScoreModel.RawScoreWithoutMultiplier(info, out int before, out int after, out int cutDist);
+                NoteCutInfo info = cutNotes[saberSwingRatingCounter];
+                ScoreModel.RawScoreWithoutMultiplier(saberSwingRatingCounter, info.cutDistanceToCenter, out int before, out int after, out int cutDist);
                 int total = before + after + cutDist;
                 if (total == 115)
                 {
                     base.checkedValue++;
                     CheckAndUpdateStatus();
                 }
-            };
-        }
-
-        public string GetMissionObjectiveTypeName()
-        {
-            return ChallengeRequirement.GetObjectiveName("perfectCuts");
+                cutNotes.Remove(saberSwingRatingCounter);
+            }
         }
     }
 }

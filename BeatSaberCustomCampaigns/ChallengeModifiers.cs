@@ -21,6 +21,9 @@ namespace BeatSaberCustomCampaigns
         public bool noFail;
         public bool noArrows;
         public bool ghostNotes;
+        public bool proMode;
+        public bool zenMode;
+        public bool smallCubes;
         public GameplayModifiers.EnergyType energyType;
         public GameplayModifiers.EnabledObstacleType enabledObstacleType;
 
@@ -42,8 +45,11 @@ namespace BeatSaberCustomCampaigns
                 disappearingArrows,
                 defaultModifiers.songSpeed,
                 noArrows,
-                ghostNotes
-            ));
+                ghostNotes,
+                proMode,
+                zenMode,
+                smallCubes
+            )); ;
 
             modifiers.challengeModifiers = this;
             return modifiers;

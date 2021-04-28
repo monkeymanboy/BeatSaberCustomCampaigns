@@ -49,7 +49,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             }
         }
 
-        public virtual void HandleNoteWasCut(NoteData data, NoteCutInfo info, int combo)
+        public virtual void HandleNoteWasCut(NoteData data, in NoteCutInfo info, int combo)
         {
             if (data.colorType == ColorType.None)
             {

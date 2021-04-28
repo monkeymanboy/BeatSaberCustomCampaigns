@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatSaberCustomCampaigns.Harmony_Patches
 {
@@ -19,7 +20,14 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
             {
                 __instance.SetPrivateField("_selectedMissionNode", missionNodeVisualController.missionNode);
                 CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
-                if(level!=null)____songPreviewPlayer.CrossfadeTo(level.GetPreviewAudioClipAsync(CancellationToken.None).Result, level.previewStartTime, level.previewDuration);
+                if (level!= null)
+                {
+                    var audioTask = level.GetPreviewAudioClipAsync(new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
+                    if (audioTask.IsCompleted)
+                    {
+                        ____songPreviewPlayer.CrossfadeTo(audioTask.Result, level.previewStartTime, level.previewDuration);
+                    }
+                }
                 __instance.GetPrivateField<Action<MissionSelectionMapViewController, MissionNode>>("didSelectMissionLevelEvent")(__instance, missionNodeVisualController.missionNode);
                 return false;
             }
