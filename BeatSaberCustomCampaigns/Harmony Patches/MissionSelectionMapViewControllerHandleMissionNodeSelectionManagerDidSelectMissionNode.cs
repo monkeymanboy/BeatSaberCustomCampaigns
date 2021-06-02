@@ -25,7 +25,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     var audioTask = level.GetPreviewAudioClipAsync(new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
                     if (audioTask.IsCompleted)
                     {
-                        ____songPreviewPlayer.CrossfadeTo(audioTask.Result, level.previewStartTime, level.previewDuration);
+                        ____songPreviewPlayer.CrossfadeTo(audioTask.Result, -4f, level.previewStartTime, level.previewDuration);
                     }
                 }
                 __instance.GetPrivateField<Action<MissionSelectionMapViewController, MissionNode>>("didSelectMissionLevelEvent")(__instance, missionNodeVisualController.missionNode);
