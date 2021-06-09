@@ -52,17 +52,17 @@ namespace BeatSaberCustomCampaigns
                 case "bombsHit":
                     return "Bombs";
                 case "blocksMissed":
-                    return "Miss";
+                    return "OBJECTIVE_MISS";
                 case "score":
                     return "OBJECTIVE_SCORE";
                 case "saberDistance":
-                    return "Hands Movement";
+                    return "OBJECTIVE_HANDS_MOVEMENT";
                 case "perfectCuts":
                     return "Perfect Cuts";
                 case "combo":
-                    return "Combo";
+                    return "OBJECTIVE_COMBO";
                 case "fullCombo":
-                    return "Full Combo";
+                    return "OBJECTIVE_FULL_COMBO";
                 case "badCuts":
                     return "OBJECTIVE_BAD_CUTS";
                 case "headInWall":
