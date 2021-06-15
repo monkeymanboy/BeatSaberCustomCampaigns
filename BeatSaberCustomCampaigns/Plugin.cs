@@ -65,7 +65,7 @@ namespace BeatSaberCustomCampaigns
 
         public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
         {
-            if (nextScene.name.Equals("MenuViewControllers") && prevScene.name.Equals("EmptyTransition"))
+            if (nextScene.name.Equals("MainMenu") && prevScene.name.Equals("EmptyTransition"))
             {
                 Assets.Init();
                 UnlockedMaps.Load();
