@@ -15,8 +15,10 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
         static bool Prefix(string levelId, ref float __result)
         {
             if (levelId == null)
+            {
                 __result = -6f;
                 return false;
+            }
             return true;
         }
     }
