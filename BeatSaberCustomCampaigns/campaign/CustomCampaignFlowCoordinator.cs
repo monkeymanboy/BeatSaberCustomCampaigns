@@ -20,18 +20,6 @@ namespace BeatSaberCustomCampaigns.campaign
 {
     public class CustomCampaignFlowCoordinator : FlowCoordinator
     {
-        private static readonly FieldAccessor<MissionLevelDetailViewController, Button>.Accessor PlayButtonAccessor = FieldAccessor<MissionLevelDetailViewController, Button>.GetAccessor("_playButton");
-        private static readonly FieldAccessor<MissionSelectionMapViewController, ScrollView>.Accessor MapScrollViewAccessor = FieldAccessor<MissionSelectionMapViewController, ScrollView>.GetAccessor("_mapScrollView");
-        private static readonly FieldAccessor<CampaignFlowCoordinator, MissionSelectionNavigationController>.Accessor MissionSelectionNavigationControllerAccessor = FieldAccessor<CampaignFlowCoordinator, MissionSelectionNavigationController>.GetAccessor("_missionSelectionNavigationController");
-        private static readonly FieldAccessor<MissionLevelDetailViewController, GameplayModifierInfoListItemsList>.Accessor GameplayModifierInfoListItemsListAccessor = FieldAccessor<MissionLevelDetailViewController, GameplayModifierInfoListItemsList>.GetAccessor("_gameplayModifierInfoListItemsList");
-        private static readonly FieldAccessor<MissionLevelDetailViewController, GameObject>.Accessor ModifiersPanelGOAccessor = FieldAccessor<MissionLevelDetailViewController, GameObject>.GetAccessor("_modifiersPanelGO");
-        private static readonly FieldAccessor<MissionLevelDetailViewController, GameplayModifiersModelSO>.Accessor GameplayModifiersModelSOAccessor = FieldAccessor<MissionLevelDetailViewController, GameplayModifiersModelSO>.GetAccessor("_gameplayModifiersModel");
-        private static readonly FieldAccessor<CampaignFlowCoordinator, CampaignProgressModel>.Accessor CampaignProgressModelAccessor = FieldAccessor<CampaignFlowCoordinator, CampaignProgressModel>.GetAccessor("_campaignProgressModel");
-        private static readonly FieldAccessor<MissionNodesManager, MissionNode[]>.Accessor AllMissionNodesAccessor = FieldAccessor<MissionNodesManager, MissionNode[]>.GetAccessor("_allMissionNodes");
-        private static readonly FieldAccessor<MissionNodesManager, MissionNode>.Accessor RootMissionNodeAccessor =FieldAccessor<MissionNodesManager, MissionNode>.GetAccessor("_rootMissionNode");
-        private static readonly FieldAccessor<MissionNodesManager, MissionNode>.Accessor FinalMissionNodeAccessor =FieldAccessor<MissionNodesManager, MissionNode>.GetAccessor("_finalMissionNode");
-        private static readonly FieldAccessor<MissionNodesManager, MissionStage[]>.Accessor MissionStagesAccessor =FieldAccessor<MissionNodesManager, MissionStage[]>.GetAccessor("_missionStages");
-
         public const float EDITOR_TO_GAME_UNITS = 30f / 111;
         public const float HEIGHT_OFFSET = 20;
 
@@ -103,20 +91,20 @@ namespace BeatSaberCustomCampaigns.campaign
                 _missionLevelDetailViewController = Resources.FindObjectsOfTypeAll<MissionLevelDetailViewController>().First();
                 _missionResultsViewController = Resources.FindObjectsOfTypeAll<MissionResultsViewController>().First();
 
-                _playButton = PlayButtonAccessor(ref _missionLevelDetailViewController);
-                _mapScrollView = MapScrollViewAccessor(ref _missionSelectionMapViewController);
+                _playButton = _missionLevelDetailViewController.GetField<Button, MissionLevelDetailViewController>("_playButton");
+                _mapScrollView = _missionSelectionMapViewController.GetField<ScrollView, MissionSelectionMapViewController>("_mapScrollView");
                 _mapScrollViewItemsVisibilityController = _mapScrollView.GetComponent<ScrollViewItemsVisibilityController>();
                 _backgroundImage = _mapScrollView.GetComponentsInChildren<Image>().First(x => x.name == "Map");
-                
-                _missionSelectionNavigationController = MissionSelectionNavigationControllerAccessor(ref _campaignFlowCoordinator);
-                _gameplayModifierInfoListItemsList = GameplayModifierInfoListItemsListAccessor(ref _missionLevelDetailViewController);
-                _modifiersPanelGO = ModifiersPanelGOAccessor(ref _missionLevelDetailViewController);
-                
-                _gameplayModifiersModel = GameplayModifiersModelSOAccessor(ref _missionLevelDetailViewController);
+
+                _missionSelectionNavigationController = _campaignFlowCoordinator.GetField<MissionSelectionNavigationController, CampaignFlowCoordinator>("_missionSelectionNavigationController");
+                _gameplayModifierInfoListItemsList = _missionLevelDetailViewController.GetField<GameplayModifierInfoListItemsList, MissionLevelDetailViewController>("_gameplayModifierInfoListItemsList");
+                _modifiersPanelGO = _missionLevelDetailViewController.GetField<GameObject, MissionLevelDetailViewController>("_modifiersPanelGO");
+
+                _gameplayModifiersModel = _missionLevelDetailViewController.GetField<GameplayModifiersModelSO, MissionLevelDetailViewController>("_gameplayModifiersModel");
 
                 BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCustomCampaigns.Views.challenge-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
 
-                _campaignProgressModel = CampaignProgressModelAccessor(ref _campaignFlowCoordinator);
+                _campaignProgressModel = _campaignFlowCoordinator.GetField<CampaignProgressModel, CampaignFlowCoordinator>("_campaignProgressModel");
 
                 _campaignListViewController = BeatSaberUI.CreateViewController<CampaignListViewController>();
                 _campaignDetailViewController = BeatSaberUI.CreateViewController<CampaignDetailViewController>();
@@ -168,10 +156,10 @@ namespace BeatSaberCustomCampaigns.campaign
                     _mapScrollView.OnDestroy();
                     _mapScrollView.Awake();
                     if (!_missionNodesManager.IsInitialized)_missionNodesManager.Awake();
-                    baseNodes = AllMissionNodesAccessor(ref _missionNodesManager);
-                    baseRoot = RootMissionNodeAccessor(ref _missionNodesManager);
-                    baseFinal = FinalMissionNodeAccessor(ref _missionNodesManager);
-                    baseMissionStages = MissionStagesAccessor(ref _missionNodesManager);
+                    baseNodes = _missionNodesManager.GetField<MissionNode[], MissionNodesManager>("_allMissionNodes");
+                    baseRoot = _missionNodesManager.GetField<MissionNode, MissionNodesManager>("_rootMissionNode");
+                    baseFinal = _missionNodesManager.GetField<MissionNode, MissionNodesManager>("_finalMissionNode");
+                    baseMissionStages = _missionNodesManager.GetField<MissionStage[], MissionNodesManager>("_missionStages");
                     baseBackground = _backgroundImage.sprite;
                     baseBackAlpha = _backgroundImage.color.a;
                     baseMapHeight = _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").sizeDelta.y;

@@ -44,7 +44,8 @@ namespace BeatSaberCustomCampaigns
             {
                 CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => x.customLevelPath.Contains("\\" + songid + (customDownloadURL == "" ? " " : ""))); //Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
                 return level;
-            } catch
+            }
+            catch
             {
                 return null;
             }
@@ -54,36 +55,36 @@ namespace BeatSaberCustomCampaigns
             CustomMissionDataSO data = ScriptableObject.CreateInstance<CustomMissionDataSO>();
             data.campaign = campaign;
             data.challenge = this;
-            FieldAccessor<CustomMissionDataSO, GameplayModifiers>.Access(ref data, "_gameplayModifiers") = modifiers.GetGameplayModifiers();
-            FieldAccessor<CustomMissionDataSO, MissionObjective[]>.Access(ref data, "_missionObjectives") = GetMissionObjectives();
+            data.SetField("_gameplayModifiers", modifiers.GetGameplayModifiers());
+            data.SetField("_missionObjectives", GetMissionObjectives());
 
             if (challengeInfo != null)
             {
                 CustomMissionHelpSO missionHelp = ScriptableObject.CreateInstance<CustomMissionHelpSO>();
                 missionHelp.challengeInfo = challengeInfo;
                 missionHelp.imagePath = campaign.path + "/images/";
-                FieldAccessor<CustomMissionHelpSO, string>.Access(ref missionHelp, "_missionHelpId") = GetHash();
-                FieldAccessor<CustomMissionDataSO, MissionHelpSO>.Access(ref data, "_missionHelp") = missionHelp;
+                missionHelp.SetField("_missionHelpId", GetHash());
+                data.SetField("_missionHelp", missionHelp);
             }
 
-            FieldAccessor<CustomMissionDataSO, BeatmapDifficulty>.Access(ref data, "_beatmapDifficulty") = difficulty;
+            data.SetField("_beatmapDifficulty", difficulty);
             CustomPreviewBeatmapLevel level = FindSong();
             data.customLevel = level;
             if (level != null)
             {
                 try
                 {
-                    FieldAccessor<CustomMissionDataSO, BeatmapCharacteristicSO>.Access(ref data, "_beatmapCharacteristic") =
-                        level.previewDifficultyBeatmapSets.GetBeatmapCharacteristics().First(x => x.serializedName == characteristic);
-                } catch
+                    data.SetField("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
+                }
+                catch
                 {
                     BeatmapCharacteristicSO characteristicSO = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
-                    FieldAccessor<BeatmapCharacteristicSO, string>.Access(ref characteristicSO, "_characteristicNameLocalizationKey") = characteristic;
-                    FieldAccessor<BeatmapCharacteristicSO, string>.Access(ref characteristicSO, "_descriptionLocalizationKey") = "ERROR NOT FOUND";
-                    FieldAccessor<CustomMissionDataSO, BeatmapCharacteristicSO>.Access(ref data, "_beatmapCharacteristic") = characteristicSO;
+                    characteristicSO.SetField("_characteristicNameLocalizationKey", characteristic);
+                    characteristicSO.SetField("_descriptionLocalizationKey", "ERROR NOT FOUND");
+                    data.SetField("_beatmapCharacteristic", characteristicSO);
                 }
                 
-                FieldAccessor<CustomMissionDataSO, BeatmapLevelSO>.Access(ref data, "_level") = APITools.stubLevel;
+                data.SetField("_level", APITools.stubLevel);
             }
             return data;
         }
