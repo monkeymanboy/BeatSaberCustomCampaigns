@@ -1,0 +1,4 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd' child-control-height='false' size-delta-x='5' anchor-min-x='0' anchor-min-y='0' anchor-max-x='1' anchor-max-y='1'>
+  <text-page text='~description-text' size-delta-x='0' size-delta-y='0' anchor-min-x='0' anchor-min-y='0.2' anchor-max-x='1' anchor-max-y='1'></text-page>
+  <action-button on-click='clickedPlay' text='Play' anchor-pos-y='-70' pref-width='34' pref-height='10'></action-button>
+</bg>

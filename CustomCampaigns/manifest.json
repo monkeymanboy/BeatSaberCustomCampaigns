@@ -1,0 +1,16 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
+  "id": "BeatSaberCustomCampaigns",
+  "name": "CustomCampaigns",
+  "author": "",
+  "version": "3.0.0",
+  "description": "",
+  "gameVersion": "1.16.2",
+  "dependsOn": {
+    "SongCore": "^3.4.1",
+    "BeatSaberMarkupLanguage": "^1.5.3",
+    "CustomCampaignLeaderboardLibrary": "^1.3.0",
+    "BSIPA": "^4.1.6",
+    "SiraUtil": "^2.4.0"
+  }
+}

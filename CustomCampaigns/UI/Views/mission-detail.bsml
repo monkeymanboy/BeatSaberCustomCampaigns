@@ -1,0 +1,5 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+<horizontal bg='panel-top' pad-left='7' pad-right='7' horizontal-fit='PreferredSize' anchor-max-y='0.95' anchor-min-y='1'>
+  <text id='mission-name'  align='Center' font-size='4'></text>
+</horizontal>
+</bg>
