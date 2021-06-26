@@ -2,14 +2,13 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BS_Utils.Gameplay;
 using HMUI;
-using Polyglot;
 using SongCore;
-using SongCore.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using IPA.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +20,18 @@ namespace BeatSaberCustomCampaigns.campaign
 {
     public class CustomCampaignFlowCoordinator : FlowCoordinator
     {
+        private static readonly FieldAccessor<MissionLevelDetailViewController, Button>.Accessor PlayButtonAccessor = FieldAccessor<MissionLevelDetailViewController, Button>.GetAccessor("_playButton");
+        private static readonly FieldAccessor<MissionSelectionMapViewController, ScrollView>.Accessor MapScrollViewAccessor = FieldAccessor<MissionSelectionMapViewController, ScrollView>.GetAccessor("_mapScrollView");
+        private static readonly FieldAccessor<CampaignFlowCoordinator, MissionSelectionNavigationController>.Accessor MissionSelectionNavigationControllerAccessor = FieldAccessor<CampaignFlowCoordinator, MissionSelectionNavigationController>.GetAccessor("_missionSelectionNavigationController");
+        private static readonly FieldAccessor<MissionLevelDetailViewController, GameplayModifierInfoListItemsList>.Accessor GameplayModifierInfoListItemsListAccessor = FieldAccessor<MissionLevelDetailViewController, GameplayModifierInfoListItemsList>.GetAccessor("_gameplayModifierInfoListItemsList");
+        private static readonly FieldAccessor<MissionLevelDetailViewController, GameObject>.Accessor ModifiersPanelGOAccessor = FieldAccessor<MissionLevelDetailViewController, GameObject>.GetAccessor("_modifiersPanelGO");
+        private static readonly FieldAccessor<MissionLevelDetailViewController, GameplayModifiersModelSO>.Accessor GameplayModifiersModelSOAccessor = FieldAccessor<MissionLevelDetailViewController, GameplayModifiersModelSO>.GetAccessor("_gameplayModifiersModel");
+        private static readonly FieldAccessor<CampaignFlowCoordinator, CampaignProgressModel>.Accessor CampaignProgressModelAccessor = FieldAccessor<CampaignFlowCoordinator, CampaignProgressModel>.GetAccessor("_campaignProgressModel");
+        private static readonly FieldAccessor<MissionNodesManager, MissionNode[]>.Accessor AllMissionNodesAccessor = FieldAccessor<MissionNodesManager, MissionNode[]>.GetAccessor("_allMissionNodes");
+        private static readonly FieldAccessor<MissionNodesManager, MissionNode>.Accessor RootMissionNodeAccessor =FieldAccessor<MissionNodesManager, MissionNode>.GetAccessor("_rootMissionNode");
+        private static readonly FieldAccessor<MissionNodesManager, MissionNode>.Accessor FinalMissionNodeAccessor =FieldAccessor<MissionNodesManager, MissionNode>.GetAccessor("_finalMissionNode");
+        private static readonly FieldAccessor<MissionNodesManager, MissionStage[]>.Accessor MissionStagesAccessor =FieldAccessor<MissionNodesManager, MissionStage[]>.GetAccessor("_missionStages");
+
         public const float EDITOR_TO_GAME_UNITS = 30f / 111;
         public const float HEIGHT_OFFSET = 20;
 
@@ -92,18 +103,20 @@ namespace BeatSaberCustomCampaigns.campaign
                 _missionLevelDetailViewController = Resources.FindObjectsOfTypeAll<MissionLevelDetailViewController>().First();
                 _missionResultsViewController = Resources.FindObjectsOfTypeAll<MissionResultsViewController>().First();
 
-                _playButton = _missionLevelDetailViewController.GetPrivateField<Button>("_playButton");
-                _mapScrollView = _missionSelectionMapViewController.GetPrivateField<ScrollView>("_mapScrollView");
+                _playButton = PlayButtonAccessor(ref _missionLevelDetailViewController);
+                _mapScrollView = MapScrollViewAccessor(ref _missionSelectionMapViewController);
                 _mapScrollViewItemsVisibilityController = _mapScrollView.GetComponent<ScrollViewItemsVisibilityController>();
                 _backgroundImage = _mapScrollView.GetComponentsInChildren<Image>().First(x => x.name == "Map");
-                _missionSelectionNavigationController = _campaignFlowCoordinator.GetPrivateField<MissionSelectionNavigationController>("_missionSelectionNavigationController");
-                _gameplayModifierInfoListItemsList = _missionLevelDetailViewController.GetPrivateField<GameplayModifierInfoListItemsList>("_gameplayModifierInfoListItemsList");
-                _modifiersPanelGO = _missionLevelDetailViewController.GetPrivateField<GameObject>("_modifiersPanelGO");
-                _gameplayModifiersModel = _missionLevelDetailViewController.GetPrivateField<GameplayModifiersModelSO>("_gameplayModifiersModel");
+                
+                _missionSelectionNavigationController = MissionSelectionNavigationControllerAccessor(ref _campaignFlowCoordinator);
+                _gameplayModifierInfoListItemsList = GameplayModifierInfoListItemsListAccessor(ref _missionLevelDetailViewController);
+                _modifiersPanelGO = ModifiersPanelGOAccessor(ref _missionLevelDetailViewController);
+                
+                _gameplayModifiersModel = GameplayModifiersModelSOAccessor(ref _missionLevelDetailViewController);
 
                 BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "BeatSaberCustomCampaigns.Views.challenge-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
 
-                _campaignProgressModel = _campaignFlowCoordinator.GetPrivateField<CampaignProgressModel>("_campaignProgressModel");
+                _campaignProgressModel = CampaignProgressModelAccessor(ref _campaignFlowCoordinator);
 
                 _campaignListViewController = BeatSaberUI.CreateViewController<CampaignListViewController>();
                 _campaignDetailViewController = BeatSaberUI.CreateViewController<CampaignDetailViewController>();
@@ -155,14 +168,14 @@ namespace BeatSaberCustomCampaigns.campaign
                     _mapScrollView.OnDestroy();
                     _mapScrollView.Awake();
                     if (!_missionNodesManager.IsInitialized)_missionNodesManager.Awake();
-                    baseNodes = _missionNodesManager.GetPrivateField<MissionNode[]>("_allMissionNodes");
-                    baseRoot = _missionNodesManager.GetPrivateField<MissionNode>("_rootMissionNode");
-                    baseFinal = _missionNodesManager.GetPrivateField<MissionNode>("_finalMissionNode");
-                    baseMissionStages = _missionStagesManager.GetPrivateField<MissionStage[]>("_missionStages");
+                    baseNodes = AllMissionNodesAccessor(ref _missionNodesManager);
+                    baseRoot = RootMissionNodeAccessor(ref _missionNodesManager);
+                    baseFinal = FinalMissionNodeAccessor(ref _missionNodesManager);
+                    baseMissionStages = MissionStagesAccessor(ref _missionNodesManager);
                     baseBackground = _backgroundImage.sprite;
                     baseBackAlpha = _backgroundImage.color.a;
-                    baseMapHeight = _mapScrollView.GetPrivateField<RectTransform>("_contentRectTransform").sizeDelta.y;
-                    baseDefaultLights = _campaignFlowCoordinator.GetPrivateField<MenuLightsPresetSO>("_defaultLightsPreset");
+                    baseMapHeight = _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").sizeDelta.y;
+                    baseDefaultLights = _campaignFlowCoordinator.GetField<MenuLightsPresetSO, CampaignFlowCoordinator>("_defaultLightsPreset");
                 }
                 foreach (MissionNode node in baseNodes)
                 {
@@ -171,13 +184,14 @@ namespace BeatSaberCustomCampaigns.campaign
                 }
                 if (enabled)
                 {
-                    _missionNodesManager.SetPrivateField("_rootMissionNode", baseRoot);
-                    _missionNodesManager.SetPrivateField("_finalMissionNode", baseFinal);
-                    _missionStagesManager.SetPrivateField("_missionStages", baseMissionStages);
+                    _missionNodesManager.SetField("_rootMissionNode", baseRoot);
+                    _missionNodesManager.SetField("_rootMissionNode", baseRoot);
+                    _missionNodesManager.SetField("_finalMissionNode", baseFinal);
+                    _missionStagesManager.SetField("_missionStages", baseMissionStages);
                      _backgroundImage.sprite = baseBackground;
                     _backgroundImage.color = new Color(1, 1, 1, baseBackAlpha);
-                    _campaignFlowCoordinator.SetPrivateField("_defaultLightsPreset", baseDefaultLights);
-                    _mapScrollView.GetPrivateField<RectTransform>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, baseMapHeight);
+                    _campaignFlowCoordinator.SetField("_defaultLightsPreset", baseDefaultLights);
+                    _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, baseMapHeight);
                     CampaignInit();
                 }
                 _challengeName.gameObject.SetActive(!enabled);
@@ -189,7 +203,7 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public void CloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
         {
-            _campaignFlowCoordinator.InvokePrivateMethod("SetTitle", new object[] { "Campaign", ViewController.AnimationType.In });
+            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", "Campaign", ViewController.AnimationType.In);
             _campaignFlowCoordinator.didFinishEvent += BeatSaberUI.MainFlowCoordinator.HandleCampaignFlowCoordinatorDidFinish;
             _campaignFlowCoordinator.didFinishEvent -= CloseCampaign;
             _missionNodeSelectionManager.didSelectMissionNodeEvent -= HandleMissionNodeSelectionManagerDidSelectMissionNode;
@@ -199,7 +213,7 @@ namespace BeatSaberCustomCampaigns.campaign
             _missionResultsViewController.continueButtonPressedEvent -= HandleMissionResultsViewControllerContinueButtonPressed;
             _missionLevelDetailViewController.didPressPlayButtonEvent -= HandleMissionLevelDetailViewControllerDidPressPlayButtonPlay;
             _missionLevelDetailViewController.didPressPlayButtonEvent -= HandleMissionLevelDetailViewControllerDidPressPlayButtonDownload;
-            _mapScrollView.GetPrivateField<RectTransform>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, baseMapHeight);
+            _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, baseMapHeight);
             unlockAllMissions = false;
             foreach (MissionNode node in curCampaignNodes)
             {
@@ -209,12 +223,12 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 Destroy(stage.gameObject);
             }
-            _campaignFlowCoordinator.GetPrivateField<MenuLightsManager>("_menuLightsManager").SetColorPreset(baseDefaultLights, animated: true);
+            _campaignFlowCoordinator.GetField<MenuLightsManager, CampaignFlowCoordinator>("_menuLightsManager").SetColorPreset(baseDefaultLights, animated: true);
             DismissFlowCoordinator(_campaignFlowCoordinator);
         }
         public void CampaignInit()
         {
-            if (_missionNodeSelectionManager.GetPrivateField<MissionNode[]>("_missionNodes") == null) _missionNodeSelectionManager.Start();
+            if (_missionNodeSelectionManager.GetField<MissionNode[], MissionNodeSelectionManager>("_missionNodes") == null) _missionNodeSelectionManager.Start();
             _missionNodeSelectionManager.OnDestroy();
             ResetProgressIds();
             _missionNodesManager.Awake();
@@ -247,7 +261,7 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 pair.baseColor = color;
             }
-            _campaignFlowCoordinator.SetPrivateField("_defaultLightsPreset", customLights);
+            _campaignFlowCoordinator.SetField("_defaultLightsPreset", customLights);
             MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
             curCampaignNodes = missionNodes;
             MissionStage[] missionStages;
@@ -255,36 +269,37 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 //campaigns require an unlock gate so I make a fake one above the visible map area
                 missionStages = new MissionStage[1];
-                missionStages[0] = Instantiate(baseMissionStages[0], _missionNodesManager.GetPrivateField<GameObject>("_missionNodesParentObject").transform);
-                missionStages[0].SetPrivateField("_minimumMissionsToUnlock", 0);
-                missionStages[0].GetPrivateField<RectTransform>("_rectTransform").localPosition = new Vector3(0, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 + 1000, 0);
+                missionStages[0] = Instantiate(baseMissionStages[0], _missionNodesManager.GetField<GameObject, MissionNodesManager>("_missionNodesParentObject").transform);
+                missionStages[0].SetField("_minimumMissionsToUnlock", 0);
+                missionStages[0].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = new Vector3(0, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 + 1000, 0);
             }
             else
             {
                 missionStages = new MissionStage[campaign.info.unlockGate.Count + 1];
                 for (int i = 0; i < missionStages.Length - 1; i++)
                 {
-                    missionStages[i] = Instantiate(baseMissionStages[0], _missionNodesManager.GetPrivateField<GameObject>("_missionNodesParentObject").transform);
-                    missionStages[i].SetPrivateField("_minimumMissionsToUnlock", campaign.info.unlockGate[i].clearsToPass);
-                    missionStages[i].GetPrivateField<RectTransform>("_rectTransform").localPosition = new Vector3(campaign.info.unlockGate[i].x * EDITOR_TO_GAME_UNITS, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 - campaign.info.unlockGate[i].y * EDITOR_TO_GAME_UNITS, 0);
+                    missionStages[i] = Instantiate(baseMissionStages[0], _missionNodesManager.GetField<GameObject, MissionNodesManager>("_missionNodesParentObject").transform);
+                    missionStages[i].SetField("_minimumMissionsToUnlock", campaign.info.unlockGate[i].clearsToPass);
+                    missionStages[i].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = new Vector3(campaign.info.unlockGate[i].x * EDITOR_TO_GAME_UNITS, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 - campaign.info.unlockGate[i].y * EDITOR_TO_GAME_UNITS, 0);
                 }
                 //ghost unlock gate required for some reason as last unlock gate never gets cleared
-                missionStages[campaign.info.unlockGate.Count] = Instantiate(baseMissionStages[0], _missionNodesManager.GetPrivateField<GameObject>("_missionNodesParentObject").transform);
-                missionStages[campaign.info.unlockGate.Count].SetPrivateField("_minimumMissionsToUnlock", campaign.info.mapPositions.Count + 1);
-                missionStages[campaign.info.unlockGate.Count].GetPrivateField<RectTransform>("_rectTransform").localPosition = new Vector3(0, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 + 1000, 0);
+                missionStages[campaign.info.unlockGate.Count] = Instantiate(baseMissionStages[0], _missionNodesManager.GetField<GameObject, MissionNodesManager>("_missionNodesParentObject").transform);
+                missionStages[campaign.info.unlockGate.Count].SetField("_minimumMissionsToUnlock", campaign.info.mapPositions.Count + 1);
+                missionStages[campaign.info.unlockGate.Count].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = new Vector3(0, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 + 1000, 0);
             }
             curMissionStages = missionStages;
-            _missionStagesManager.SetPrivateField("_missionStages", (from stage in missionStages orderby stage.minimumMissionsToUnlock select stage).ToArray());
+            _missionStagesManager.SetField("_missionStages", (from stage in missionStages orderby stage.minimumMissionsToUnlock select stage).ToArray());
             for (int i = 0; i < missionNodes.Length; i++)
             {
                 CampainMapPosition mapPosition = campaign.info.mapPositions[i];
-                missionNodes[i] = Instantiate(baseNodes[0], _missionNodesManager.GetPrivateField<GameObject>("_missionNodesParentObject").transform);
+                missionNodes[i] = Instantiate(baseNodes[0], _missionNodesManager.GetField<GameObject, MissionNodesManager>("_missionNodesParentObject").transform);
                 missionNodes[i].gameObject.SetActive(true);
-                missionNodes[i].SetPrivateField("_missionDataSO", campaign.challenges[i].GetMissionData(campaign));
-                missionNodes[i].GetPrivateField<RectTransform>("_rectTransform").localPosition = new Vector3(mapPosition.x * EDITOR_TO_GAME_UNITS, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 - mapPosition.y * EDITOR_TO_GAME_UNITS, 0);
-                missionNodes[i].GetPrivateField<RectTransform>("_rectTransform").sizeDelta = new Vector2(12 * mapPosition.scale, 12 * mapPosition.scale);
-                missionNodes[i].SetPrivateField("_letterPartName", mapPosition.letterPortion);
-                missionNodes[i].SetPrivateField("_numberPartName", mapPosition.numberPortion);
+                missionNodes[i].SetField("_missionDataSO", campaign.challenges[i].GetMissionData(campaign));
+                var missionNodeTransform = missionNodes[i].GetField<RectTransform, MissionNode>("_rectTransform");
+                missionNodeTransform.localPosition = new Vector3(mapPosition.x * EDITOR_TO_GAME_UNITS, -baseMapHeight / 2 + campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET / 2 - mapPosition.y * EDITOR_TO_GAME_UNITS, 0);
+                missionNodeTransform.sizeDelta = new Vector2(12 * mapPosition.scale, 12 * mapPosition.scale);
+                missionNodes[i].SetField("_letterPartName", mapPosition.letterPortion);
+                missionNodes[i].SetField("_numberPartName", mapPosition.numberPortion);
             }
             for (int i = 0; i < missionNodes.Length; i++)
             {
@@ -293,14 +308,14 @@ namespace BeatSaberCustomCampaigns.campaign
                 {
                     children[j] = missionNodes[campaign.info.mapPositions[i].childNodes[j]];
                 }
-                missionNodes[i].SetPrivateField("_childNodes", children);
+                missionNodes[i].SetField("_childNodes", children);
             }
-            _missionNodesManager.SetPrivateField("_rootMissionNode", missionNodes[0]);
-            _mapScrollView.GetPrivateField<RectTransform>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET);
+            _missionNodesManager.SetField("_rootMissionNode", missionNodes[0]);
+            _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET);
             CampaignInit();
             PresentFlowCoordinator(_campaignFlowCoordinator, delegate ()
             {
-                _campaignFlowCoordinator.InvokePrivateMethod("SetTitle", new object[] { campaign.info.name, ViewController.AnimationType.In });
+                _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", new object[] { campaign.info.name, ViewController.AnimationType.In });
                 _missionNodeSelectionManager.didSelectMissionNodeEvent -= _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode;
                 _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
                 _missionResultsViewController.retryButtonPressedEvent += HandleMissionResultsViewControllerRetryButtonPressed;
@@ -356,9 +371,9 @@ namespace BeatSaberCustomCampaigns.campaign
                 _playButton.interactable = true;
                 foreach (MissionNode node in curCampaignNodes)
                 {
-                    node.SetPrivateField("_missionDataSO", ((CustomMissionDataSO)node.missionData).challenge.GetMissionData(((CustomMissionDataSO)node.missionData).campaign));
+                    node.SetField("_missionDataSO", ((CustomMissionDataSO)node.missionData).challenge.GetMissionData(((CustomMissionDataSO)node.missionData).campaign));
                 }
-                _missionNodeSelectionManager.GetPrivateField<Action<MissionNodeVisualController>>("didSelectMissionNodeEvent")(downloadingNode.missionNodeVisualController);
+                _missionNodeSelectionManager.GetField<Action<MissionNodeVisualController>, MissionNodeSelectionManager>("didSelectMissionNodeEvent")(downloadingNode.missionNodeVisualController);
             }, delegate {
                 _playButton.interactable = true;
                 _playButton.SetButtonText("DOWNLOAD");
@@ -379,7 +394,7 @@ namespace BeatSaberCustomCampaigns.campaign
             if (viewController.missionNode.missionData.beatmapCharacteristic.descriptionLocalizationKey == "ERROR NOT FOUND")
                 errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Characteristic Not Found", "Could not find the characteristic \"" + challenge.characteristic + "\" for this map"));
             else if (BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded((missionData as CustomMissionDataSO).customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty) == null)
-                errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Difficulty Not Found", "Could not find the difficulty \"" + challenge.difficulty.ToString() + "\" for this map"));
+                errorList.Add(APITools.CreateModifierParam(Assets.ErrorIcon, "Error - Difficulty Not Found", "Could not find the difficulty \"" + challenge.difficulty + "\" for this map"));
             else
             {
                 DifficultyData difficultyData = Collections.RetrieveDifficultyData(BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded((missionData as CustomMissionDataSO).customLevel.levelID).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty));
@@ -449,14 +464,14 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public void ResetProgressIds()
         {
-            _campaignProgressModel.SetPrivateField("_missionIds", new HashSet<string>());
-            _campaignProgressModel.SetPrivateField("_numberOfClearedMissionsDirty", true);
+            _campaignProgressModel.SetField("_missionIds", new HashSet<string>());
+            _campaignProgressModel.SetField("_numberOfClearedMissionsDirty", true);
         }
         public void HandleMissionSelectionMapViewControllerDidSelectMissionLevel(MissionSelectionMapViewController viewController, MissionNode missionNode)
         {
             Challenge challenge = (missionNode.missionData as CustomMissionDataSO).challenge;
             _campaignChallengeLeaderbaordViewController.lastClicked = challenge;
-            _campaignFlowCoordinator.InvokePrivateMethod("SetRightScreenViewController", new object[] { _campaignChallengeLeaderbaordViewController, ViewController.AnimationType.In });
+            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignChallengeLeaderbaordViewController, ViewController.AnimationType.In);
             _campaignChallengeLeaderbaordViewController.UpdateLeaderboards();
             _challengeName.text = challenge.name;
             _challengeName.alignment = TextAlignmentOptions.Bottom;
@@ -475,7 +490,7 @@ namespace BeatSaberCustomCampaigns.campaign
         }
         public virtual void HandleMissionResultsViewControllerContinueButtonPressed(MissionResultsViewController viewController)
         {
-            _campaignFlowCoordinator.InvokePrivateMethod("SetBottomScreenViewController", new object[] { null, ViewController.AnimationType.In });
+            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetBottomScreenViewController", null, ViewController.AnimationType.In);
             LoadModifiersPanel(modifierParamsList);
         }
         public void LoadModifiersPanel(List<GameplayModifierParamsSO> modifierParamsList)
