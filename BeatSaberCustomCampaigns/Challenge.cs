@@ -1,12 +1,10 @@
 ﻿using BeatSaberCustomCampaigns.campaign;
 using Newtonsoft.Json;
 using SongCore;
-using SongCore.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatSaberCustomCampaigns
@@ -46,7 +44,8 @@ namespace BeatSaberCustomCampaigns
             {
                 CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => x.customLevelPath.Contains("\\" + songid + (customDownloadURL == "" ? " " : ""))); //Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
                 return level;
-            } catch
+            }
+            catch
             {
                 return null;
             }
@@ -56,34 +55,36 @@ namespace BeatSaberCustomCampaigns
             CustomMissionDataSO data = ScriptableObject.CreateInstance<CustomMissionDataSO>();
             data.campaign = campaign;
             data.challenge = this;
-            data.SetPrivateField("_gameplayModifiers", modifiers.GetGameplayModifiers());
-            data.SetPrivateField("_missionObjectives", GetMissionObjectives());
+            data.SetField<MissionDataSO, GameplayModifiers>("_gameplayModifiers", modifiers.GetGameplayModifiers());
+            data.SetField<MissionDataSO, MissionObjective[]>("_missionObjectives", GetMissionObjectives());
 
             if (challengeInfo != null)
             {
                 CustomMissionHelpSO missionHelp = ScriptableObject.CreateInstance<CustomMissionHelpSO>();
                 missionHelp.challengeInfo = challengeInfo;
                 missionHelp.imagePath = campaign.path + "/images/";
-                missionHelp.SetPrivateField("_missionHelpId", GetHash());
-                data.SetPrivateField("_missionHelp", missionHelp);
+                missionHelp.SetField<MissionHelpSO, string>("_missionHelpId", GetHash());
+                data.SetField<MissionDataSO, MissionHelpSO>("_missionHelp", missionHelp);
             }
 
-            data.SetPrivateField("_beatmapDifficulty", difficulty);
+            data.SetField<MissionDataSO, BeatmapDifficulty>("_beatmapDifficulty", difficulty);
             CustomPreviewBeatmapLevel level = FindSong();
             data.customLevel = level;
             if (level != null)
             {
                 try
                 {
-                    data.SetPrivateField("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
-                } catch
+                    data.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
+                }
+                catch
                 {
                     BeatmapCharacteristicSO characteristicSO = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
-                    characteristicSO.SetPrivateField("_characteristicNameLocalizationKey", characteristic);
-                    characteristicSO.SetPrivateField("_descriptionLocalizationKey", "ERROR NOT FOUND");
-                    data.SetPrivateField("_beatmapCharacteristic", characteristicSO);
+                    characteristicSO.SetField("_characteristicNameLocalizationKey", characteristic);
+                    characteristicSO.SetField("_descriptionLocalizationKey", "ERROR NOT FOUND");
+                    data.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", characteristicSO);
                 }
-                data.SetPrivateField("_level", APITools.stubLevel);
+                
+                data.SetField<MissionDataSO, BeatmapLevelSO>("_level", APITools.stubLevel);
             }
             return data;
         }
