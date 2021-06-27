@@ -159,7 +159,7 @@ namespace BeatSaberCustomCampaigns.campaign
                     baseNodes = _missionNodesManager.GetField<MissionNode[], MissionNodesManager>("_allMissionNodes");
                     baseRoot = _missionNodesManager.GetField<MissionNode, MissionNodesManager>("_rootMissionNode");
                     baseFinal = _missionNodesManager.GetField<MissionNode, MissionNodesManager>("_finalMissionNode");
-                    baseMissionStages = _missionNodesManager.GetField<MissionStage[], MissionNodesManager>("_missionStages");
+                    baseMissionStages = _missionStagesManager.GetField<MissionStage[], MissionStagesManager>("_missionStages");
                     baseBackground = _backgroundImage.sprite;
                     baseBackAlpha = _backgroundImage.color.a;
                     baseMapHeight = _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").sizeDelta.y;
