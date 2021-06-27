@@ -303,7 +303,7 @@ namespace BeatSaberCustomCampaigns.campaign
             CampaignInit();
             PresentFlowCoordinator(_campaignFlowCoordinator, delegate ()
             {
-                _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", new object[] { campaign.info.name, ViewController.AnimationType.In });
+                _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", campaign.info.name, ViewController.AnimationType.In);
                 _missionNodeSelectionManager.didSelectMissionNodeEvent -= _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode;
                 _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
                 _missionResultsViewController.retryButtonPressedEvent += HandleMissionResultsViewControllerRetryButtonPressed;
