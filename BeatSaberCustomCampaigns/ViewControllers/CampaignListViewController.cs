@@ -29,6 +29,7 @@ namespace BeatSaberCustomCampaigns.campaign
                 rectTransform.sizeDelta = new Vector3(70, 0, 0);
             }
             if(addedToHierarchy) StartCoroutine(LoadCampaigns());
+            customListTableData.tableView.ClearSelection();
         }
 
         [UIAction("campaign-click")]
