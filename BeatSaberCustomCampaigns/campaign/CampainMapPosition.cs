@@ -14,5 +14,7 @@ namespace BeatSaberCustomCampaigns.campaign
         public float scale = 1; 
         public string letterPortion = "";
         public int numberPortion = 0;
+        public string nodeDefaultColor = null;
+        public string nodeHighlightColor = null;
     }
 }

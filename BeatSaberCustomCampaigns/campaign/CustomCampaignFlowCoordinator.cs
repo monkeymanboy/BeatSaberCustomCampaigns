@@ -288,6 +288,29 @@ namespace BeatSaberCustomCampaigns.campaign
                 missionNodeTransform.sizeDelta = new Vector2(12 * mapPosition.scale, 12 * mapPosition.scale);
                 missionNodes[i].SetField("_letterPartName", mapPosition.letterPortion);
                 missionNodes[i].SetField("_numberPartName", mapPosition.numberPortion);
+
+                string nodeDefaultColorText = mapPosition.nodeDefaultColor;
+                string nodeHighlightColorText = mapPosition.nodeHighlightColor;
+
+                Color nodeDefaultColor;
+                Color nodeHighlightColor;
+
+                var missionNodeVisualController = missionNodes[i].GetField<MissionNodeVisualController, MissionNode>("_missionNodeVisualController");
+                var missionToggle = missionNodeVisualController.GetField<MissionToggle, MissionNodeVisualController>("_missionToggle");
+
+                if (ColorUtility.TryParseHtmlString(nodeDefaultColorText, out nodeDefaultColor))
+                {
+                    Debug.Log(nodeDefaultColorText);
+                    missionToggle.SetField("_disabledColor", nodeDefaultColor.ColorWithAlpha(0.1f));
+                    missionToggle.SetField("_normalColor", nodeDefaultColor);
+                }
+
+                if (ColorUtility.TryParseHtmlString(nodeHighlightColorText, out nodeHighlightColor))
+                {
+                    Debug.Log(nodeHighlightColorText);
+                    missionToggle.SetField("_highlightColor", nodeHighlightColor);
+                }
+
             }
             for (int i = 0; i < missionNodes.Length; i++)
             {
