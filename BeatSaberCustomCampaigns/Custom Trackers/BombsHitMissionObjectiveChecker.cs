@@ -30,7 +30,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             bool loaded = false;
             while (!loaded)
             {
-                scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault();
+                scoreController = Resources.FindObjectsOfTypeAll<ScoreController>().LastOrDefault();
                 if (scoreController == null)
                     yield return new WaitForSeconds(0.1f);
                 else

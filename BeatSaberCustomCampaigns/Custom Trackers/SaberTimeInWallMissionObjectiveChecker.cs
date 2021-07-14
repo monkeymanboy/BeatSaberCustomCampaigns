@@ -34,7 +34,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
         {
             while (!loaded)
             {
-                var playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault()?.GetField< PlayerHeadAndObstacleInteraction, ScoreController>("_playerHeadAndObstacleInteraction");
+                var playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<ScoreController>().LastOrDefault()?.GetField< PlayerHeadAndObstacleInteraction, ScoreController>("_playerHeadAndObstacleInteraction");
                 beatmapObjectManager = playerHeadAndObstacleInteraction?.GetField<BeatmapObjectManager, PlayerHeadAndObstacleInteraction>("_beatmapObjectManager");
                 saberManager = Resources.FindObjectsOfTypeAll<SaberManager>().FirstOrDefault();
                 if (beatmapObjectManager == null || saberManager == null)

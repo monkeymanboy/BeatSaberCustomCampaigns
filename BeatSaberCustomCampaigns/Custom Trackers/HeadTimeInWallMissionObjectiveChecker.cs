@@ -34,7 +34,7 @@ namespace BeatSaberCustomCampaigns.Custom_Trackers
             bool loaded = false;
             while (!loaded)
             {
-                playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<ScoreController>().FirstOrDefault()?.GetPrivateField<PlayerHeadAndObstacleInteraction>("_playerHeadAndObstacleInteraction");
+                playerHeadAndObstacleInteraction = Resources.FindObjectsOfTypeAll<ScoreController>().LastOrDefault()?.GetPrivateField<PlayerHeadAndObstacleInteraction>("_playerHeadAndObstacleInteraction");
                 if (playerHeadAndObstacleInteraction == null)
                     yield return new WaitForSeconds(0.1f);
                 else
