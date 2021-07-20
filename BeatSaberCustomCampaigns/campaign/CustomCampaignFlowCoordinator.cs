@@ -483,7 +483,7 @@ namespace BeatSaberCustomCampaigns.campaign
             Challenge challenge = (missionNode.missionData as CustomMissionDataSO).challenge;
             _campaignChallengeLeaderbaordViewController.lastClicked = challenge;
             _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignChallengeLeaderbaordViewController, ViewController.AnimationType.In);
-            _campaignChallengeLeaderbaordViewController.UpdateLeaderboards();
+            StartCoroutine(_campaignChallengeLeaderbaordViewController.UpdateLeaderboardsCoroutine());
             _challengeName.text = challenge.name;
             _challengeName.alignment = TextAlignmentOptions.Bottom;
             List<GameplayModifierParamsSO> modParams = _gameplayModifiersModel.CreateModifierParamsList(missionNode.missionData.gameplayModifiers);
