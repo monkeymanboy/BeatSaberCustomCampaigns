@@ -339,6 +339,10 @@ namespace BeatSaberCustomCampaigns.campaign
                 _playButton.interactable = true;
             });
             _missionNodeSelectionManager.didSelectMissionNodeEvent += HandleMissionNodeSelectionManagerDidSelectMissionNode;
+
+            GameplaySetupViewController gameplaySetupViewController = _campaignFlowCoordinator.GetField<GameplaySetupViewController, CampaignFlowCoordinator>("_gameplaySetupViewController");
+            gameplaySetupViewController.SetField("_showEnvironmentOverrideSettings", true);
+            gameplaySetupViewController.RefreshContent();
         }
         public void HandleMissionNodeSelectionManagerDidSelectMissionNode(MissionNodeVisualController missionNodeVisualController)
         {
