@@ -22,6 +22,7 @@ namespace BeatSaberCustomCampaigns
                     _stubLevel = ScriptableObject.CreateInstance<BeatmapLevelSO>();
                     _stubLevel.SetPrivateField("_songName", "Stub song");
                     _stubLevel.SetPrivateField("_songSubName", "Don't worry about it");
+                    _stubLevel.SetPrivateField("_levelID", "custom_level_stub");
                     /*
                     BeatmapCharacteristicSO[] characteristics = new BeatmapCharacteristicSO[1];
                     characteristics[0] = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
