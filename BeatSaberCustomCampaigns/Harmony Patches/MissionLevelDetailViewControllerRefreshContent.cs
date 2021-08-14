@@ -28,6 +28,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     ____levelBar.GetPrivateField<TextMeshProUGUI>("_songNameText").text = "SONG NOT FOUND";
                     ____levelBar.GetPrivateField<TextMeshProUGUI>("_difficultyText").text = "SONG NOT FOUND";
                     ____levelBar.GetPrivateField<TextMeshProUGUI>("_authorNameText").text = "SONG NOT FOUND";
+                    ____levelBar.GetPrivateField<ImageView>("_songArtworkImageView").sprite = SongCore.Loader.defaultCoverImage;
                 }
                 else
                 {

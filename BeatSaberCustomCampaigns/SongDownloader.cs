@@ -18,9 +18,15 @@ namespace BeatSaberCustomCampaigns
 
         private Action onFinish;
         private Action onFail;
+        private Action onGetDownloadURL;
+        private Action onGetDownloadURLFail;
 
-        public void DownloadSong(string songid, string url, bool isBeatSaver, Action onFinish = null, Action onFail = null)
+        private string beatSaverURL;
+        private DetailResponse beatSaverResponse;
+
+        public void DownloadSong(string songid, string hash, string customDownloadURL, Action onFinish = null, Action onFail = null)
         {
+            bool isBeatSaver = customDownloadURL == "";
             if (IsDownloading)
             {
                 onFail?.Invoke();
@@ -29,7 +35,28 @@ namespace BeatSaberCustomCampaigns
             this.onFail = onFail;
             this.onFinish = onFinish;
             IsDownloading = true;
-            StartCoroutine(DownloadSongCoroutine(songid, url, isBeatSaver));
+
+            if (isBeatSaver)
+            {
+                if (hash == "")
+                {
+                    this.onGetDownloadURL = delegate { StartCoroutine(DownloadSongCoroutine(songid, beatSaverURL, isBeatSaver)); };
+                    this.onGetDownloadURLFail = delegate { onFail?.Invoke(); };
+                    StartCoroutine(GetDownloadUrl(songid));
+                }
+
+                else
+                {
+                    string url = "https://cdn.beatsaver.com/ " + hash.ToLower() + ".zip";
+                    StartCoroutine(DownloadSongCoroutine(songid, url, isBeatSaver));
+                }
+
+                }
+            else
+            {
+                StartCoroutine(DownloadSongCoroutine(songid, customDownloadURL, isBeatSaver));
+            }
+            
         }
 
         private IEnumerator DownloadSongCoroutine(string songid, string url, bool isBeatSaver)
@@ -66,38 +93,10 @@ namespace BeatSaberCustomCampaigns
 
                 byte[] data = www.downloadHandler.data;
 
-
                 string extra = "";
                 if (isBeatSaver)
                 {
-                    var www2 = UnityWebRequest.Get("https://beatsaver.com/api/maps/detail/" + songid);
-                    www2.SetRequestHeader("User-Agent", $"CustomCampaigns/v{Plugin.version}");
-
-                    var timeout2 = false;
-                    var time2 = 0f;
-
-                    var asyncRequest2 = www2.SendWebRequest();
-
-                    while (!asyncRequest2.isDone || asyncRequest2.progress < 1f)
-                    {
-                        yield return null;
-
-                        time2 += Time.deltaTime;
-
-                        if (!(time2 >= 15f) || asyncRequest2.progress != 0f) continue;
-                        www2.Abort();
-                        timeout2 = true;
-                    }
-
-                    if (www2.isNetworkError || www2.isHttpError || timeout2)
-                    {
-                        www2.Abort();
-                    }
-                    else
-                    {
-                        DetailResponse response = JsonConvert.DeserializeObject<DetailResponse>(www2.downloadHandler.text);
-                        extra = " (" + response.metadata.songName + " - " + response.metadata.levelAuthorName + ")";
-                    }
+                    extra = " (" + beatSaverResponse.metadata.songName + " - " + beatSaverResponse.metadata.levelAuthorName + ")";
                 }
 
                 Stream zipStream = null;
@@ -123,6 +122,52 @@ namespace BeatSaberCustomCampaigns
                 Loader.Instance.RefreshSongs();
             }
         }
+
+        private IEnumerator GetDownloadUrl(string songid)
+        {
+            string url = "https://api.beatsaver.com/maps/id/" + songid;
+            var www = UnityWebRequest.Get(url);
+            www.SetRequestHeader("User-Agent", $"CustomCampaigns/v{Plugin.version}");
+
+            var timeout = false;
+            var time = 0f;
+
+            var asyncRequest = www.SendWebRequest();
+
+            while (!asyncRequest.isDone || asyncRequest.progress < 1f)
+            {
+                yield return null;
+
+                time += Time.deltaTime;
+
+                if (!(time >= 15f) || asyncRequest.progress != 0f) continue;
+                www.Abort();
+                timeout = true;
+            }
+
+            if (www.isNetworkError || www.isHttpError || timeout)
+            {
+                www.Abort();
+                IsDownloading = false;
+                onGetDownloadURLFail?.Invoke();
+            }
+            else
+            {
+                DetailResponse response = JsonConvert.DeserializeObject<DetailResponse>(www.downloadHandler.text);
+                if (response != null && response.versions.Count > 0)
+                {
+                    this.beatSaverURL = response.versions[0].downloadURL;
+                    this.beatSaverResponse = response;
+                    onGetDownloadURL?.Invoke();
+                }
+                else
+                {
+                    onGetDownloadURLFail?.Invoke();
+                }
+                
+            }
+        }
+
         private async Task ExtractZipAsync(string songid, Stream zipStream, string customSongsPath)
         {
             try
@@ -147,11 +192,19 @@ namespace BeatSaberCustomCampaigns
         class DetailResponse
         {
             public DetailMetadata metadata;
+            public List<MapVersion> versions;
         }
+
         class DetailMetadata
         {
             public string songName;
             public string levelAuthorName;
+        }
+
+        class MapVersion
+        {
+            public string downloadURL;
+            public string coverURL;
         }
     }
 }

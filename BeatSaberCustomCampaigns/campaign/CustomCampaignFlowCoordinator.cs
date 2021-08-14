@@ -381,13 +381,14 @@ namespace BeatSaberCustomCampaigns.campaign
 
             _playButton.SetButtonText("DOWNLOADING...");
             _playButton.interactable = false;
-            SongDownloader.instance.DownloadSong(challenge.songid, challenge.GetDownloadURL(), challenge.customDownloadURL == "", delegate {
+            SongDownloader.instance.DownloadSong(challenge.songid, challenge.hash, challenge.customDownloadURL, delegate {
                 isDownloading = false;
                 _playButton.interactable = true;
                 foreach (MissionNode node in curCampaignNodes)
                 {
                     node.SetField("_missionDataSO", ((CustomMissionDataSO)node.missionData).challenge.GetMissionData(((CustomMissionDataSO)node.missionData).campaign));
                 }
+                _campaignChallengeLeaderbaordViewController.UpdateAccuracy();
                 _missionNodeSelectionManager.GetField<Action<MissionNodeVisualController>, MissionNodeSelectionManager>("didSelectMissionNodeEvent")(downloadingNode.missionNodeVisualController);
             }, delegate {
                 _playButton.interactable = true;

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using IPA.Utilities;
 using UnityEngine;
+using UnityEngine.Networking;
+using System.Globalization;
 
 namespace BeatSaberCustomCampaigns
 {
@@ -14,6 +16,7 @@ namespace BeatSaberCustomCampaigns
     {
         public string name;
         public string songid;
+        public string hash = "";
         public string customDownloadURL = "";
         public string characteristic = "Standard";
         public BeatmapDifficulty difficulty;
@@ -42,9 +45,20 @@ namespace BeatSaberCustomCampaigns
         {
             try
             {
-                CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => x.customLevelPath.Contains("\\" + songid + (customDownloadURL == "" ? " " : ""))); //Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
+                CustomPreviewBeatmapLevel level = null;
+                if (hash != "")
+                {
+                    var beatmapLevelsModel = Resources.FindObjectsOfTypeAll<BeatmapLevelsModel>().FirstOrDefault(x => x.customLevelPackCollection != null);
+                    level = (CustomPreviewBeatmapLevel) beatmapLevelsModel?.GetLevelPreviewForLevelId("custom_level_" + hash.ToUpper());
+                    return level;
+                }
+
+                // Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
+                string songidSearch = "\\" + songid + (customDownloadURL == "" ? " " : "");
+                level = Loader.CustomLevels.Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelPath, songidSearch, CompareOptions.IgnoreCase) >= 0); 
                 return level;
             }
+
             catch
             {
                 return null;
@@ -88,10 +102,7 @@ namespace BeatSaberCustomCampaigns
             }
             return data;
         }
-        public string GetDownloadURL()
-        {
-            return customDownloadURL == "" ? ("https://beatsaver.com/api/download/key/" + songid) : (customDownloadURL);
-        }
+
         public string GetHash()
         {
             return APITools.GetHash(rawJSON);

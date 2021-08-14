@@ -37,13 +37,21 @@ namespace BeatSaberCustomCampaigns
             }
         }
 
+        public void UpdateAccuracy()
+        {
+            CreateAccuracy();
+        }
+
         private void CreateAccuracy()
         {
             if (table == null)
             {
                 return;
             }
-
+            if (lastClicked.FindSong() == null)
+            {
+                return;
+            }
             var maxScore = GetMaxScore();
             if (maxScore <= 0)
             {

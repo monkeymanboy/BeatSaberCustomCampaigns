@@ -5,7 +5,7 @@
   "gameVersion": "1.16.4",
   "id": "Custom Campaigns",
   "name": "Custom Campaigns",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "dependsOn": {
     "SongCore": "^3.4.1",
     "BeatSaberMarkupLanguage": "^1.5.4",
