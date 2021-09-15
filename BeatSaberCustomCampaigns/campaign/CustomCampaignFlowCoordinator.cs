@@ -298,16 +298,26 @@ namespace BeatSaberCustomCampaigns.campaign
                 var missionNodeVisualController = missionNodes[i].GetField<MissionNodeVisualController, MissionNode>("_missionNodeVisualController");
                 var missionToggle = missionNodeVisualController.GetField<MissionToggle, MissionNodeVisualController>("_missionToggle");
 
+                if (mapPosition.nodeOutline != null)
+                {
+                    var strokeImage = missionToggle.GetField<Image, MissionToggle>("_strokeImage");
+                    strokeImage.sprite = mapPosition.nodeOutline;
+                }
+
+                if (mapPosition.nodeBackground != null)
+                {
+                    var backgroundImage = missionToggle.GetField<Image, MissionToggle>("_bgImage");
+                    backgroundImage.sprite = mapPosition.nodeBackground;
+                }
+
                 if (ColorUtility.TryParseHtmlString(nodeDefaultColorText, out nodeDefaultColor))
                 {
-                    Debug.Log(nodeDefaultColorText);
                     missionToggle.SetField("_disabledColor", nodeDefaultColor.ColorWithAlpha(0.1f));
                     missionToggle.SetField("_normalColor", nodeDefaultColor);
                 }
 
                 if (ColorUtility.TryParseHtmlString(nodeHighlightColorText, out nodeHighlightColor))
                 {
-                    Debug.Log(nodeHighlightColorText);
                     missionToggle.SetField("_highlightColor", nodeHighlightColor);
                 }
 

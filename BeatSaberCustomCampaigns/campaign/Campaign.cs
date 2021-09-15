@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 
 namespace BeatSaberCustomCampaigns.campaign
@@ -17,12 +18,16 @@ namespace BeatSaberCustomCampaigns.campaign
     public class Campaign : CustomCellInfo
     {
         private static Dictionary<string, Texture2D> loadedTextures = new Dictionary<string, Texture2D>();
+        private static Dictionary<string, Sprite> loadedSprites = new Dictionary<string, Sprite>();
         public CampaignInfo info;
         public List<Challenge> challenges;
         public Sprite background;
         public string path;
         public string leaderboardID = "";
         public string completionPost = "";
+        public Sprite nodeOutline = null;
+        public Sprite nodeBackground = null;
+
         public Campaign() : base("", "", null)
         {
         }
@@ -44,8 +49,28 @@ namespace BeatSaberCustomCampaigns.campaign
             }
             if (File.Exists(path + "/id")) leaderboardID = File.ReadAllText(path + "/id");
             if (File.Exists(path + "/completion_post")) completionPost = File.ReadAllText(path + "/completion_post");
+
+            LoadNodeSprites();
+           
             text = info.name;
             subtext = info.desc;
+        }
+
+        private async void LoadNodeSprites()
+        {
+            string filePrefix = path + "/";
+            foreach (var mapPosition in info.mapPositions)
+            {
+                if (mapPosition.nodeOutlineLocation != null && File.Exists(filePrefix + mapPosition.nodeOutlineLocation))
+                {
+                    mapPosition.nodeOutline = await LoadSprite(filePrefix + mapPosition.nodeOutlineLocation);
+                }
+
+                if (mapPosition.nodeBackgroundLocation != null && File.Exists(filePrefix + mapPosition.nodeBackgroundLocation))
+                {
+                    mapPosition.nodeBackground = await LoadSprite(filePrefix + mapPosition.nodeBackgroundLocation);
+                }
+            }
         }
 
         private IEnumerator LoadSprite(CampaignListViewController viewController, string spritePath, bool isBackground)
@@ -79,6 +104,35 @@ namespace BeatSaberCustomCampaigns.campaign
             {
                 viewController.customListTableData.tableView.ReloadData();
             }
+        }
+
+        private async Task<Sprite> LoadSprite(string spritePath)
+        {
+            if (!loadedSprites.ContainsKey(spritePath))
+            {
+                if (!File.Exists(spritePath))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    using (FileStream stream = File.Open(spritePath, FileMode.Open))
+                    {
+                        byte[] bytes = new byte[stream.Length];
+                        await stream.ReadAsync(bytes, 0, (int)stream.Length);
+                        Sprite sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(bytes);
+                        loadedSprites[spritePath] = sprite;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Failed to load sprite at {spritePath}: {e.Message}");
+                    return null;
+                }
+            }
+
+            return loadedSprites[spritePath];
         }
     }
 }
