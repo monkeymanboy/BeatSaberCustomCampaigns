@@ -241,15 +241,8 @@ namespace BeatSaberCustomCampaigns.campaign
                 _backgroundImage.color = new Color(1, 1, 1, campaign.info.backgroundAlpha);
                 _backgroundImage.sprite = campaign.background;
             }
-            MenuLightsPresetSO customLights = Instantiate(baseDefaultLights);
 
-            SimpleColorSO color = ScriptableObject.CreateInstance<SimpleColorSO>();
-            color.SetColor(new Color(campaign.info.lightColor.r, campaign.info.lightColor.g, campaign.info.lightColor.b));
-            foreach (LightIdColorPair pair in customLights.lightIdColorPairs)
-            {
-                pair.baseColor = color;
-            }
-            _campaignFlowCoordinator.SetField("_defaultLightsPreset", customLights);
+            SetCustomLights(campaign.info.lightColor);
             MissionNode[] missionNodes = new MissionNode[campaign.info.mapPositions.Count];
             curCampaignNodes = missionNodes;
             MissionStage[] missionStages;
@@ -354,6 +347,24 @@ namespace BeatSaberCustomCampaigns.campaign
             gameplaySetupViewController.SetField("_showEnvironmentOverrideSettings", true);
             gameplaySetupViewController.RefreshContent();
         }
+
+        public void SetCustomLights(CampaignLightColor campaignLightColor)
+        {
+            MenuLightsPresetSO customLights = Instantiate(baseDefaultLights);
+
+            SimpleColorSO color = ScriptableObject.CreateInstance<SimpleColorSO>();
+            if (campaignLightColor == null)
+            {
+                campaignLightColor = new CampaignLightColor(1, 1, 1);
+            }
+            color.SetColor(new Color(campaignLightColor.r, campaignLightColor.g, campaignLightColor.b));
+            foreach (LightIdColorPair pair in customLights.lightIdColorPairs)
+            {
+                pair.baseColor = color;
+            }
+            _campaignFlowCoordinator.SetField("_defaultLightsPreset", customLights);
+        }
+
         public void HandleMissionNodeSelectionManagerDidSelectMissionNode(MissionNodeVisualController missionNodeVisualController)
         {
             if (isDownloading) return;
