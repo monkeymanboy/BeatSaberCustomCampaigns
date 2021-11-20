@@ -105,7 +105,7 @@ namespace BeatSaberCustomCampaigns
                     docPath = Application.dataPath;
                     docPath = docPath.Substring(0, docPath.Length - 5);
                     docPath = docPath.Substring(0, docPath.LastIndexOf("/"));
-                    customSongsPath = docPath + "/Beat Saber_Data/CustomLevels/" + songid + extra + "/";
+                    customSongsPath = docPath + "/Beat Saber_Data/CustomLevels/" + songid + string.Concat(extra.Split(Path.GetInvalidFileNameChars())) + "/";
                     if (!Directory.Exists(customSongsPath))
                     {
                         Directory.CreateDirectory(customSongsPath);
