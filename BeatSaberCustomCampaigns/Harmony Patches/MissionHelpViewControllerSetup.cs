@@ -72,6 +72,7 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                     {
                         imageView.sprite = null;
                         if (imageLoader == null) imageLoader = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().First();
+                        imageView.gradient = false;
                         imageLoader.StartCoroutine(LoadSprite("file:///" + imagePath + infoSegment.imageName, imageView));
                     }
                     if (infoSegment.hasSeperator)
