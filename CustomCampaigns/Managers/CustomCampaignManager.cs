@@ -443,7 +443,7 @@ namespace CustomCampaigns.Managers
         private void OnContinueButtonPressed(MissionResultsViewController missionResultsViewController)
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetBottomScreenViewController", null, ViewController.AnimationType.In);
+            _customCampaignUIManager.UpdateLeaderboards();
             //LoadModifiersPanel(modifierParamsList);
         }
 
