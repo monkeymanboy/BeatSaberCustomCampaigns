@@ -3,7 +3,7 @@
   "id": "BeatSaberCustomCampaigns",
   "name": "CustomCampaigns",
   "author": "",
-  "version": "3.0.0",
+  "version": "3.0.0-alpha.1",
   "description": "",
   "gameVersion": "1.16.2",
   "dependsOn": {

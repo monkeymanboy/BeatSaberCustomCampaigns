@@ -289,6 +289,7 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("songs loaded");
             SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
             (_missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO).mission.SetCustomLevel();
+            _customCampaignUIManager.RefreshMissionNodeData();
             _customCampaignUIManager.ClearProgressBar();
 
             bool isDownloadingNode = _missionLevelDetailViewController.missionNode == downloadingNode;
@@ -418,7 +419,6 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("retry button pressed");
             if (_currentMissionDataSO.mission.allowStandardLevel)
             {
-                
                 StartCampaignLevel(HideMissionResults);
             }
             else
