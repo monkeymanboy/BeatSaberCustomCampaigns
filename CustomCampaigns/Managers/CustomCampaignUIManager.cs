@@ -147,8 +147,9 @@ namespace CustomCampaigns.Managers
             InitializeCampaignUI(campaign);
         }
 
-        internal void FlowCoordinatorPresented()
+        internal void FlowCoordinatorPresented(Campaign.Campaign campaign)
         {
+            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", campaign.info.name, ViewController.AnimationType.In);
             _missionMapAnimationController.ScrollToTopMostNotClearedMission();
             _missionLevelDetailViewController.GetField<Button, MissionLevelDetailViewController>("_playButton").interactable = true;
             SetupGameplaySetupViewController();
@@ -308,7 +309,6 @@ namespace CustomCampaigns.Managers
 
         private void InitializeCampaignUI(Campaign.Campaign campaign)
         {
-            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", campaign.info.name, ViewController.AnimationType.In);
             _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET);
 
             if (_missionNodeSelectionManager.GetField<MissionNode[], MissionNodeSelectionManager>("_missionNodes") == null)
@@ -410,7 +410,9 @@ namespace CustomCampaigns.Managers
             {
                 UnityEngine.Object.Destroy(stage.gameObject);
             }
+
             _campaignFlowCoordinator.GetField<MenuLightsManager, CampaignFlowCoordinator>("_menuLightsManager").SetColorPreset(_baseDefaultLights, animated: true);
+            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetTitle", "Campaign", ViewController.AnimationType.None);
         }
 
         internal void BaseCampaignEnabled()

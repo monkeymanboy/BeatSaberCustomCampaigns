@@ -15,7 +15,6 @@ namespace CustomCampaigns.Managers
 {
     public class CustomCampaignManager
     {
-
         public static bool unlockAllMissions = false;
 
         public Action<CampaignFlowCoordinator> CampaignClosed;
@@ -50,8 +49,6 @@ namespace CustomCampaigns.Managers
         private CustomMissionDataSO _currentMissionDataSO;
         private MissionHelpViewController _missionHelpViewController;
         private PlayerDataModel _playerDataModel;
-
-
 
         public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, Downloader downloader, CampaignFlowCoordinator campaignFlowCoordinator,
                                      MenuTransitionsHelper menuTransitionsHelper, MissionSelectionMapViewController missionSelectionMapViewController,
@@ -105,7 +102,7 @@ namespace CustomCampaigns.Managers
             _missionResultsViewController.continueButtonPressedEvent -= OnContinueButtonPressed;
             _missionResultsViewController.continueButtonPressedEvent += OnContinueButtonPressed;
 
-            _customCampaignUIManager.FlowCoordinatorPresented();
+            _customCampaignUIManager.FlowCoordinatorPresented(_currentCampaign);
         }
 
         public void SetupCampaign(Campaign.Campaign campaign, Action onFinishSetup)
