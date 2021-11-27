@@ -367,12 +367,19 @@ namespace CustomCampaigns.Managers
             _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
             _campaignMissionLeaderboardViewController.UpdateLeaderboards();
 
-            UpdateLeaderboards();
+            UpdateLeaderboards(true);
         }
 
-        public void UpdateLeaderboards()
+        public void UpdateLeaderboards(bool fullRefresh)
         {
-            _campaignMissionLeaderboardViewController.UpdateAccuracy();
+            if (fullRefresh)
+            {
+                _campaignMissionLeaderboardViewController.UpdateLeaderboards();
+            }
+            else
+            {
+                _campaignMissionLeaderboardViewController.UpdateAccuracy();
+            }
 
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO as CustomMissionDataSO;
             Mission mission = missionData.mission;

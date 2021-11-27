@@ -19,7 +19,6 @@ namespace CustomCampaigns.Utils
             var levelDifficultyBeatmaps = levelDifficultyBeatmapSets.First(x => x.beatmapCharacteristic.Equals(beatmapCharacteristic)).difficultyBeatmaps;
             foreach (var diff in levelDifficultyBeatmaps)
             {
-                Plugin.logger.Debug(diff.difficulty.Name());
                 if (diff.difficulty.Equals(beatmapDifficulty))
                 {
                     return diff;

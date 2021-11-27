@@ -304,7 +304,7 @@ namespace CustomCampaigns.Managers
             _customCampaignUIManager.SetPlayButtonInteractable(true);
             _missionLevelDetailViewController.RefreshContent();
 
-            _customCampaignUIManager.UpdateLeaderboards();
+            _customCampaignUIManager.UpdateLeaderboards(false);
         }
 
         private void PlayMap(MissionLevelDetailViewController missionLevelDetailViewController)
@@ -443,7 +443,7 @@ namespace CustomCampaigns.Managers
         private void OnContinueButtonPressed(MissionResultsViewController missionResultsViewController)
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            _customCampaignUIManager.UpdateLeaderboards();
+            _customCampaignUIManager.UpdateLeaderboards(true);
             //LoadModifiersPanel(modifierParamsList);
         }
 
