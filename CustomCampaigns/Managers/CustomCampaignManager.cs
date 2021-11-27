@@ -296,12 +296,9 @@ namespace CustomCampaigns.Managers
             }
 
             downloadingNode = null;
-            Plugin.logger.Debug("Current node is downloading node");
             _customCampaignUIManager.SetPlayButtonText("Play");
             _customCampaignUIManager.SetPlayButtonInteractable(true);
-            _missionLevelDetailViewController.RefreshContent();
-
-            _customCampaignUIManager.UpdateLeaderboards(false);
+            _missionNodeSelectionManager.GetField<Action<MissionNodeVisualController>, MissionNodeSelectionManager>("didSelectMissionNodeEvent")(_missionLevelDetailViewController.missionNode.missionNodeVisualController);
         }
 
         private void PlayMap(MissionLevelDetailViewController missionLevelDetailViewController)
@@ -366,7 +363,6 @@ namespace CustomCampaigns.Managers
             {
                 StartCampaignLevel(null);
             }
-
         }
 
         private void StartCampaignLevel(Action beforeSceneSwitchCallback)
