@@ -1,11 +1,6 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using CustomCampaigns.Campaign;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace CustomCampaigns.UI.ViewControllers
@@ -18,7 +13,7 @@ namespace CustomCampaigns.UI.ViewControllers
         private string _descriptionText;
 
         public Action<Campaign.Campaign> DidClickPlayButton;
-        
+
         public Campaign.Campaign SelectedCampaign
         {
             get => _selectedCampaign;

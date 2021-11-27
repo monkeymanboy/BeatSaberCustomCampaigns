@@ -8,7 +8,7 @@ namespace CustomCampaigns.HarmonyPatches
     [HarmonyPatch(typeof(CampaignFlowCoordinator), "HandleMissionLevelSceneDidFinish")]
     public class CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch
     {
-        public static void Prefix(CampaignFlowCoordinator __instance, MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupData, 
+        public static void Prefix(CampaignFlowCoordinator __instance, MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupData,
                                     MissionCompletionResults missionCompletionResults, MissionSelectionNavigationController ____missionSelectionNavigationController)
         {
             Plugin.logger.Debug("HandleMissionLevelSceneDidFinish prefix");

@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
@@ -15,7 +13,6 @@ namespace CustomCampaigns
     {
         private const string BEATSAVER_PREFIX = "https://api.beatsaver.com/maps/";
         private const string ID_ENDPOINT = "id/";
-        private const string HASH_ENDPOINT = "hash/";
 
         private const string KNOWN_ID = "ff9";
         private const string KNOWN_HASH = "cb9f1581ff6c09130c991db8823c5953c660688f";
@@ -24,7 +21,7 @@ namespace CustomCampaigns
         private static string DownloadUrlTemplate = "";
 
         private static bool isDownloading = false;
-        
+
         public Downloader()
         {
             UserAgent = $"CustomCampaigns/v{Plugin.version}";
@@ -231,10 +228,10 @@ namespace CustomCampaigns
                 {
                     Plugin.logger.Debug("http error");
                 }
-                
+
                 return null;
             }
-            
+
             return www;
         }
 

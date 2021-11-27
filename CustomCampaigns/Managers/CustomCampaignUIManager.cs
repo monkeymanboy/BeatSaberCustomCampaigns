@@ -1,19 +1,18 @@
-﻿using HMUI;
+﻿using BeatSaberCustomCampaigns;
 using BeatSaberMarkupLanguage;
-using UnityEngine;
+using BeatSaberMarkupLanguage.Attributes;
+using CustomCampaigns.Campaign;
+using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.UI.FlowCoordinators;
+using CustomCampaigns.UI.ViewControllers;
+using CustomCampaigns.Utils;
+using HMUI;
 using IPA.Utilities;
-using UnityEngine.UI;
 using System.Linq;
 using System.Reflection;
 using TMPro;
-using BeatSaberMarkupLanguage.Attributes;
-using CustomCampaigns.Campaign;
-using CustomCampaigns.UI.FlowCoordinators;
-using CustomCampaigns.Campaign.Missions;
-using System;
-using CustomCampaigns.UI.ViewControllers;
-using BeatSaberCustomCampaigns;
-using CustomCampaigns.Utils;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace CustomCampaigns.Managers
 {
@@ -58,7 +57,6 @@ namespace CustomCampaigns.Managers
         private MissionNode[] _currentCampaignNodes;
         private MissionStage[] _currentMissionStages;
 
-        //private NavigationController _campaignLeaderboardsNavigationController;
         private CampaignMissionLeaderboardViewController _campaignMissionLeaderboardViewController;
         private PlatformLeaderboardViewController _globalLeaderboardViewController;
 
@@ -110,7 +108,7 @@ namespace CustomCampaigns.Managers
             _mediumProgressColor = new Color(Color.yellow.r, Color.yellow.g, Color.yellow.b, 0.25f);
             _highProgressColor = new Color(Color.green.r, Color.green.g, Color.green.b, 0.25f);
 
-            _levelBarBackground.sprite = Sprite.Create((new Texture2D(1, 1)), new Rect(0, 0, 1, 1), Vector2.one / 2f);
+            _levelBarBackground.sprite = Sprite.Create(new Texture2D(1, 1), new Rect(0, 0, 1, 1), Vector2.one / 2f);
         }
 
         #region UI Setup
@@ -129,8 +127,6 @@ namespace CustomCampaigns.Managers
             _baseBackAlpha = _backgroundImage.color.a;
             _baseMapHeight = _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").sizeDelta.y;
             _baseDefaultLights = _campaignFlowCoordinator.GetField<MenuLightsPresetSO, CampaignFlowCoordinator>("_defaultLightsPreset");
-
-            //_campaignLeaderboardsNavigationController = BeatSaberUI.CreateViewController<NavigationController>();
         }
 
         internal void CustomCampaignEnabled()
@@ -138,9 +134,6 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("custom campaign enabled");
             MissionName.alignment = TextAlignmentOptions.Bottom;
             MissionName.gameObject.SetActive(true);
-
-            ViewController[] viewControllers = { _campaignMissionLeaderboardViewController, _globalLeaderboardViewController };
-            //_campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetViewControllersToNavigationController", _campaignLeaderboardsNavigationController, viewControllers);
         }
 
         internal void SetupCampaignUI(Campaign.Campaign campaign)
@@ -208,36 +201,27 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("Setting mission stages");
             var missionNodesPO = _missionNodesManager.GetField<GameObject, MissionNodesManager>("_missionNodesParentObject");
             _currentMissionStages = new MissionStage[campaign.info.unlockGate.Count + 1];
-            if (campaign.info.unlockGate.Count == 0)
+
+            for (int i = 0; i < _currentMissionStages.Length - 1; i++)
             {
-                //Make a fake unlock gate - there has to be at least one
-                _currentMissionStages[0] = UnityEngine.Object.Instantiate(_baseMissionStages[0], missionNodesPO.transform);
-                _currentMissionStages[0].SetField("_minimumMissionsToUnlock", 0);
-                _currentMissionStages[0].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = GetCampaignPosition(0, -1000, campaign.info.mapHeight);
-            }
-            else
-            {
-                for (int i = 0; i < _currentMissionStages.Length - 1; i++)
+                if (_baseMissionStages == null)
                 {
-                    if (_baseMissionStages == null)
-                    {
-                        Plugin.logger.Debug("null mission stages");
-                    }
-                    if (missionNodesPO == null)
-                    {
-                        Plugin.logger.Debug("null mission nodes po");
-                    }
-                    _currentMissionStages[i] = UnityEngine.Object.Instantiate(_baseMissionStages[0], missionNodesPO.transform);
-                    _currentMissionStages[i].SetField("_minimumMissionsToUnlock", campaign.info.unlockGate[i].clearsToPass);
-                    _currentMissionStages[i].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = GetCampaignPosition(campaign.info.unlockGate[i].x, campaign.info.unlockGate[i].y, campaign.info.mapHeight);
+                    Plugin.logger.Debug("null mission stages");
                 }
-
-                // create a fake gate - campaign is coded very strangely and at least one unlock gate must be locked at all times
-                _currentMissionStages[campaign.info.unlockGate.Count] = UnityEngine.Object.Instantiate(_baseMissionStages[0], missionNodesPO.transform);
-                _currentMissionStages[campaign.info.unlockGate.Count].SetField("_minimumMissionsToUnlock", campaign.info.mapPositions.Count + 1);
-                _currentMissionStages[campaign.info.unlockGate.Count].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = GetCampaignPosition(0, -1000, campaign.info.mapHeight);
-
+                if (missionNodesPO == null)
+                {
+                    Plugin.logger.Debug("null mission nodes po");
+                }
+                _currentMissionStages[i] = UnityEngine.Object.Instantiate(_baseMissionStages[0], missionNodesPO.transform);
+                _currentMissionStages[i].SetField("_minimumMissionsToUnlock", campaign.info.unlockGate[i].clearsToPass);
+                _currentMissionStages[i].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = GetCampaignPosition(campaign.info.unlockGate[i].x, campaign.info.unlockGate[i].y, campaign.info.mapHeight);
             }
+
+            // create a fake gate - campaign is coded very strangely and at least one unlock gate must be locked at all times
+            _currentMissionStages[campaign.info.unlockGate.Count] = UnityEngine.Object.Instantiate(_baseMissionStages[0], missionNodesPO.transform);
+            _currentMissionStages[campaign.info.unlockGate.Count].SetField("_minimumMissionsToUnlock", campaign.info.mapPositions.Count + 1);
+            _currentMissionStages[campaign.info.unlockGate.Count].GetField<RectTransform, MissionStage>("_rectTransform").localPosition = GetCampaignPosition(0, -1000, campaign.info.mapHeight);
+
             _missionStagesManager.SetField("_missionStages", _currentMissionStages.OrderBy(x => x.minimumMissionsToUnlock).ToArray());
         }
 
@@ -248,7 +232,6 @@ namespace CustomCampaigns.Managers
             for (int i = 0; i < _currentCampaignNodes.Length; i++)
             {
                 CampaignMapPosition mapPosition = campaign.info.mapPositions[i];
-                MissionNode missionNode = _currentCampaignNodes[i];
 
                 _currentCampaignNodes[i] = UnityEngine.Object.Instantiate(_baseMissionNodes[0], missionNodesPO.transform);
                 _currentCampaignNodes[i].gameObject.SetActive(true);

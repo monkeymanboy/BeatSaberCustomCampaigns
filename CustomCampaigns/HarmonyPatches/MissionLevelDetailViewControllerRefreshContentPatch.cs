@@ -1,12 +1,9 @@
-﻿using CustomCampaigns.Campaign;
-using CustomCampaigns.Campaign.Missions;
+﻿using CustomCampaigns.Campaign.Missions;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
 using Polyglot;
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using TMPro;
 using UnityEngine;
 
@@ -54,7 +51,7 @@ namespace CustomCampaigns.HarmonyPatches
         static void OnItemFinish(int idx, ObjectiveListItem objectiveListItem)
         {
             if (idx == 0 && _missionData.missionObjectives.Length == 0)
-            {;
+            {
                 objectiveListItem.title = Localization.Get("CAMPAIGN_FINISH_LEVEL");
                 objectiveListItem.conditionText = "";
                 objectiveListItem.hideCondition = true;
@@ -63,7 +60,7 @@ namespace CustomCampaigns.HarmonyPatches
             {
                 MissionObjective missionObjective = _missionData.missionObjectives[idx];
                 if (missionObjective.type.noConditionValue)
-                {;
+                {
                     objectiveListItem.title = missionObjective.type.objectiveNameLocalized.Replace(" ", "\n");
                     objectiveListItem.hideCondition = true;
                 }

@@ -1,21 +1,21 @@
-﻿using HMUI;
-using IPA.Utilities;
-using System;
-using System.Collections.Generic;
-using BeatSaberMarkupLanguage;
-using UnityEngine;
-using SongCore;
-using System.Threading;
+﻿using BeatSaberMarkupLanguage;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
+using HMUI;
+using IPA.Utilities;
+using SongCore;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using UnityEngine;
 
 namespace CustomCampaigns.Managers
 {
     public class CustomCampaignManager
     {
-       
+
         public static bool unlockAllMissions = false;
 
         public Action<CampaignFlowCoordinator> CampaignClosed;
@@ -51,7 +51,7 @@ namespace CustomCampaigns.Managers
         private MissionHelpViewController _missionHelpViewController;
         private PlayerDataModel _playerDataModel;
 
-       
+
 
         public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, Downloader downloader, CampaignFlowCoordinator campaignFlowCoordinator,
                                      MenuTransitionsHelper menuTransitionsHelper, MissionSelectionMapViewController missionSelectionMapViewController,
@@ -369,7 +369,7 @@ namespace CustomCampaigns.Managers
             {
                 StartCampaignLevel(null);
             }
-           
+
         }
 
         private void StartCampaignLevel(Action beforeSceneSwitchCallback)
@@ -425,7 +425,7 @@ namespace CustomCampaigns.Managers
             {
                 _campaignFlowCoordinator.HandleMissionResultsViewControllerRetryButtonPressed(missionResultsViewController);
             }
-            
+
         }
 
         private void HideMissionHelp()

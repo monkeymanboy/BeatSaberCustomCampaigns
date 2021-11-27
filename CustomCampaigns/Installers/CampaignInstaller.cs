@@ -1,12 +1,6 @@
-﻿using Zenject;
+﻿using CustomCampaigns.CustomMissionObjectives;
 using SiraUtil;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using CustomCampaigns.UI;
-using CustomCampaigns.UI.FlowCoordinators;
-using CustomCampaigns.UI.ViewControllers;
-using CustomCampaigns.CustomMissionObjectives;
+using Zenject;
 
 namespace CustomCampaigns.Installers
 {

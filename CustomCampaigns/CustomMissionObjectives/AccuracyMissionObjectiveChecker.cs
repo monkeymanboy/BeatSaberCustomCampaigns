@@ -82,7 +82,7 @@ namespace CustomCampaigns.CustomMissionObjectives
 
         public string GetMissionObjectiveType()
         {
-            return MissionRequirement.GetObjectiveName("accuracy"); 
+            return MissionRequirement.GetObjectiveName("accuracy");
         }
     }
 }

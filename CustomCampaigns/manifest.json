@@ -3,9 +3,9 @@
   "id": "BeatSaberCustomCampaigns",
   "name": "CustomCampaigns",
   "author": "",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.3",
   "description": "",
-  "gameVersion": "1.16.2",
+  "gameVersion": "1.18.3",
   "dependsOn": {
     "SongCore": "^3.4.1",
     "BeatSaberMarkupLanguage": "^1.5.3",

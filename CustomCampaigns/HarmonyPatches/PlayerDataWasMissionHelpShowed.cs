@@ -1,9 +1,5 @@
-﻿using CustomCampaigns.Campaign;
-using CustomCampaigns.Campaign.Missions;
+﻿using CustomCampaigns.Campaign.Missions;
 using HarmonyLib;
-using IPA.Utilities;
-using System;
-using System.Threading;
 
 namespace CustomCampaigns.HarmonyPatches
 {

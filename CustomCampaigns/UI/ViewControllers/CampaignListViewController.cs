@@ -1,20 +1,15 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.ViewControllers;
-using CustomCampaigns.Campaign;
 using HMUI;
-using SiraUtil.Tools;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using Zenject;
 
 namespace CustomCampaigns.UI.ViewControllers
 {
     [ViewDefinition("CustomCampaigns.UI.Views.campaign-list.bsml")]
-    [HotReload(RelativePathToLayout=@"..\Views\campaign-list.bsml")]
+    [HotReload(RelativePathToLayout = @"..\Views\campaign-list.bsml")]
     public class CampaignListViewController : BSMLAutomaticViewController
     {
         const string CustomCampaignsPathName = "/CustomCampaigns";

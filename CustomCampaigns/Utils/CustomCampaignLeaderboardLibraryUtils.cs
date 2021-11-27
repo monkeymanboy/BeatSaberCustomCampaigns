@@ -1,16 +1,11 @@
-﻿using CustomCampaigns.Campaign;
-using CustomCampaigns.Campaign.Missions;
+﻿using CustomCampaigns.Campaign.Missions;
 using IPA.Utilities;
 using Newtonsoft.Json;
-using SongCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 

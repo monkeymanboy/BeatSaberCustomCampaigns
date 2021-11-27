@@ -1,5 +1,4 @@
-﻿using CustomCampaigns.Campaign;
-using CustomCampaigns.Campaign.Missions;
+﻿using CustomCampaigns.Campaign.Missions;
 using HarmonyLib;
 
 namespace CustomCampaigns.HarmonyPatches

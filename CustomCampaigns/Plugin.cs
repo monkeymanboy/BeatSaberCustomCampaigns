@@ -1,9 +1,9 @@
-﻿using IPA;
-using HarmonyLib;
+﻿using HarmonyLib;
+using IPA;
+using IPA.Loader;
 using SiraUtil;
 using SiraUtil.Zenject;
 using IPALogger = IPA.Logging.Logger;
-using IPA.Loader;
 
 namespace CustomCampaigns
 {

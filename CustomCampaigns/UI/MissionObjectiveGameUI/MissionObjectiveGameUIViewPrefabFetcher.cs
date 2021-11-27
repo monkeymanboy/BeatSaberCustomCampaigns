@@ -3,10 +3,8 @@ using IPA.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
 
 namespace CustomCampaigns.UI.MissionObjectiveGameUI
 {
@@ -68,7 +66,7 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
                 }
             }
 
-            SceneManager.UnloadSceneAsync(SCENE_NAME); 
+            SceneManager.UnloadSceneAsync(SCENE_NAME);
             OnPrefabFetched?.Invoke();
         }
     }

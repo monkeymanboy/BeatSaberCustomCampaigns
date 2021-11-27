@@ -16,10 +16,7 @@ namespace CustomCampaigns.Installers
 
                 Container.Bind<CustomMissionObjectivesUIController>().FromNewComponentOnNewGameObject().AsSingle();
                 Container.BindInterfacesAndSelfTo<CampaignMissionInStandardLevelManager>().AsSingle().NonLazy();
-                //Container.Bind<MissionLevelGameplayManager>().FromNewComponentOnNewGameObject().AsSingle();
-                //Container.Bind<CustomMissionObjectivesManager>().AsSingle().NonLazy();
             }
-            
         }
     }
 }

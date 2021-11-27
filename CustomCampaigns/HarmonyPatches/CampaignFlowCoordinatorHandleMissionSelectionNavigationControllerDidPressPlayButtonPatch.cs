@@ -3,11 +3,6 @@ using CustomCampaigns.Managers;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using static MenuLightsPresetSO;
 
@@ -51,7 +46,7 @@ namespace CustomCampaigns.HarmonyPatches
             Plugin.logger.Debug("press play button");
             if (CustomCampaignManager.isCampaignLevel)
             {
-                __instance.GetField<MenuLightsManager,CampaignFlowCoordinator>("_menuLightsManager").SetColorPreset(customObjectiveLights, true);
+                __instance.GetField<MenuLightsManager, CampaignFlowCoordinator>("_menuLightsManager").SetColorPreset(customObjectiveLights, true);
                 MissionHelpViewController missionHelpViewController = __instance.GetField<MissionHelpViewController, CampaignFlowCoordinator>("_missionHelpViewController");
                 missionHelpViewController.Setup(missionHelp);
                 __instance.InvokeMethod<object, CampaignFlowCoordinator>("PresentViewController", missionHelpViewController, null, ViewController.AnimationDirection.Horizontal, false);
