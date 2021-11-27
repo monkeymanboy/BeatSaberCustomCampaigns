@@ -1,4 +1,5 @@
 ﻿using CustomCampaigns.Campaign.Missions;
+using System;
 using Zenject;
 
 namespace CustomCampaigns.CustomMissionObjectives
@@ -38,7 +39,7 @@ namespace CustomCampaigns.CustomMissionObjectives
         {
             var acc = _relativeScoreAndImmediateRankCounter.relativeScore;
             //Plugin.logger.Debug($"score update: {acc}");
-            checkedValue = (int)(acc * 10000);
+            checkedValue = (int) Math.Round(acc * 10000);
             if (_missionObjective != null)
             {
                 CheckAndUpdateStatus();
