@@ -23,15 +23,13 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
 
         public void CreateUIElements(List<MissionObjectiveChecker> activeMissionObjectiveCheckers)
         {
-            if (_missionObjectiveGameUIViews != null)
+            foreach (MissionObjectiveGameUIView missionObjectiveGameUIView in _missionObjectiveGameUIViews)
             {
-                foreach (MissionObjectiveGameUIView missionObjectiveGameUIView in _missionObjectiveGameUIViews)
-                {
-                    missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").statusDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveStatusDidChange;
-                    missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").checkedValueDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveCheckedValueDidChange;
-                    Object.Destroy(missionObjectiveGameUIView.gameObject);
-                }
+                missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").statusDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveStatusDidChange;
+                missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").checkedValueDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveCheckedValueDidChange;
+                Object.Destroy(missionObjectiveGameUIView.gameObject);
             }
+            _missionObjectiveGameUIViews.Clear();
 
             var count = activeMissionObjectiveCheckers.Count;
             var xpos = (ELEMENT_WIDTH - (ELEMENT_WIDTH * count + SEPARATOR * (count - 1))) * 0.5f;
@@ -45,6 +43,25 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
                 _missionObjectiveGameUIViews.Add(missionObjectiveGameUIView);
                 xpos += SEPARATOR + ELEMENT_WIDTH;
             }
+        }
+
+        public void AddUIElement(MissionObjectiveChecker missionObjectiveChecker)
+        {
+            var count = _missionObjectiveGameUIViews.Count + 1;
+            var xpos = (ELEMENT_WIDTH - (ELEMENT_WIDTH * count + SEPARATOR * (count - 1))) * 0.5f;
+
+            foreach (var view in _missionObjectiveGameUIViews)
+            {
+                view.transform.localPosition = new Vector2(xpos, 0f);
+                xpos += SEPARATOR + ELEMENT_WIDTH;
+            }
+
+            MissionObjectiveGameUIView missionObjectiveGameUIView = Object.Instantiate(CustomCampaignManager.missionObjectiveGameUIViewPrefab, transform, false);
+            missionObjectiveGameUIView.transform.localPosition = new Vector2(xpos, 0f);
+            missionObjectiveGameUIView.SetMissionObjectiveChecker(missionObjectiveChecker);
+            missionObjectiveGameUIView.gameObject.SetActive(true);
+
+            _missionObjectiveGameUIViews.Add(missionObjectiveGameUIView);
         }
     }
 }

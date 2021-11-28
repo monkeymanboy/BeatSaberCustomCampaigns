@@ -2,24 +2,24 @@
 using System;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives
+namespace CustomCampaigns.CustomMissionObjectives.MaintainAccuracy
 {
-    public class AccuracyMissionObjectiveChecker : MissionObjectiveChecker, ICustomMissionObjectiveChecker
+    public class MaintainAccuracyMissionObjectiveChecker : MissionObjectiveChecker, ICustomMissionObjectiveChecker
     {
-        private RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
+        protected RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
 
         [Inject]
         public void Construct(RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter)
         {
-            Plugin.logger.Debug("construct acc");
             _relativeScoreAndImmediateRankCounter = relativeScoreAndImmediateRankCounter;
         }
 
         protected override void Init()
         {
-            Plugin.logger.Debug("init acc");
+            Plugin.logger.Debug("init maintain acc");
             checkedValue = _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min ? 10000 : 0;
-            status = Status.NotClearedYet;
+            status = Status.NotFailedYet;
+
             if (_relativeScoreAndImmediateRankCounter != null)
             {
                 _relativeScoreAndImmediateRankCounter.relativeScoreOrImmediateRankDidChangeEvent -= OnScoreUpdate;
@@ -35,11 +35,11 @@ namespace CustomCampaigns.CustomMissionObjectives
             }
         }
 
-        private void OnScoreUpdate()
+        protected void OnScoreUpdate()
         {
             var acc = _relativeScoreAndImmediateRankCounter.relativeScore;
-            //Plugin.logger.Debug($"score update: {acc}");
             checkedValue = (int) Math.Round(acc * 10000);
+
             if (_missionObjective != null)
             {
                 CheckAndUpdateStatus();
@@ -50,40 +50,28 @@ namespace CustomCampaigns.CustomMissionObjectives
             }
         }
 
-        private void CheckAndUpdateStatus()
+        protected void CheckAndUpdateStatus()
         {
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min)
             {
-                //Plugin.logger.Debug($"{checkedValue} / {_missionObjective.referenceValue}");
-                if (checkedValue >= _missionObjective.referenceValue)
+                if (checkedValue < _missionObjective.referenceValue)
                 {
-                    status = Status.Cleared;
-                    return;
-                }
-                else
-                {
-                    status = Status.NotClearedYet;
-                    return;
+                    status = Status.Failed;
                 }
             }
-            else if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Max)
+
+            if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Max)
             {
-                if (checkedValue <= _missionObjective.referenceValue)
+                if (checkedValue > _missionObjective.referenceValue)
                 {
-                    status = MissionObjectiveChecker.Status.Cleared;
-                    return;
-                }
-                else
-                {
-                    status = Status.None;
-                    return;
+                    status = Status.Failed;
                 }
             }
         }
 
         public string GetMissionObjectiveType()
         {
-            return MissionRequirement.GetObjectiveName("accuracy");
+            return MissionRequirement.GetObjectiveName("maintainAccuracy");
         }
     }
 }
