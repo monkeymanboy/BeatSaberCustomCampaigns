@@ -1,13 +1,20 @@
 ﻿using CustomCampaigns.CustomMissionObjectives;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
+using IPA.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 
 namespace CustomCampaigns.Managers
 {
-    class CustomMissionObjectivesStandardLevelManager
+    class CustomMissionObjectivesStandardLevelManager : IInitializable
     {
+        private BeatmapObjectManager _beatmapObjectManager;
+        private IScoreController _scoreController;
+        private SaberActivityCounter _saberActivityCounter;
+
         private CustomMissionObjectivesUIController _customMissionObjectivesUIController;
 
         private List<MissionObjective> _missionObjectives = new List<MissionObjective>();
@@ -19,13 +26,88 @@ namespace CustomCampaigns.Managers
             CheckMissionObjectiveChecker(missionObjectiveChecker);
         }
 
-        public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, ILevelEndActions gameplayManager)
+        public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, ILevelEndActions gameplayManager,
+                                                            BeatmapObjectManager beatmapObjectManager, IScoreController scoreController, SaberActivityCounter saberActivityCounter)
         {
+            _beatmapObjectManager = beatmapObjectManager;
+            _scoreController = scoreController;
+            _saberActivityCounter = saberActivityCounter;
+
             _customMissionObjectivesUIController = customMissionObjectivesUIController;
             gameplayManager.levelFailedEvent += OnLevelFailed;
             gameplayManager.levelFinishedEvent += OnLevelFinished;
 
             _missionObjectives = CustomCampaignManager.currentMissionData.missionObjectives.ToList();
+        }
+
+        public void Initialize()
+        {
+            HashSet<MissionObjective> missionObjectivesToRemove = new HashSet<MissionObjective>();
+
+            foreach (var missionObjective in _missionObjectives)
+            {
+                MissionObjectiveChecker missionObjectiveChecker = GetBaseGameCheckerForObjective(missionObjective);
+                if (missionObjectiveChecker != null)
+                {
+                    missionObjectiveChecker.SetCheckedMissionObjective(missionObjective);
+
+                    _activeMissionObjectiveCheckers.Add(missionObjectiveChecker);
+                    missionObjectivesToRemove.Add(missionObjective);
+
+                    missionObjectiveChecker.statusDidChangeEvent += HandleMissionObjectiveCheckerStatusDidChange;
+
+                    // setup ui
+                    if (CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
+                    {
+                        _customMissionObjectivesUIController.AddUIElement(missionObjectiveChecker);
+                    }
+                }
+            }
+
+            foreach (var missionObjective in missionObjectivesToRemove)
+            {
+                _missionObjectives.Remove(missionObjective);
+            }
+        }
+
+        private MissionObjectiveChecker GetBaseGameCheckerForObjective(MissionObjective missionObjective)
+        {
+            Plugin.logger.Debug($"Looking for: {missionObjective.type.objectiveName}");
+            switch (missionObjective.type.objectiveName)
+            {
+                case "OBJECTIVE_MISS":
+                    var missMissionObjectiveChecker = new GameObject().AddComponent<MissMissionObjectiveChecker>();
+                    missMissionObjectiveChecker.SetField("_beatmapObjectManager", _beatmapObjectManager);
+                    return missMissionObjectiveChecker;
+
+                case "OBJECTIVE_SCORE":
+                    var scoreMissionObjectiveChecker = new GameObject().AddComponent<ScoreMissionObjectiveChecker>();
+                    scoreMissionObjectiveChecker.SetField("_scoreController", _scoreController);
+                    return scoreMissionObjectiveChecker;
+
+                case "OBJECTIVE_HANDS_MOVEMENT":
+                    var handsMovementMissionObjectiveChecker = new GameObject().AddComponent<HandsMovementMissionObjectiveChecker>();
+                    handsMovementMissionObjectiveChecker.SetField("_saberActivityCounter", _saberActivityCounter);
+                    return handsMovementMissionObjectiveChecker;
+
+                case "OBJECTIVE_COMBO":
+                    var comboMissionObjectiveChecker = new GameObject().AddComponent<ComboMissionObjectiveChecker>();
+                    comboMissionObjectiveChecker.SetField("_scoreController", _scoreController);
+                    return comboMissionObjectiveChecker;
+
+                case "OBJECTIVE_FULL_COMBO":
+                    var fullComboMissionObjectiveChecker = new GameObject().AddComponent<FullComboMissionObjectiveChecker>();
+                    fullComboMissionObjectiveChecker.SetField("_scoreController", _scoreController);
+                    return fullComboMissionObjectiveChecker;
+
+                case "OBJECTIVE_BAD_CUTS":
+                    var badCutsMissionObjectiveChecker = new GameObject().AddComponent<BadCutsMissionObjectiveChecker>();
+                    badCutsMissionObjectiveChecker.SetField("_beatmapObjectManager", _beatmapObjectManager);
+                    return badCutsMissionObjectiveChecker;
+
+                default:
+                    return null;
+            }
         }
 
         // TODO: MissionClearedEnvironmentEffect - does anything even use this???
@@ -65,7 +147,6 @@ namespace CustomCampaigns.Managers
 
         private void CheckMissionObjectiveChecker(MissionObjectiveChecker missionObjectiveChecker)
         {
-            Plugin.logger.Debug($"Checking: {(missionObjectiveChecker as ICustomMissionObjectiveChecker).GetMissionObjectiveType()}");
             foreach (MissionObjective missionObjective in _missionObjectives)
             {
                 var customObjectiveChecker = missionObjectiveChecker as ICustomMissionObjectiveChecker;

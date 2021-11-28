@@ -31,7 +31,7 @@ namespace CustomCampaigns.Installers
                 #endregion
 
                 Container.Bind<CustomMissionObjectivesUIController>().FromNewComponentOnNewGameObject().AsSingle();
-                Container.Bind<CustomMissionObjectivesStandardLevelManager>().AsSingle().NonLazy();
+                Container.BindInterfacesAndSelfTo<CustomMissionObjectivesStandardLevelManager>().AsSingle().NonLazy();
             }
         }
     }

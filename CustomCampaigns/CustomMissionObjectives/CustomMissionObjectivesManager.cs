@@ -28,7 +28,7 @@ namespace CustomCampaigns.CustomMissionObjectives
                     return;
                 }
 
-                CheckMissionObjectiveChecker(missionObjectiveChecker);
+                CheckMissionObjectiveChecker(missionObjectiveChecker, true);
             }
         }
 
@@ -50,6 +50,7 @@ namespace CustomCampaigns.CustomMissionObjectives
             lock (_activeMissionObjectiveCheckers)
             {
                 var activeMissionObjectiveCheckers = _missionObjectiveCheckersManager.GetField<MissionObjectiveChecker[], MissionObjectiveCheckersManager>("_activeMissionObjectiveCheckers");
+                Plugin.logger.Debug($"active mission objective checkers: {activeMissionObjectiveCheckers.Length}");
                 var missionObjectives = _missionObjectiveCheckersManager.GetField<MissionObjectiveCheckersManager.InitData, MissionObjectiveCheckersManager>("_initData").missionObjectives;
                 _activeMissionObjectiveCheckers = activeMissionObjectiveCheckers.ToList();
                 _missionObjectives = missionObjectives.ToList();
@@ -57,15 +58,50 @@ namespace CustomCampaigns.CustomMissionObjectives
                 // TODO: fix inefficiency? Should never be enough checkers to make a difference...
                 foreach (var missionObjectiveChecker in _missionObjectiveCheckers)
                 {
-                    CheckMissionObjectiveChecker(missionObjectiveChecker);
+                    CheckMissionObjectiveChecker(missionObjectiveChecker, false);
                 }
 
+                
                 _missionObjectiveCheckers.Clear();
+                InitializeBaseGameMissionObjectiveCheckers();
+                _missionObjectiveCheckersManager.GetField<Action, MissionObjectiveCheckersManager>("objectivesListDidChangeEvent")?.Invoke();
                 objectiveListInitialized = true;
             }
         }
 
-        private void CheckMissionObjectiveChecker(MissionObjectiveChecker missionObjectiveChecker)
+        private void InitializeBaseGameMissionObjectiveCheckers()
+        {
+            List<MissionObjectiveChecker> baseGameMissionObjectiveCheckers = _missionObjectiveCheckersManager.GetField<MissionObjectiveChecker[], MissionObjectiveCheckersManager>("_missionObjectiveCheckers").ToList();
+            HashSet<MissionObjective> missionObjectivesToRemove = new HashSet<MissionObjective>();
+
+            foreach (var missionObjective in _missionObjectives)
+            {
+                foreach (var missionObjectiveChecker in baseGameMissionObjectiveCheckers)
+                {
+                    if (missionObjectiveChecker.missionObjectiveType.objectiveName == missionObjective.type.objectiveName)
+                    {
+                        _activeMissionObjectiveCheckers.Add(missionObjectiveChecker);
+                        missionObjectivesToRemove.Add(missionObjective);
+                        baseGameMissionObjectiveCheckers.Remove(missionObjectiveChecker);
+
+                        missionObjectiveChecker.SetCheckedMissionObjective(missionObjective);
+                        break;
+                    }
+                }
+            }
+
+            _missionObjectiveCheckersManager.SetField("_activeMissionObjectiveCheckers", _activeMissionObjectiveCheckers.ToArray());
+            foreach (var missionObjective in missionObjectivesToRemove)
+            {
+                _missionObjectives.Remove(missionObjective);
+            }
+            foreach (var missionObjectiveChecker in baseGameMissionObjectiveCheckers)
+            {
+                GameObject.Destroy(missionObjectiveChecker);
+            }
+        }
+
+        private void CheckMissionObjectiveChecker(MissionObjectiveChecker missionObjectiveChecker, bool invokeListChangeEvent)
         {
             foreach (MissionObjective missionObjective in _missionObjectives)
             {
@@ -81,7 +117,10 @@ namespace CustomCampaigns.CustomMissionObjectives
                     missionObjectiveChecker.statusDidChangeEvent += _missionObjectiveCheckersManager.HandleMissionObjectiveCheckerStatusDidChange;
 
                     _missionObjectiveCheckersManager.SetField("_activeMissionObjectiveCheckers", _activeMissionObjectiveCheckers.ToArray());
-                    _missionObjectiveCheckersManager.GetField<Action, MissionObjectiveCheckersManager>("objectivesListDidChangeEvent")?.Invoke();
+                    if (invokeListChangeEvent)
+                    {
+                        _missionObjectiveCheckersManager.GetField<Action, MissionObjectiveCheckersManager>("objectivesListDidChangeEvent")?.Invoke();
+                    }
                     return;
                 }
             }

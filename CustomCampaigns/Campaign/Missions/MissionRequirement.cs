@@ -62,7 +62,7 @@ namespace CustomCampaigns.Campaign.Missions
             {"blocksMissed", "OBJECTIVE_MISS"},
             {"score", "OBJECTIVE_SCORE"},
             {"saberDistance", "OBJECTIVE_HANDS_MOVEMENT"},
-            {"combo", "OBJECTIVE_FULL_COMBO"},
+            {"combo", "OBJECTIVE_COMBO"},
             {"fullCombo", "OBJECTIVE_FULL_COMBO"},
             {"badCuts", "OBJECTIVE_BAD_CUTS"},
 
