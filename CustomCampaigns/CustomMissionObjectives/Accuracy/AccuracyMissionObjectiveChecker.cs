@@ -38,7 +38,6 @@ namespace CustomCampaigns.CustomMissionObjectives.Accuracy
         protected void OnScoreUpdate()
         {
             var acc = _relativeScoreAndImmediateRankCounter.relativeScore;
-            //Plugin.logger.Debug($"score update: {acc}");
             checkedValue = (int) Math.Round(acc * 10000);
             if (_missionObjective != null)
             {
@@ -54,7 +53,6 @@ namespace CustomCampaigns.CustomMissionObjectives.Accuracy
         {
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min)
             {
-                //Plugin.logger.Debug($"{checkedValue} / {_missionObjective.referenceValue}");
                 if (checkedValue >= _missionObjective.referenceValue)
                 {
                     status = Status.Cleared;

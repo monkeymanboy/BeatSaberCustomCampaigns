@@ -57,12 +57,12 @@ namespace CustomCampaigns.CustomMissionObjectives.SaberTimeInWall
                 {
                     leftIntersectingFound = CheckObstacle(obstacleController, leftSaber);
                 }
-                
+
                 if (!rightIntersectingFound)
                 {
                     rightIntersectingFound |= CheckObstacle(obstacleController, rightSaber);
                 }
-                
+
                 if (leftIntersectingFound && rightIntersectingFound)
                 {
                     break;
@@ -93,7 +93,7 @@ namespace CustomCampaigns.CustomMissionObjectives.SaberTimeInWall
 
             var saberLength = Vector3.Distance(saberBladeBotomPos, saberBladeTopPos);
             Vector3 saberDirection = (saberBladeTopPos - saberBladeBotomPos).normalized;
-            
+
             return (obstacleController.bounds.IntersectRay(new Ray(saberBladeBotomPos, saberDirection), out float distance) && distance <= saberLength);
         }
 

@@ -40,8 +40,6 @@ namespace CustomCampaigns.CustomMissionObjectives
 
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent -= OnObjectivesListDidChange;
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent += OnObjectivesListDidChange;
-
-            
         }
 
         private void OnObjectivesListDidChange()
