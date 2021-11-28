@@ -6,7 +6,7 @@ namespace CustomCampaigns.CustomMissionObjectives.Accuracy
 {
     public class AccuracyMissionObjectiveChecker : MissionObjectiveChecker, ICustomMissionObjectiveChecker
     {
-        protected RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
+        private RelativeScoreAndImmediateRankCounter _relativeScoreAndImmediateRankCounter;
 
         [Inject]
         public void Construct(RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter)
@@ -35,7 +35,7 @@ namespace CustomCampaigns.CustomMissionObjectives.Accuracy
             }
         }
 
-        protected void OnScoreUpdate()
+        private void OnScoreUpdate()
         {
             var acc = _relativeScoreAndImmediateRankCounter.relativeScore;
             checkedValue = (int) Math.Round(acc * 10000);
@@ -49,7 +49,7 @@ namespace CustomCampaigns.CustomMissionObjectives.Accuracy
             }
         }
 
-        protected void CheckAndUpdateStatus()
+        private void CheckAndUpdateStatus()
         {
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min)
             {
