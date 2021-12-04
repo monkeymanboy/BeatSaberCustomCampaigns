@@ -48,22 +48,22 @@ namespace CustomCampaigns.Campaign.Missions
         {
             try
             {
-                // TODO: save this and only update on songcore refresh
-                CustomPreviewBeatmapLevel level = null;
                 if (hash != "")
                 {
                     List<string> levelIDs = SongCore.Collections.levelIDsForHash(hash);
-                    level = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
-                    if (level == null)
-                    {
-                    }
+                    CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
+                    return level;
+                }
+                // VS >:(
+                else
+                {
+                    // Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
+                    string songidSearch = "\\" + songid + (customDownloadURL == "" ? " " : "");
+                    CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelPath, songidSearch, CompareOptions.IgnoreCase) >= 0);
                     return level;
                 }
 
-                // Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
-                string songidSearch = "\\" + songid + (customDownloadURL == "" ? " " : "");
-                level = Loader.CustomLevels.Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelPath, songidSearch, CompareOptions.IgnoreCase) >= 0);
-                return level;
+                
             }
 
             catch

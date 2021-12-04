@@ -179,7 +179,9 @@ namespace CustomCampaigns.Managers
                 return;
             }
 
-            CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
+            _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
+            //CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
+            CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).mission.FindSong();
             if (level == null)
             {
                 _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode(missionNodeVisualController);
@@ -209,12 +211,11 @@ namespace CustomCampaigns.Managers
         private void OnDidPressPlayButton(MissionLevelDetailViewController missionLevelDetailViewController)
         {
             CustomMissionDataSO customMissionData = missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
-            var customLevel = customMissionData.customLevel;
+            var customLevel = customMissionData.mission.FindSong();
 
             if (customLevel == null)
             {
                 DownloadMap(missionLevelDetailViewController.missionNode);
-
             }
             else
             {

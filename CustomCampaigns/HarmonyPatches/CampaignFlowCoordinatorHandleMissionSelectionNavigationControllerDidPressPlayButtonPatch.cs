@@ -57,7 +57,7 @@ namespace CustomCampaigns.HarmonyPatches
             return true;
         }
 
-        static void Postfix(CampaignFlowCoordinator __instance)
+        public static void Postfix(CampaignFlowCoordinator __instance)
         {
             __instance.SetField("_newObjectiveLightsPreset", baseObjectiveLightsPreset);
         }
