@@ -504,22 +504,25 @@ namespace CustomCampaigns.Managers
                     _unlockableSongsManager.CompleteMission(mission.name);
                 }
 
-                //if (!string.IsNullOrWhiteSpace(campaign.completionPost))
-                //{
-                //    CompleteSubmission submission = new CompleteSubmission();
-                //    Challenge challenge = new Challenge(mission);
-                //    submission.challengeHash = challenge.GetHash();
-                //    submission.score = missionCompletionResults.levelCompletionResults.rawScore;
-                //    submission.userID = APITools.UserID;
-                //    foreach (MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
-                //    {
-                //        Requirement requirement = new Requirement();
-                //        requirement.name = objective.missionObjective.type.objectiveName;
-                //        requirement.value = objective.value;
-                //        submission.requirements.Add(requirement);
-                //    }
-                //    __instance.StartCoroutine(submission.Submit(campaign.completionPost));
-                //}
+                if (!string.IsNullOrWhiteSpace(_currentCampaign.completionPost))
+                {
+                    var hash = APITools.GetHash(mission.rawJSON);
+                    var score = missionCompletionResults.levelCompletionResults.rawScore;
+                    var requirements = new List<CompletionSubmission.Requirement>();
+                    foreach (MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
+                    {
+                        var name = objective.missionObjective.type.objectiveName;
+                        var value = objective.value; ;
+                        CompletionSubmission.Requirement requirement = new CompletionSubmission.Requirement(name, value);
+                        requirements.Add(requirement);
+                    }
+
+                    CompletionSubmission submission = new CompletionSubmission(APITools.GetHash(mission.rawJSON), score, requirements);
+                    
+                    submission.Submit(_currentCampaign.completionPost);
+                }
+
+
                 Challenge challenge = new Challenge(mission);
                 Plugin.logger.Debug("submitting score...");
                 _campaignFlowCoordinator.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));

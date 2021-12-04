@@ -2,7 +2,7 @@
 
 namespace CustomCampaigns.Managers
 {
-    class UserInfoManager
+    public class UserInfoManager
     {
         IPlatformUserModel _platformUserModel;
         public UserInfoManager(IPlatformUserModel platformUserModel)
