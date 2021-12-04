@@ -470,7 +470,16 @@ namespace CustomCampaigns.Managers
 
         public void OnMissionLevelSceneDidFinish(MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupDataSO, MissionCompletionResults missionCompletionResults)
         {
-            if (missionCompletionResults.IsMissionComplete && !BSUtilsUtils.WasSubmissionDisabled())
+            Plugin.logger.Debug("updating player stats");
+            var level = (_missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO).customLevel.levelID;
+            var beatmapLevel = Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(level);
+            IDifficultyBeatmap difficultyBeatmap = BeatmapLevelDataExtensions.GetDifficultyBeatmap(beatmapLevel.beatmapLevelData, _currentMissionDataSO.beatmapCharacteristic, _currentMissionDataSO.beatmapDifficulty);
+
+            PlayerLevelStatsData playerLevelStatsData = _playerDataModel.playerData.GetPlayerLevelStatsData(difficultyBeatmap.level.levelID, difficultyBeatmap.difficulty, difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic);
+            LevelCompletionResults levelCompletionResults = missionCompletionResults.levelCompletionResults;
+            playerLevelStatsData.UpdateScoreData(levelCompletionResults.modifiedScore, levelCompletionResults.maxCombo, levelCompletionResults.fullCombo, levelCompletionResults.rank);
+
+            if (missionCompletionResults.IsMissionComplete)
             {
                 Plugin.logger.Debug("cleared mission");
                 //foreach (UnlockableItem item in challenge.unlockableItems)
@@ -512,10 +521,6 @@ namespace CustomCampaigns.Managers
                 Challenge challenge = new Challenge(_currentMissionDataSO.mission);
                 Plugin.logger.Debug("submitting score...");
                 _campaignFlowCoordinator.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
-            }
-            if (BSUtilsUtils.WasSubmissionDisabled())
-            {
-                Plugin.logger.Debug("score submission disabled by bs utils");
             }
             else
             {
