@@ -25,6 +25,7 @@ namespace CustomCampaigns
             _harmony = new Harmony(_harmonyID);
 
             zenjector.On<PCAppInit>().Pseudo(Container => Container.BindLoggerAsSiraLogger(logger));
+            zenjector.OnApp<Installers.AppInstaller>();
             zenjector.OnMenu<Installers.MenuInstaller>();
             zenjector.OnGame<Installers.CampaignInstaller>().ShortCircuitForMultiplayer().ShortCircuitForTutorial().ShortCircuitForStandard();
             zenjector.OnGame<Installers.StandardLevelInstaller>().ShortCircuitForMultiplayer().ShortCircuitForTutorial().ShortCircuitForCampaign();

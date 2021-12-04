@@ -1,4 +1,5 @@
 ﻿using CustomCampaigns.CustomMissionObjectives;
+using CustomCampaigns.External;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
 using IPA.Utilities;
 using System;
@@ -20,6 +21,8 @@ namespace CustomCampaigns.Managers
         private List<MissionObjective> _missionObjectives = new List<MissionObjective>();
         private List<MissionObjectiveChecker> _activeMissionObjectiveCheckers = new List<MissionObjectiveChecker>();
 
+        private List<IMissionModifier> _missionModifiers;
+
         internal void Register(MissionObjectiveChecker missionObjectiveChecker)
         {
             Plugin.logger.Debug($"Registering: {missionObjectiveChecker}");
@@ -27,7 +30,8 @@ namespace CustomCampaigns.Managers
         }
 
         public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, ILevelEndActions gameplayManager,
-                                                            BeatmapObjectManager beatmapObjectManager, IScoreController scoreController, SaberActivityCounter saberActivityCounter)
+                                                            BeatmapObjectManager beatmapObjectManager, IScoreController scoreController, SaberActivityCounter saberActivityCounter,
+                                                            List<IMissionModifier> missionModifiers)
         {
             _beatmapObjectManager = beatmapObjectManager;
             _scoreController = scoreController;
@@ -38,6 +42,9 @@ namespace CustomCampaigns.Managers
             gameplayManager.levelFinishedEvent += OnLevelFinished;
 
             _missionObjectives = CustomCampaignManager.currentMissionData.missionObjectives.ToList();
+
+            _missionModifiers = missionModifiers;
+            Plugin.logger.Debug($"{missionModifiers.Count}");
         }
 
         public void Initialize()
@@ -67,6 +74,12 @@ namespace CustomCampaigns.Managers
             foreach (var missionObjective in missionObjectivesToRemove)
             {
                 _missionObjectives.Remove(missionObjective);
+            }
+
+            foreach (var missionModifier in _missionModifiers)
+            {
+                Plugin.logger.Debug($"Telling {missionModifier} it's starting");
+                missionModifier.OnMissionStart();
             }
         }
 
@@ -120,12 +133,22 @@ namespace CustomCampaigns.Managers
         {
             Plugin.logger.Debug("on level finished");
             CustomCampaignManager.missionObjectiveResults = GetResults();
+
+            foreach (var missionModifier in _missionModifiers)
+            {
+                missionModifier.OnMissionEnd();
+            }
         }
 
         private void OnLevelFailed()
         {
             Plugin.logger.Debug("on level failed");
             CustomCampaignManager.missionObjectiveResults = GetResults();
+
+            foreach (var missionModifier in _missionModifiers)
+            {
+                missionModifier.OnMissionFail();
+            }
         }
 
         private MissionObjectiveResult[] GetResults()

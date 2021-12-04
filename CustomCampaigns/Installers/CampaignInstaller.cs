@@ -1,4 +1,5 @@
-﻿using CustomCampaigns.CustomMissionObjectives;
+﻿using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.CustomMissionObjectives;
 using CustomCampaigns.CustomMissionObjectives.Accuracy;
 using CustomCampaigns.CustomMissionObjectives.BombsHit;
 using CustomCampaigns.CustomMissionObjectives.HeadTimeInWall;
@@ -7,19 +8,29 @@ using CustomCampaigns.CustomMissionObjectives.PerfectCuts;
 using CustomCampaigns.CustomMissionObjectives.SaberTimeInWall;
 using CustomCampaigns.CustomMissionObjectives.Spins;
 using CustomCampaigns.CustomMissionObjectives.WallHeadbutts;
+using CustomCampaigns.External;
 using CustomCampaigns.Managers;
 using SiraUtil;
+using System;
+using UnityEngine;
 using Zenject;
 
 namespace CustomCampaigns.Installers
 {
-    internal class CampaignInstaller : Installer
+    internal class CampaignInstaller : ExternalModifierInstaller
     {
         public override void InstallBindings()
         {
             Plugin.logger.Debug("installing campaign bindings");
 
-            #region Mission Objective Checkers
+            InstallObjectiveCheckers();
+            InstallExternalModifiers(); // TODO: call on missionstart, onmissionend, and onmissionfail
+
+            Container.Bind<CustomMissionObjectivesManager>().AsSingle().NonLazy();
+        }
+
+        private void InstallObjectiveCheckers()
+        {
             Container.BindInterfacesAndSelfTo<AccuracyMissionObjectiveCheckerMission>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<BombsHitMissionObjectiveCheckerMission>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<HeadTimeInWallMissionObjectiveCheckerMission>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
@@ -28,9 +39,6 @@ namespace CustomCampaigns.Installers
             Container.BindInterfacesAndSelfTo<SaberTimeInWallMissionObjectiveCheckerMission>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<SpinsMissionObjectiveCheckerMission>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<WallHeadbuttsMissionObjectiveCheckerMission>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-            #endregion
-
-            Container.Bind<CustomMissionObjectivesManager>().AsSingle().NonLazy();
         }
     }
 }

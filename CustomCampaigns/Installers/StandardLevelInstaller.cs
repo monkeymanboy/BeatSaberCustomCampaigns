@@ -13,27 +13,31 @@ using Zenject;
 
 namespace CustomCampaigns.Installers
 {
-    class StandardLevelInstaller : Installer
+    class StandardLevelInstaller : ExternalModifierInstaller
     {
         public override void InstallBindings()
         {
             if (CustomCampaignManager.isCampaignLevel)
             {
-                #region Mission Objective Checkers
-                Container.BindInterfacesAndSelfTo<AccuracyMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<BombsHitMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<HeadTimeInWallMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<MaintainAccuracyMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<PerfectCutsMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<SaberTimeInwallMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<SpinsMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                Container.BindInterfacesAndSelfTo<WallHeadbuttsMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
-                #endregion
+                InstallObjectiveCheckers();
+                InstallExternalModifiers();
 
                 Container.Bind<CustomMissionObjectivesUIController>().FromNewComponentOnNewGameObject().AsSingle();
                 Container.BindInterfacesAndSelfTo<CustomMissionObjectivesStandardLevelManager>().AsSingle().NonLazy();
                 Container.BindInterfacesAndSelfTo<ScoreSubmissionManager>().AsSingle().NonLazy();
             }
+        }
+
+        private void InstallObjectiveCheckers()
+        {
+            Container.BindInterfacesAndSelfTo<AccuracyMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<BombsHitMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<HeadTimeInWallMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<MaintainAccuracyMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<PerfectCutsMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<SaberTimeInwallMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<SpinsMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<WallHeadbuttsMissionObjectiveCheckerStandard>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
     }
 }

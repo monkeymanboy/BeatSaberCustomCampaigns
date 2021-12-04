@@ -1,6 +1,9 @@
-﻿using CustomCampaigns.Managers;
+﻿using CustomCampaigns.External;
+using CustomCampaigns.Managers;
 using IPA.Utilities;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace CustomCampaigns.Utils

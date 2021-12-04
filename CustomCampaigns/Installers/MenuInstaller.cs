@@ -3,6 +3,8 @@ using CustomCampaigns.UI;
 using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.ViewControllers;
 using SiraUtil;
+using System;
+using UnityEngine;
 using Zenject;
 
 namespace CustomCampaigns.Installers
@@ -23,6 +25,35 @@ namespace CustomCampaigns.Installers
             Container.Bind<Downloader>().AsSingle();
             Container.Bind<CustomCampaignManager>().AsSingle();
             Container.Bind<CustomCampaignFlowCoordinator>().FromNewComponentOnNewGameObject(nameof(CustomCampaignFlowCoordinator)).AsSingle();
+
+            InstallExternalLoaders();
+        }
+
+        private void InstallExternalLoaders()
+        {
+            foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
+            {
+                InstallExternalLoader(externalModifier);
+                break;
+            }
+        }
+
+        private void InstallExternalLoader(External.ExternalModifier externalModifier)
+        {
+            if (externalModifier.HandlerLocation == null)
+            {
+                return;
+            }
+
+            Plugin.logger.Debug($"Installing external loader: {externalModifier.Name} ({externalModifier.HandlerType})");
+            if (externalModifier.HandlerType.BaseType == typeof(MonoBehaviour))
+            {
+                Container.BindInterfacesAndSelfTo(externalModifier.HandlerType).FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            }
+            else
+            {
+                Container.BindInterfacesAndSelfTo(externalModifier.HandlerType).AsSingle().NonLazy();
+            }
         }
     }
 }

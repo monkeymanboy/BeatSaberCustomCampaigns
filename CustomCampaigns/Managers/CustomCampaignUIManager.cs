@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.External;
 using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
@@ -484,14 +485,28 @@ namespace CustomCampaigns.Managers
 
         public void CreateModifierParamsList(MissionNode missionNode)
         {
+            Plugin.logger.Debug("creating modifier param list");
             Mission mission = (missionNode.missionData as CustomMissionDataSO).mission;
             List<GameplayModifierParamsSO> modifierParams = _gameplayModifiersModel.CreateModifierParamsList(missionNode.missionData.gameplayModifiers);
-            //foreach (string modName in challenge.externalModifiers.Keys)
-            //{
-            //    if (!ChallengeExternalModifiers.getInfo.ContainsKey(modName)) continue;
-            //    foreach (ExternalModifierInfo modInfo in ChallengeExternalModifiers.getInfo[modName](challenge.externalModifiers[modName]))
-            //        modParams.Add(APITools.CreateModifierParam(modInfo.icon, modInfo.name, modInfo.desc));
-            //}
+
+            foreach (string modName in mission.externalModifiers.Keys)
+            {
+                Plugin.logger.Debug($"{modName}");
+                foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
+                {
+                    Plugin.logger.Debug($"{externalModifier.Name}");
+                    if (externalModifier.Name == modName)
+                    {
+                        foreach (ExternalModifier.ExternalModifierInfo modInfo in externalModifier.Infos)
+                        {
+                            Plugin.logger.Debug($"found mod {modName}");
+                            modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.ModifierType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
+                        }
+                            
+                        break;
+                    }
+                }
+            }
 
             foreach (UnlockableItem item in mission.unlockableItems)
             {
@@ -514,6 +529,17 @@ namespace CustomCampaigns.Managers
             _gameplayModifierInfoListItemsList.SetData(_modifierParams.Count, delegate (int index, GameplayModifierInfoListItem gameplayModifierInfoListItem)
             {
                 GameplayModifierParamsSO gameplayModifierParamsSO = _modifierParams[index];
+                gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
+            });
+        }
+
+        public void LoadErrors(List<GameplayModifierParamsSO> modifierParams)
+        {
+            _modifiersPanelGO.SetActive(modifierParams.Count > 0);
+
+            _gameplayModifierInfoListItemsList.SetData(modifierParams.Count, delegate (int index, GameplayModifierInfoListItem gameplayModifierInfoListItem)
+            {
+                GameplayModifierParamsSO gameplayModifierParamsSO = modifierParams[index];
                 gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
             });
         }
