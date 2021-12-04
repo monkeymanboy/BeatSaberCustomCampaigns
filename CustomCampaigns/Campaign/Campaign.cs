@@ -36,13 +36,6 @@ namespace CustomCampaigns.Campaign
             subtext = info.desc;
 
             GetSprites(campaignListViewController);
-            //var factory = IPA.Utilities.Async.UnityMainThreadTaskScheduler.Factory;
-            //factory.StartNew(() =>
-            //{
-            //    LoadSprite(campaignPath + COVER_LOCATION, false);
-            //    //campaignListViewController.customListTableData.tableView.ReloadData();
-            //});
-            //factory.StartNew(() => LoadSprite(campaignPath + BACKGROUND_LOCATION, true));
 
             missions = new List<Mission>();
             for (int i = 0; File.Exists(campaignPath + "/" + i + ".json"); i++)
@@ -52,8 +45,6 @@ namespace CustomCampaigns.Campaign
                 mission.rawJSON = rawJSON;
                 missions.Add(mission);
             }
-
-            // TODO: Load custom node assets
 
             leaderboardId = File.Exists(campaignPath + ID_LOCATION) ? File.ReadAllText(campaignPath + ID_LOCATION) : "";
             completionPost = File.Exists(campaignPath + COMPLETION_POST_LOCATION) ? File.ReadAllText(campaignPath + COMPLETION_POST_LOCATION) : "";

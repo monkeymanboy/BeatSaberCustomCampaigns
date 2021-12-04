@@ -1,6 +1,10 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using BeatSaberCustomCampaigns;
+using BeatSaberMarkupLanguage;
+using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.HarmonyPatches;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
+using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
 using SongCore;
@@ -21,6 +25,9 @@ namespace CustomCampaigns.Managers
 
         internal static bool isCampaignLevel = false;
         internal static MissionDataSO currentMissionData;
+        private MissionNode _currentNode;
+        private bool _currentMissionCleared = false;
+
         internal static MissionObjectiveResult[] missionObjectiveResults;
         internal static MissionObjectiveGameUIView missionObjectiveGameUIViewPrefab = null;
         internal static MissionNode downloadingNode;
@@ -48,6 +55,7 @@ namespace CustomCampaigns.Managers
 
         private CustomMissionDataSO _currentMissionDataSO;
         private MissionHelpViewController _missionHelpViewController;
+
         private PlayerDataModel _playerDataModel;
 
         public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, Downloader downloader, CampaignFlowCoordinator campaignFlowCoordinator,
@@ -69,6 +77,8 @@ namespace CustomCampaigns.Managers
             _missionResultsViewController = missionResultsViewController;
             _missionHelpViewController = missionHelpViewController;
             _playerDataModel = playerDataModel;
+
+            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionLevelSceneDidFinish;
         }
 
         #region CampaignInit
@@ -161,14 +171,6 @@ namespace CustomCampaigns.Managers
                 return;
             }
 
-            //if (missionNodeVisualController.missionNode == _downloadingNode)
-            //{
-            //    _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode(missionNodeVisualController);
-            //    _customCampaignUIManager.SetPlayButtonText(downloadStatus);
-            //    _customCampaignUIManager.SetPlayButtonInteractable(false);
-            //    return;
-            //}
-
             CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
             if (level == null)
             {
@@ -190,6 +192,8 @@ namespace CustomCampaigns.Managers
             Mission mission = (missionNode.missionData as CustomMissionDataSO).mission;
             _customCampaignUIManager.SetMissionName(mission.name);
             _customCampaignUIManager.MissionLevelSelected(mission);
+
+            _currentNode = missionNode;
             //List<GameplayModifierParamsSO> modParams = _gameplayModifiersModel.CreateModifierParamsList(missionNode.missionData.gameplayModifiers);
             //foreach (string modName in challenge.externalModifiers.Keys)
             //{
@@ -304,8 +308,13 @@ namespace CustomCampaigns.Managers
         private void PlayMap(MissionLevelDetailViewController missionLevelDetailViewController)
         {
             Plugin.logger.Debug("play");
-            MissionDataSO missionDataSO = missionLevelDetailViewController.missionNode.missionData;
+            _currentNode = missionLevelDetailViewController.missionNode;
+            MissionDataSO missionDataSO = _currentNode.missionData;
             _currentMissionDataSO = missionDataSO as CustomMissionDataSO;
+            currentMissionData = _currentMissionDataSO;
+
+            _currentMissionCleared = _playerDataModel.playerData.GetPlayerMissionStatsData(_currentNode.missionId).cleared;
+            
             Mission mission = _currentMissionDataSO.mission;
 
             // TODO: Error handling
@@ -402,6 +411,12 @@ namespace CustomCampaigns.Managers
                 return;
             }
             standardLevelScenesTransitionSetupDataSO.didFinishEvent -= OnFinishedStandardLevel;
+
+            if (BSUtilsUtils.WasSubmissionDisabled())
+            {
+                levelCompletionResults.SetField("levelEndStateType", LevelCompletionResults.LevelEndStateType.Failed);
+            }
+
             MissionCompletionResults missionCompletionResults = new MissionCompletionResults(levelCompletionResults, missionObjectiveResults);
             _campaignFlowCoordinator.HandleMissionLevelSceneDidFinish(null, missionCompletionResults);
             isCampaignLevel = false;
@@ -451,6 +466,65 @@ namespace CustomCampaigns.Managers
 
             _customCampaignUIManager.CampaignClosed();
             CampaignClosed?.Invoke(campaignFlowCoordinator);
+        }
+
+        public void OnMissionLevelSceneDidFinish(MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupDataSO, MissionCompletionResults missionCompletionResults)
+        {
+            if (missionCompletionResults.IsMissionComplete && !BSUtilsUtils.WasSubmissionDisabled())
+            {
+                Plugin.logger.Debug("cleared mission");
+                //foreach (UnlockableItem item in challenge.unlockableItems)
+                //{
+                //    try
+                //    {
+                //        item.UnlockItem(campaign.path);
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Console.WriteLine("Failed to unlock item: " + item.fileName + " - Exception: " + ex.Message);
+                //    }
+                //}
+                //UnlockedItemsViewController unlockedItemsViewController = Resources.FindObjectsOfTypeAll<UnlockedItemsViewController>().First();
+                //unlockedItemsViewController.items = challenge.unlockableItems;
+                //unlockedItemsViewController.index = 0;
+                //if (unlockedItemsViewController.items.Count > 0) __instance.InvokeMethod("SetBottomScreenViewController", new object[] { unlockedItemsViewController, HMUI.ViewController.AnimationType.None });
+                //if (challenge.unlockMap)
+                //{
+                //    UnlockedMaps.CompletedChallenge(challenge.name);
+                //}
+
+                //if (!string.IsNullOrWhiteSpace(campaign.completionPost))
+                //{
+                //    CompleteSubmission submission = new CompleteSubmission();
+                //    Challenge challenge = new Challenge(mission);
+                //    submission.challengeHash = challenge.GetHash();
+                //    submission.score = missionCompletionResults.levelCompletionResults.rawScore;
+                //    submission.userID = APITools.UserID;
+                //    foreach (MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
+                //    {
+                //        Requirement requirement = new Requirement();
+                //        requirement.name = objective.missionObjective.type.objectiveName;
+                //        requirement.value = objective.value;
+                //        submission.requirements.Add(requirement);
+                //    }
+                //    __instance.StartCoroutine(submission.Submit(campaign.completionPost));
+                //}
+                Challenge challenge = new Challenge(_currentMissionDataSO.mission);
+                Plugin.logger.Debug("submitting score...");
+                _campaignFlowCoordinator.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
+            }
+            if (BSUtilsUtils.WasSubmissionDisabled())
+            {
+                Plugin.logger.Debug("score submission disabled by bs utils");
+            }
+            else
+            {
+                // incorrectly mark as cleared - fix it
+                if (!_currentMissionCleared && _playerDataModel.playerData.GetPlayerMissionStatsData(_currentNode.missionId).cleared)
+                {
+                    _campaignProgressModel.__SetMissionCleared(_currentNode.missionId, false);
+                }
+            }
         }
         #endregion
 

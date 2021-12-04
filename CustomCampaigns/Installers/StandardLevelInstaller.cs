@@ -32,6 +32,7 @@ namespace CustomCampaigns.Installers
 
                 Container.Bind<CustomMissionObjectivesUIController>().FromNewComponentOnNewGameObject().AsSingle();
                 Container.BindInterfacesAndSelfTo<CustomMissionObjectivesStandardLevelManager>().AsSingle().NonLazy();
+                Container.BindInterfacesAndSelfTo<ScoreSubmissionManager>().AsSingle().NonLazy();
             }
         }
     }

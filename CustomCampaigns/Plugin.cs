@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using CustomCampaigns.Utils;
+using HarmonyLib;
 using IPA;
 using IPA.Loader;
 using SiraUtil;
@@ -16,7 +17,6 @@ namespace CustomCampaigns
         private readonly Harmony _harmony;
         private const string _harmonyID = "dev.PulseLane.BeatSaber.CustomCampaigns";
 
-        // TODO Generate CC folder if it doesn't exist
         [Init]
         public Plugin(IPALogger logger, Zenjector zenjector, PluginMetadata metadata)
         {
@@ -34,6 +34,7 @@ namespace CustomCampaigns
         public void OnEnable()
         {
             _harmony.PatchAll();
+            BSUtilsUtils.CheckForBSUtilsInstall();
         }
 
         [OnDisable]

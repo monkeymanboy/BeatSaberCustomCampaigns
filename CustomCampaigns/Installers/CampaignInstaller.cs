@@ -7,6 +7,7 @@ using CustomCampaigns.CustomMissionObjectives.PerfectCuts;
 using CustomCampaigns.CustomMissionObjectives.SaberTimeInWall;
 using CustomCampaigns.CustomMissionObjectives.Spins;
 using CustomCampaigns.CustomMissionObjectives.WallHeadbutts;
+using CustomCampaigns.Managers;
 using SiraUtil;
 using Zenject;
 

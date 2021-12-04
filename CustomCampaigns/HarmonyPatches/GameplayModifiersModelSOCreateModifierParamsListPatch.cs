@@ -1,5 +1,7 @@
 ﻿using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.Managers;
+using CustomCampaigns.Utils;
 using HarmonyLib;
 using IPA.Utilities;
 using System.Collections.Generic;
@@ -10,6 +12,9 @@ namespace CustomCampaigns.HarmonyPatches
     [HarmonyPatch(typeof(GameplayModifiersModelSO), "CreateModifierParamsList")]
     public class GameplayModifiersModelSOCreateModifierParamsListPatch
     {
+        private const string SABER_CLASH_TITLE = "Fail On Saber Clash";
+        private const string SABER_CLASH_DESCRIPTION = "If your sabers touch, you fail.";
+
         public static void Postfix(GameplayModifiers gameplayModifiers, GameplayModifierParamsSO ____fasterSong, GameplayModifierParamsSO ____slowerSong, ref List<GameplayModifierParamsSO> __result)
         {
             if (gameplayModifiers is CustomGameplayModifiers)
@@ -19,7 +24,7 @@ namespace CustomCampaigns.HarmonyPatches
                 if (mission.songSpeed == GameplayModifiers.SongSpeed.Normal && mission.speedMul != 1)
                 {
                     GameplayModifierParamsSO speedParamsSo = ScriptableObject.CreateInstance<GameplayModifierParamsSO>();
-                    speedParamsSo.SetField("_modifierNameLocalizationKey", "Song Speed - " + (int)(mission.speedMul * 100) + "%");
+                    speedParamsSo.SetField("_modifierNameLocalizationKey", "Song Speed - " + (int) (mission.speedMul * 100) + "%");
                     if (mission.speedMul < 1)
                     {
                         speedParamsSo.SetField("_descriptionLocalizationKey", "Song will play slower.");
@@ -32,7 +37,11 @@ namespace CustomCampaigns.HarmonyPatches
                     }
                     __result.Add(speedParamsSo);
                 }
-                // TODO: Other modifiers
+
+                if (gameplayModifiers.failOnSaberClash)
+                {
+                    __result.Add(ModifierUtils.CreateModifierParam(AssetsManager.FailOnSaberClashIcon, SABER_CLASH_TITLE, SABER_CLASH_DESCRIPTION));
+                }
             }
         }
     }
