@@ -1,4 +1,5 @@
-﻿using IPA.Utilities;
+﻿using CustomCampaigns.Managers;
+using IPA.Utilities;
 using System;
 using UnityEngine;
 
@@ -15,6 +16,11 @@ namespace CustomCampaigns.Utils
             gameplayModifierParamsSO.SetField("_descriptionLocalizationKey", description);
 
             return gameplayModifierParamsSO;
+        }
+
+        public static GameplayModifierParamsSO CreateUnlockableSongParam()
+        {
+            return CreateModifierParam(AssetsManager.UnlockableSongIcon, "Unlockable Song", "Unlock this song on completion");
         }
     }
 }

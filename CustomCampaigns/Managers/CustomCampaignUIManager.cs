@@ -8,6 +8,8 @@ using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TMPro;
@@ -53,6 +55,7 @@ namespace CustomCampaigns.Managers
         private GameplayModifierInfoListItemsList _gameplayModifierInfoListItemsList;
         private GameObject _modifiersPanelGO;
         private GameplayModifiersModelSO _gameplayModifiersModel;
+        private List<GameplayModifierParamsSO> _modifierParams;
 
         private MissionNode[] _currentCampaignNodes;
         private MissionStage[] _currentMissionStages;
@@ -453,6 +456,42 @@ namespace CustomCampaigns.Managers
             MenuLightsPresetSO defaultLightsPreset = _campaignFlowCoordinator.GetField<MenuLightsPresetSO, CampaignFlowCoordinator>("_defaultLightsPreset");
 
             menuLightsManager.SetColorPreset(defaultLightsPreset, false);
+        }
+
+        public void CreateModifierParamsList(MissionNode missionNode)
+        {
+            Mission mission = (missionNode.missionData as CustomMissionDataSO).mission;
+            List<GameplayModifierParamsSO> modifierParams = _gameplayModifiersModel.CreateModifierParamsList(missionNode.missionData.gameplayModifiers);
+            //foreach (string modName in challenge.externalModifiers.Keys)
+            //{
+            //    if (!ChallengeExternalModifiers.getInfo.ContainsKey(modName)) continue;
+            //    foreach (ExternalModifierInfo modInfo in ChallengeExternalModifiers.getInfo[modName](challenge.externalModifiers[modName]))
+            //        modParams.Add(APITools.CreateModifierParam(modInfo.icon, modInfo.name, modInfo.desc));
+            //}
+
+            foreach (UnlockableItem item in mission.unlockableItems)
+            {
+                modifierParams.Add(item.GetModifierParam());
+            }
+
+            if (mission.unlockMap)
+            {
+                modifierParams.Add(ModifierUtils.CreateUnlockableSongParam());
+            }
+                
+            _modifierParams = modifierParams;
+            LoadModifiersPanel();
+        }
+
+        public void LoadModifiersPanel()
+        {
+            _modifiersPanelGO.SetActive(_modifierParams.Count > 0);
+
+            _gameplayModifierInfoListItemsList.SetData(_modifierParams.Count, delegate (int index, GameplayModifierInfoListItem gameplayModifierInfoListItem)
+            {
+                GameplayModifierParamsSO gameplayModifierParamsSO = _modifierParams[index];
+                gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
+            });
         }
 
         #region Helper Functions

@@ -24,7 +24,7 @@ namespace CustomCampaigns.Campaign.Missions
         [JsonProperty("challengeInfo")]
         public MissionInfo missionInfo = null;
 
-        //public List<UnlockableItem> unlockableItems = new List<UnlockableItem>();
+        public List<UnlockableItem> unlockableItems = new List<UnlockableItem>();
 
         public bool unlockMap = false;
         public bool allowStandardLevel = false;

@@ -56,12 +56,15 @@ namespace CustomCampaigns.Managers
         private CustomMissionDataSO _currentMissionDataSO;
         private MissionHelpViewController _missionHelpViewController;
 
+        private UnlockableSongsManager _unlockableSongsManager;
+
         private PlayerDataModel _playerDataModel;
 
         public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, Downloader downloader, CampaignFlowCoordinator campaignFlowCoordinator,
                                      MenuTransitionsHelper menuTransitionsHelper, MissionSelectionMapViewController missionSelectionMapViewController,
                                      MissionSelectionNavigationController missionSelectionNavigationController, MissionLevelDetailViewController missionLevelDetailViewController,
-                                     MissionResultsViewController missionResultsViewController, MissionHelpViewController missionHelpViewController, PlayerDataModel playerDataModel)
+                                     MissionResultsViewController missionResultsViewController, MissionHelpViewController missionHelpViewController,
+                                     UnlockableSongsManager unlockableSongsManager, PlayerDataModel playerDataModel)
         {
             _customCampaignUIManager = customCampaignUIManager;
             _downloader = downloader;
@@ -72,10 +75,13 @@ namespace CustomCampaigns.Managers
             _menuTransitionsHelper = menuTransitionsHelper;
             _missionSelectionMapViewController = missionSelectionMapViewController;
             _missionNodeSelectionManager = missionSelectionMapViewController.GetField<MissionNodeSelectionManager, MissionSelectionMapViewController>("_missionNodeSelectionManager");
+
             _missionSelectionNavigationController = missionSelectionNavigationController;
             _missionLevelDetailViewController = missionLevelDetailViewController;
             _missionResultsViewController = missionResultsViewController;
             _missionHelpViewController = missionHelpViewController;
+
+            _unlockableSongsManager = unlockableSongsManager;
             _playerDataModel = playerDataModel;
 
             CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionLevelSceneDidFinish;
@@ -194,18 +200,8 @@ namespace CustomCampaigns.Managers
             _customCampaignUIManager.MissionLevelSelected(mission);
 
             _currentNode = missionNode;
-            //List<GameplayModifierParamsSO> modParams = _gameplayModifiersModel.CreateModifierParamsList(missionNode.missionData.gameplayModifiers);
-            //foreach (string modName in challenge.externalModifiers.Keys)
-            //{
-            //    if (!ChallengeExternalModifiers.getInfo.ContainsKey(modName)) continue;
-            //    foreach (ExternalModifierInfo modInfo in ChallengeExternalModifiers.getInfo[modName](challenge.externalModifiers[modName]))
-            //        modParams.Add(APITools.CreateModifierParam(modInfo.icon, modInfo.name, modInfo.desc));
-            //}
-            //foreach (UnlockableItem item in challenge.unlockableItems)
-            //    modParams.Add(item.GetModifierParam());
-            //if (challenge.unlockMap)
-            //    modParams.Add(APITools.CreateModifierParam(Assets.UnlockableSongIcon, "Unlockable Song", "Unlock this song on completion"));
-            //LoadModifiersPanel(modParams);
+
+            _customCampaignUIManager.CreateModifierParamsList(missionNode);
         }
 
         private void OnDidPressPlayButton(MissionLevelDetailViewController missionLevelDetailViewController)
@@ -452,7 +448,7 @@ namespace CustomCampaigns.Managers
         {
             _cancellationTokenSource = new CancellationTokenSource();
             _customCampaignUIManager.UpdateLeaderboards(true);
-            //LoadModifiersPanel(modifierParamsList);
+            _customCampaignUIManager.LoadModifiersPanel();
         }
 
         private void OnDidCloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
@@ -482,25 +478,29 @@ namespace CustomCampaigns.Managers
             if (missionCompletionResults.IsMissionComplete)
             {
                 Plugin.logger.Debug("cleared mission");
-                //foreach (UnlockableItem item in challenge.unlockableItems)
-                //{
-                //    try
-                //    {
-                //        item.UnlockItem(campaign.path);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Console.WriteLine("Failed to unlock item: " + item.fileName + " - Exception: " + ex.Message);
-                //    }
-                //}
+
+                Mission mission = _currentMissionDataSO.mission;
+                foreach (UnlockableItem item in mission.unlockableItems)
+                {
+                    Plugin.logger.Debug($"Attempting to unlock {item.name}");
+                    try
+                    {
+                        item.UnlockItem(_currentCampaign.campaignPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Failed to unlock item: " + item.fileName + " - Exception: " + ex.Message);
+                    }
+                }
                 //UnlockedItemsViewController unlockedItemsViewController = Resources.FindObjectsOfTypeAll<UnlockedItemsViewController>().First();
                 //unlockedItemsViewController.items = challenge.unlockableItems;
                 //unlockedItemsViewController.index = 0;
                 //if (unlockedItemsViewController.items.Count > 0) __instance.InvokeMethod("SetBottomScreenViewController", new object[] { unlockedItemsViewController, HMUI.ViewController.AnimationType.None });
-                //if (challenge.unlockMap)
-                //{
-                //    UnlockedMaps.CompletedChallenge(challenge.name);
-                //}
+
+                if (mission.unlockMap)
+                {
+                    _unlockableSongsManager.CompleteMission(mission.name);
+                }
 
                 //if (!string.IsNullOrWhiteSpace(campaign.completionPost))
                 //{
@@ -518,7 +518,7 @@ namespace CustomCampaigns.Managers
                 //    }
                 //    __instance.StartCoroutine(submission.Submit(campaign.completionPost));
                 //}
-                Challenge challenge = new Challenge(_currentMissionDataSO.mission);
+                Challenge challenge = new Challenge(mission);
                 Plugin.logger.Debug("submitting score...");
                 _campaignFlowCoordinator.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
             }
