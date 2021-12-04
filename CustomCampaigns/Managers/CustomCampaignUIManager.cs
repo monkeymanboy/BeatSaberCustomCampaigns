@@ -23,6 +23,8 @@ namespace CustomCampaigns.Managers
         public const float EDITOR_TO_GAME_UNITS = 30f / 111;
         public const float HEIGHT_OFFSET = 20;
 
+        private const int YEET_AMOUNT = 10000;
+
         public CampaignFlowCoordinator CampaignFlowCoordinator { get => _campaignFlowCoordinator; }
 
         private CampaignFlowCoordinator _campaignFlowCoordinator;
@@ -137,17 +139,19 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("custom campaign enabled");
             MissionName.alignment = TextAlignmentOptions.Bottom;
             MissionName.gameObject.SetActive(true);
+
+            YeetBaseGameNodes();
         }
 
         internal void SetupCampaignUI(Campaign.Campaign campaign)
         {
-            YeetBaseGameNodes();
-
             SetCampaignBackground(campaign);
             SetCampaignLights(campaign);
             SetCampaignMissionNodes(campaign);
 
-            InitializeCampaignUI(campaign);
+            _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET);
+
+            InitializeCampaignUI();
         }
 
         internal void FlowCoordinatorPresented(Campaign.Campaign campaign)
@@ -162,7 +166,15 @@ namespace CustomCampaigns.Managers
         {
             foreach (var node in _baseMissionNodes)
             {
-                node.transform.localPosition += new Vector3(0, -10000, 0);
+                node.transform.localPosition += new Vector3(0, -YEET_AMOUNT, 0);
+            }
+        }
+
+        private void UnYeetBaseGameNodes()
+        {
+            foreach (var node in _baseMissionNodes)
+            {
+                 node.transform.localPosition += new Vector3(0, YEET_AMOUNT, 0);
             }
         }
 
@@ -310,10 +322,8 @@ namespace CustomCampaigns.Managers
             _missionNodesManager.SetField("_rootMissionNode", _currentCampaignNodes[0]);
         }
 
-        private void InitializeCampaignUI(Campaign.Campaign campaign)
+        private void InitializeCampaignUI()
         {
-            _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET);
-
             if (_missionNodeSelectionManager.GetField<MissionNode[], MissionNodeSelectionManager>("_missionNodes") == null)
             {
                 _missionNodeSelectionManager.Start();
@@ -421,6 +431,20 @@ namespace CustomCampaigns.Managers
         internal void BaseCampaignEnabled()
         {
             MissionName.gameObject.SetActive(false);
+            
+            _missionNodesManager.SetField("_rootMissionNode", _baseRootMissionNode);
+            _missionNodesManager.SetField("_finalMissionNode", _baseFinalMissionNode);
+            _missionNodesManager.SetField("_allMissionNodes", _baseMissionNodes);
+            _missionStagesManager.SetField("_missionStages", _baseMissionStages);
+
+            _backgroundImage.sprite = _baseBackground;
+            _backgroundImage.color = new Color(1, 1, 1, _baseBackAlpha);
+            _campaignFlowCoordinator.SetField("_defaultLightsPreset", _baseDefaultLights);
+            _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _baseMapHeight);
+
+            UnYeetBaseGameNodes();
+
+            InitializeCampaignUI();
         }
 
         internal void SetMissionName(string missionName)

@@ -83,8 +83,6 @@ namespace CustomCampaigns.Managers
 
             _unlockableSongsManager = unlockableSongsManager;
             _playerDataModel = playerDataModel;
-
-            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionLevelSceneDidFinish;
         }
 
         #region CampaignInit
@@ -132,6 +130,9 @@ namespace CustomCampaigns.Managers
 
         public void CustomCampaignEnabled()
         {
+            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish -= OnMissionLevelSceneDidFinish;
+            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionLevelSceneDidFinish;
+
             _customCampaignUIManager.CustomCampaignEnabled();
         }
 
@@ -162,7 +163,8 @@ namespace CustomCampaigns.Managers
             _missionSelectionMapViewController.didSelectMissionLevelEvent -= OnDidSelectMissionLevel;
 
             _missionResultsViewController.continueButtonPressedEvent -= OnContinueButtonPressed;
-            _missionResultsViewController.continueButtonPressedEvent += OnContinueButtonPressed;
+
+            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish -= OnMissionLevelSceneDidFinish;
 
             _customCampaignUIManager.BaseCampaignEnabled();
         }

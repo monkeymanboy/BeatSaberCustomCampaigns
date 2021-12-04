@@ -45,20 +45,15 @@ namespace CustomCampaigns.UI.FlowCoordinators
             if (addedToHierarchy)
             {
                 CustomCampaignManager.CustomCampaignEnabled();
-                //SetupCampaign(false);
 
                 SetViewControllerToNavigationController(_campaignListNavigationController, _campaignListViewController);
                 ProvideInitialViewControllers(_campaignListNavigationController);
             }
         }
 
-        private void SetupCampaign(bool isBaseCampaign)
+        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
         {
-            if (!isBaseCampaign)
-            {
-                CustomCampaignManager.CustomCampaignEnabled();
-            }
-            else
+            if (removedFromHierarchy)
             {
                 CustomCampaignManager.BaseCampaignEnabled();
             }
