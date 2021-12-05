@@ -9,7 +9,7 @@
   "dependsOn": {
     "SongCore": "^3.4.1",
     "BeatSaberMarkupLanguage": "^1.5.3",
-    "CustomCampaignLeaderboardLibrary": "^1.3.0",
+    "CustomCampaignLeaderboardLibrary": "^2.0.0",
     "BSIPA": "^4.2.0",
     "SiraUtil": "^2.4.0"
   },

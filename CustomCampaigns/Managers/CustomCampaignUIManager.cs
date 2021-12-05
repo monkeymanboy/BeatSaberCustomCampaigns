@@ -1,5 +1,4 @@
-﻿using BeatSaberCustomCampaigns;
-using BeatSaberMarkupLanguage;
+﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
@@ -358,7 +357,6 @@ namespace CustomCampaigns.Managers
         public void MissionLevelSelected(Mission mission)
         {
             _campaignMissionLeaderboardViewController.mission = mission;
-            _campaignMissionLeaderboardViewController.lastClicked = new Challenge(mission);
 
             var missionData = mission.GetMissionData(null); // campaign doesn't matter here
             _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
@@ -372,10 +370,6 @@ namespace CustomCampaigns.Managers
             if (fullRefresh)
             {
                 _campaignMissionLeaderboardViewController.UpdateLeaderboards();
-            }
-            else
-            {
-                _campaignMissionLeaderboardViewController.UpdateAccuracy();
             }
 
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO as CustomMissionDataSO;

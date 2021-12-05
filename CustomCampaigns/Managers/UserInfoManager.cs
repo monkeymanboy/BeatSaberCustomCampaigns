@@ -1,10 +1,11 @@
-﻿using BeatSaberCustomCampaigns;
-
-namespace CustomCampaigns.Managers
+﻿namespace CustomCampaigns.Managers
 {
     public class UserInfoManager
     {
         IPlatformUserModel _platformUserModel;
+
+        public static UserInfo UserInfo;
+
         public UserInfoManager(IPlatformUserModel platformUserModel)
         {
             Plugin.logger.Debug("user info manager");
@@ -14,8 +15,7 @@ namespace CustomCampaigns.Managers
 
         public async void GetUserInfo()
         {
-            UserInfo userInfo = await _platformUserModel.GetUserInfo();
-            APITools.SetUserInfo(userInfo);
+            UserInfo = await _platformUserModel.GetUserInfo();
         }
     }
 }

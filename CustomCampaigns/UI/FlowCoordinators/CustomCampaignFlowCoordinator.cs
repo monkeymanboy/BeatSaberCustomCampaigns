@@ -2,6 +2,7 @@
 using CustomCampaigns.Managers;
 using CustomCampaigns.UI.ViewControllers;
 using HMUI;
+using UnityEngine;
 using Zenject;
 
 namespace CustomCampaigns.UI.FlowCoordinators
@@ -17,9 +18,12 @@ namespace CustomCampaigns.UI.FlowCoordinators
         private CampaignListViewController _campaignListViewController;
         private CampaignDetailViewController _campaignDetailViewController;
 
+        private CampaignTotalLeaderboardViewController _campaignTotalLeaderboardViewController;
+
         [Inject]
         protected void Construct(CustomCampaignManager customCampaignManager, CampaignFlowCoordinator campaignFlowCoordinator, MainFlowCoordinator mainFlowCoordinator,
-                                 CampaignListViewController campaignListViewController, CampaignDetailViewController campaignDetailViewController)
+                                 CampaignListViewController campaignListViewController, CampaignDetailViewController campaignDetailViewController,
+                                 CampaignTotalLeaderboardViewController campaignTotalLeaderboardViewController)
         {
             CustomCampaignManager = customCampaignManager;
             _campaignFlowCoordinator = campaignFlowCoordinator;
@@ -29,6 +33,8 @@ namespace CustomCampaigns.UI.FlowCoordinators
             _campaignListViewController.DidClickCampaignEvent += OnClickCampaign;
             _campaignDetailViewController = campaignDetailViewController;
             _campaignDetailViewController.DidClickPlayButton += OnClickPlay;
+
+            _campaignTotalLeaderboardViewController = campaignTotalLeaderboardViewController;
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -63,11 +69,17 @@ namespace CustomCampaigns.UI.FlowCoordinators
         {
             Plugin.logger.Debug("clicked campaign");
             _campaignDetailViewController.SelectedCampaign = campaign;
+            _campaignTotalLeaderboardViewController.campaignID = campaign.leaderboardId;
             if (!_campaignDetailViewController.isInViewControllerHierarchy)
             {
                 Plugin.logger.Debug("pushing view controller");
                 PushViewControllerToNavigationController(_campaignListNavigationController, _campaignDetailViewController);
+                SetRightScreenViewController(_campaignTotalLeaderboardViewController, ViewController.AnimationType.None);
+
+                (_campaignTotalLeaderboardViewController.table.transform.GetChild(1).GetChild(0).transform as RectTransform).localScale = new Vector3(1, 0.9f, 1);
             }
+
+            _campaignTotalLeaderboardViewController.UpdateLeaderboards();
         }
 
         private void OnClickPlay(Campaign.Campaign campaign)

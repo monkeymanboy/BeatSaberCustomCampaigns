@@ -1,4 +1,4 @@
-﻿using BeatSaberCustomCampaigns;
+﻿using CustomCampaigns.Managers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace CustomCampaigns.Campaign.Missions
 
         public CompletionSubmission(string missionHash, int score, List<Requirement> requirements)
         {
-            this.userID = APITools.UserID;
+            this.userID = UserInfoManager.UserInfo.platformUserId;
             this.missionHash = missionHash;
             this.score = score;
             this.requirements = requirements;

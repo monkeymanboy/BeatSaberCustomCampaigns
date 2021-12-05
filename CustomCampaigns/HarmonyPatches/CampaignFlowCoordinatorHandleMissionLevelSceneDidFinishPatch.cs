@@ -1,9 +1,4 @@
-﻿using BeatSaberCustomCampaigns;
-using CustomCampaignLeaderboardLibrary;
-using CustomCampaigns.Campaign.Missions;
-using CustomCampaigns.Managers;
-using CustomCampaigns.Utils;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 
 namespace CustomCampaigns.HarmonyPatches

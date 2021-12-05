@@ -20,7 +20,6 @@ namespace CustomCampaigns.UI.ViewControllers
             set
             {
                 _selectedCampaign = value;
-                Plugin.logger.Debug("setting campaign");
                 DescriptionText = _selectedCampaign.info.bigDesc;
             }
         }
@@ -44,8 +43,8 @@ namespace CustomCampaigns.UI.ViewControllers
                 rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
                 rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
                 rectTransform.sizeDelta = new Vector3(70, 0, 0);
-
             }
+
             DescriptionText = _selectedCampaign.info.bigDesc;
         }
 

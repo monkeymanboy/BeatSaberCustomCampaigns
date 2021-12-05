@@ -20,6 +20,7 @@ namespace CustomCampaigns.Installers
 
             Container.Bind<CampaignListViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignDetailViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<CampaignTotalLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.BindInterfacesAndSelfTo<CustomCampaignUIManager>().AsSingle();
             Container.Bind<Downloader>().AsSingle();

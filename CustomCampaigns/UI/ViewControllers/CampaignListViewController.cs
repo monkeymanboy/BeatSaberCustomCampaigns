@@ -4,18 +4,39 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using HMUI;
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.IO;
+using UnityEngine;
 
 namespace CustomCampaigns.UI.ViewControllers
 {
     [ViewDefinition("CustomCampaigns.UI.Views.campaign-list.bsml")]
     [HotReload(RelativePathToLayout = @"..\Views\campaign-list.bsml")]
-    public class CampaignListViewController : BSMLAutomaticViewController
+    public class CampaignListViewController : BSMLAutomaticViewController, INotifyPropertyChanged
     {
         const string CustomCampaignsPathName = "/CustomCampaigns";
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [UIComponent("campaign-list")]
         internal CustomListTableData customListTableData;
+
+        [UIValue("is-loaded")]
+        protected bool isLoaded
+        {
+            get => _isLoaded;
+            set
+            {
+                _isLoaded = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoaded)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoading)));
+            }
+        }
+
+        [UIValue("loading")]
+        protected bool isLoading { get => !isLoaded; }
+
+        private bool _isLoaded;
 
         public event Action<Campaign.Campaign> DidClickCampaignEvent;
 
@@ -30,14 +51,15 @@ namespace CustomCampaigns.UI.ViewControllers
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (firstActivation)
             {
-
+                rectTransform.anchorMin = new Vector3(0.5f, 0, 0);
+                rectTransform.anchorMax = new Vector3(0.5f, 1, 0);
+                rectTransform.sizeDelta = new Vector3(70, 0, 0);
             }
             if (addedToHierarchy)
             {
+                isLoaded = false;
                 StartCoroutine(LoadCampaigns());
             }
-
-            customListTableData.tableView.ClearSelection();
         }
 
         private IEnumerator LoadCampaigns()
@@ -65,7 +87,10 @@ namespace CustomCampaigns.UI.ViewControllers
                     yield return null;
                 }
             }
+
             customListTableData.tableView.ReloadData();
+            customListTableData.tableView.ClearSelection();
+            isLoaded = true;
         }
 
         private string ConvertPath(string path)

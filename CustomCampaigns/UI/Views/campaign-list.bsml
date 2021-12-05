@@ -1,7 +1,10 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-  <vertical>
+  <vertical active='~loading'>
+    <loading-indicator preserve-aspect='true'/>
+  </vertical>
+  <vertical active='~is-loaded'>
     <page-button click-event='campaign-list#PageUp' direction='Up' pref-width='30' />
-    <list id='campaign-list' select-cell='campaign-click' expand-cell='true' />
+    <list id='campaign-list' select-cell='campaign-click' expand-cell='true'/>
     <page-button click-event='campaign-list#PageDown' direction='Down' pref-width='30' />
   </vertical>
 </bg>

@@ -1,8 +1,8 @@
-﻿using BeatSaberCustomCampaigns;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.Managers;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
@@ -10,8 +10,10 @@ using SongCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using static LeaderboardTableView;
 
 namespace CustomCampaigns.UI.ViewControllers
 {
@@ -21,14 +23,12 @@ namespace CustomCampaigns.UI.ViewControllers
     {
         [UIComponent("leaderboard")]
         internal LeaderboardTableView table;
-        TextMeshProUGUI text;
 
         public Mission mission;
-        public Challenge lastClicked;
 
         public void UpdateLeaderboards()
         {
-            if (lastClicked != null)
+            if (mission != null)
             {
                 StartCoroutine(UpdateLeaderboardsCoroutine());
             }
@@ -36,77 +36,85 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private IEnumerator UpdateLeaderboardsCoroutine()
         {
-            if (lastClicked != null)
+            if (mission != null)
             {
-                yield return StartCoroutine(CustomCampaignLeaderboard.LoadLeaderboards(table, lastClicked));
-                CreateAccuracy();
+                var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
+                Task<LeaderboardResponse> task = CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
+                yield return new WaitUntil(() => task.IsCompleted);
+                LeaderboardResponse response = task.Result;
+
+                UpdateScores(response);
             }
         }
 
-        public void UpdateAccuracy()
+        private void UpdateScores(LeaderboardResponse response)
         {
-            CreateAccuracy();
-        }
+            List<ScoreData> scores = new List<ScoreData>();
+            int specialPos = -1;
 
-        private void CreateAccuracy()
-        {
-            if (table == null)
-            {
-                return;
-            }
-            if (mission.FindSong() == null)
-            {
-                return;
-            }
             var maxScore = GetMaxScore();
-            if (maxScore <= 0)
+            foreach (OtherData score in response.scores)
             {
-                return;
+                if (score.id == UserInfoManager.UserInfo.platformUserId + "")
+                {
+                    specialPos = scores.Count;
+                }
+
+                scores.Add(GetScoreData(score, maxScore, scores.Count + 1));
             }
 
-            // Go through the table's cells to get the accuracies
-            Dictionary<LeaderboardTableCell, Double> Accuracies = new Dictionary<LeaderboardTableCell, Double>();
-            var numberOfCells = table.NumberOfCells();
-            for (int row = 0; row < numberOfCells; row++)
+            if (response.you.position > 0 && specialPos == -1)
             {
-                var tableView = table.GetField<TableView, LeaderboardTableView>("_tableView");
-                LeaderboardTableCell tableCell = (LeaderboardTableCell)table.CellForIdx(tableView, row);
-                TextMeshProUGUI scoreText = tableCell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_scoreText");
-                try
-                {
-                    int score = GetScoreFromScoreText(scoreText.text);
-                    Double acc = Math.Round((double)score / (double)maxScore * 100, 2);
-                    Accuracies.Add(tableCell, acc);
-                }
-
-                catch (Exception e)
-                {
-                }
-
+                specialPos = scores.Count;
+                scores.Add(GetScoreData(response.you, maxScore));
             }
 
-            // TODO: no resources call
-            // Changing the score text in the above cells doesn't work; find the duplicate table cells instead and change those ones
-            foreach (LeaderboardTableCell cell in Resources.FindObjectsOfTypeAll<LeaderboardTableCell>())
+            if (scores.Count == 0)
             {
-                var score = cell.GetField<TextMeshProUGUI, LeaderboardTableCell>("_scoreText");
-                try
-                {
-                    if (cell.name.Equals("LeaderboardTableCell(Clone)"))
-                    {
-                        var acc = GetAccFromCell(Accuracies, cell);
-                        if (acc >= 0)
-                        {
-                            score.text += $" (<color=#FFD42A>{acc}%</color>)";
-                        }
-
-                    }
-                }
-                catch (Exception e)
-                {
-
-                }
+                scores.Add(new ScoreData(0, "No scores for this challenge", 0, false));
             }
+
+            table.SetScores(scores, specialPos);
+            foreach (TextMeshProUGUI textMeshPro in table.GetComponentsInChildren<TextMeshProUGUI>())
+            {
+                textMeshPro.richText = true;
+            }
+        }
+
+        private ScoreData GetScoreData(OtherData score, int maxScore, int rank)
+        {
+            Double acc = Math.Round((double) score.score / (double) maxScore * 100, 2);
+
+            var specialColor = CustomCampaignLeaderboardLibraryUtils.GetSpecialPlayerColor(score.id);
+            var name = "";
+            if (specialColor != "")
+            {
+                name = $"<size=90%><color=#{specialColor}>{score.name}</color> - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
+            }
+            else
+            {
+                name = $"<size=90%>{score.name} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
+            }
+
+            return new ScoreData(score.score, name, rank, false);
+        }
+
+        private ScoreData GetScoreData(YourData yourData, int maxScore)
+        {
+            Double acc = Math.Round((double) yourData.score / (double) maxScore * 100, 2);
+
+            var specialColor = CustomCampaignLeaderboardLibraryUtils.GetSpecialPlayerColor(UserInfoManager.UserInfo.platformUserId);
+            var name = "";
+            if (specialColor != "")
+            {
+                name = $"<size=90%><color=#{specialColor}>{UserInfoManager.UserInfo.userName}</color> - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
+            }
+            else
+            {
+                name = $"<size=90%>{UserInfoManager.UserInfo.userName} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
+            }
+
+            return new ScoreData(yourData.score, name, yourData.position, false);
         }
 
         private int GetMaxScore()
@@ -119,7 +127,7 @@ namespace CustomCampaigns.UI.ViewControllers
             }
             var missionData = mission.GetMissionData(null); // campaign doesn't matter here
 
-            IDifficultyBeatmap beatmapDifficulty = BeatmapUtils.GetMatchingBeatmapDifficulty(levelId, missionData.beatmapCharacteristic, lastClicked.difficulty);
+            IDifficultyBeatmap beatmapDifficulty = BeatmapUtils.GetMatchingBeatmapDifficulty(levelId, missionData.beatmapCharacteristic, mission.difficulty);
             if (beatmapDifficulty == null)
             {
                 return 0;
@@ -139,34 +147,6 @@ namespace CustomCampaigns.UI.ViewControllers
                 }
             }
             return noteCount;
-        }
-
-        private int GetScoreFromScoreText(string score)
-        {
-            var noSpace = score.Replace(" ", String.Empty);
-            return Int32.Parse(noSpace);
-        }
-
-        private double GetAccFromCell(Dictionary<LeaderboardTableCell, Double> dict, LeaderboardTableCell tableCell)
-        {
-            foreach (var leaderboardTableCell in dict.Keys)
-            {
-                if (SameTableCell(leaderboardTableCell, tableCell))
-                {
-                    return dict[leaderboardTableCell];
-                }
-            }
-            return -1;
-        }
-
-        private bool SameTableCell(LeaderboardTableCell tableCellA, LeaderboardTableCell tableCellB)
-        {
-            String tableCellARank = tableCellA.GetField<TextMeshProUGUI, LeaderboardTableCell>("_rankText").text;
-            String tableCellAPlayer = tableCellA.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText").text;
-            String tableCellBRank = tableCellB.GetField<TextMeshProUGUI, LeaderboardTableCell>("_rankText").text;
-            String tableCellBPlayer = tableCellB.GetField<TextMeshProUGUI, LeaderboardTableCell>("_playerNameText").text;
-
-            return tableCellAPlayer == tableCellBPlayer && tableCellARank == tableCellBRank;
         }
     }
 }

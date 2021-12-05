@@ -1,5 +1,4 @@
-﻿using BeatSaberCustomCampaigns;
-using BeatSaberMarkupLanguage;
+﻿using BeatSaberMarkupLanguage;
 using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.External;
@@ -544,7 +543,7 @@ namespace CustomCampaigns.Managers
 
                 if (!string.IsNullOrWhiteSpace(_currentCampaign.completionPost))
                 {
-                    var hash = APITools.GetHash(mission.rawJSON);
+                    var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission.rawJSON);
                     var score = missionCompletionResults.levelCompletionResults.rawScore;
                     var requirements = new List<CompletionSubmission.Requirement>();
                     foreach (MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
@@ -555,15 +554,13 @@ namespace CustomCampaigns.Managers
                         requirements.Add(requirement);
                     }
 
-                    CompletionSubmission submission = new CompletionSubmission(APITools.GetHash(mission.rawJSON), score, requirements);
+                    CompletionSubmission submission = new CompletionSubmission(CustomCampaignLeaderboardLibraryUtils.GetHash(mission.rawJSON), score, requirements);
                     
                     submission.Submit(_currentCampaign.completionPost);
                 }
 
-
-                Challenge challenge = new Challenge(mission);
                 Plugin.logger.Debug("submitting score...");
-                _campaignFlowCoordinator.StartCoroutine(CustomCampaignLeaderboard.SubmitScore(challenge, missionCompletionResults));
+                CustomCampaignLeaderboardLibraryUtils.SubmitScoreAsync(mission, missionCompletionResults);
             }
             else
             {
