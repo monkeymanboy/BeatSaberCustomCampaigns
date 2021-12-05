@@ -41,7 +41,14 @@ namespace CustomCampaigns.Managers
                 {
                     continue;
                 }
-                var handler = _modifierHandlers.Where(x => x.GetType() == externalModifier.HandlerType).First();
+
+                var handlers = _modifierHandlers.Where(x => x.GetType() == externalModifier.HandlerType);
+                if (handlers.Count() == 0)
+                {
+                    continue;
+                }
+
+                var handler = handlers.First();
                 if (handler != null && !handler.OnLoadMission(mission.externalModifiers[externalModifier.Name]))
                 {
                     modFailures.Add(externalModifier.Name);
