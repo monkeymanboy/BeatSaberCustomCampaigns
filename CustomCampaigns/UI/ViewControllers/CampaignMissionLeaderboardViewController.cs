@@ -10,6 +10,7 @@ using SongCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -19,17 +20,37 @@ namespace CustomCampaigns.UI.ViewControllers
 {
     [ViewDefinition("CustomCampaigns.UI.Views.mission-leaderboard.bsml")]
     [HotReload(RelativePathToLayout = @"..\Views\mission-leaderboard.bsml")]
-    public class CampaignMissionLeaderboardViewController : BSMLAutomaticViewController
+    public class CampaignMissionLeaderboardViewController : BSMLAutomaticViewController, INotifyPropertyChanged
     {
         [UIComponent("leaderboard")]
         internal LeaderboardTableView table;
 
         public Mission mission;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [UIValue("is-loaded")]
+        protected bool isLoaded
+        {
+            get => _isLoaded;
+            set
+            {
+                _isLoaded = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoaded)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(isLoading)));
+            }
+        }
+
+        [UIValue("loading")]
+        protected bool isLoading { get => !isLoaded; }
+
+        private bool _isLoaded = true;
+
         public void UpdateLeaderboards()
         {
             if (mission != null)
             {
+                isLoaded = false;
                 StartCoroutine(UpdateLeaderboardsCoroutine());
             }
         }
@@ -44,6 +65,7 @@ namespace CustomCampaigns.UI.ViewControllers
                 LeaderboardResponse response = task.Result;
 
                 UpdateScores(response);
+                isLoaded = true;
             }
         }
 

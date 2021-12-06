@@ -2,3 +2,4 @@
 
 # CS0649: Field 'CampaignListViewController._siraLog' is never assigned to, and will always have its default value null
 dotnet_diagnostic.CS0649.severity = suggestion
+csharp_space_after_cast = true

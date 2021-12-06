@@ -34,17 +34,19 @@
       <None Remove="UI\Views\campaign-leaderboard.bsml" />
       <None Remove="UI\Views\campaign-list.bsml" />
       <None Remove="UI\Views\campaign-detail.bsml" />
+      <None Remove="UI\Views\leaderboard-navigation.bsml" />
       <None Remove="UI\Views\mission-detail.bsml" />
       <None Remove="UI\Views\mission-leaderboard.bsml" />
+      <None Remove="UI\Views\mission-secondary-leaderboard.bsml" />
     </ItemGroup>
 
     <ItemGroup>
         <Reference Include="0Harmony">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\0Harmony.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="BeatmapCore">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="BSML">
@@ -52,22 +54,22 @@
           <Private>False</Private>
         </Reference>
         <Reference Include="BS_Utils">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Plugins\BS_Utils.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="Colors">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Colors.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="CustomCampaignLeaderboardLibrary">
           <HintPath>$(BeatSaberDir)\Libs\CustomCampaignLeaderboardLibrary.dll</HintPath>
         </Reference>
         <Reference Include="GameplayCore">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="Hive.Versioning">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Libs\Hive.Versioning.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="HMRendering">
@@ -86,11 +88,15 @@
           <Private>False</Private>
         </Reference>
         <Reference Include="Polyglot">
-          <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="Rendering">
           <HintPath>$(BeatSaberDir)\\Beat Saber_Data\Managed\Rendering.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="ScoreSaber">
+          <HintPath>$(BeatSaberDir)\Plugins\ScoreSaber.dll</HintPath>
           <Private>False</Private>
         </Reference>
         <Reference Include="SemVer">

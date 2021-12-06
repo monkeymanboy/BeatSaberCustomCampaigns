@@ -22,6 +22,8 @@ namespace CustomCampaigns.Managers
 
         public static Sprite UnlockableSongIcon;
 
+        public static Sprite ScoreSaberLogo;
+
         private const string RESOURCE_PREFIX = "CustomCampaigns.Resources";
 
         public void Initialize()
@@ -35,6 +37,8 @@ namespace CustomCampaigns.Managers
             UnlockableNoteIcon = SpriteUtils.LoadSprite(RESOURCE_PREFIX + ".UnlockableNoteIcon.png");
 
             UnlockableSongIcon = SpriteUtils.LoadSprite(RESOURCE_PREFIX + ".UnlockableSongIcon.png");
+
+            ScoreSaberLogo = SpriteUtils.LoadSprite(RESOURCE_PREFIX + ".ScoreSaberLogo.png");
         }
 
         public static Sprite GetUnlockableSprite(UnlockableItem.UnlockableType type)

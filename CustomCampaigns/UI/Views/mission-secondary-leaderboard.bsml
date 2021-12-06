@@ -1,0 +1,10 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <horizontal horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='100' pref-height='70' pad-left='18' pad-top='1'>
+    <vertical active='~loading' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='10' pref-height='10'>
+      <loading-indicator preserve-aspect='true'/>
+    </vertical>
+    <vertical active='~is-loaded' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pref-width='80' pref-height='70'>
+      <leaderboard id='leaderboard' cell-size='5.99' />
+    </vertical>
+  </horizontal>
+</bg>

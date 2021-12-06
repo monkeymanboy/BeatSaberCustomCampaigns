@@ -3,6 +3,7 @@
     <horizontal bg='panel-top' pad-left='20' pad-right='20' horizontal-fit='PreferredSize'>
       <text text='Total Leaderboard' align='Center' font-size='8'></text>
     </horizontal>
-    <leaderboard id='leaderboard' cell-size='5.9' size-delta-y='66'></leaderboard>
+    <loading-indicator preserve-aspect='true' active='~loading'/>
+    <leaderboard id='leaderboard' cell-size='5.9' size-delta-y='66' active='~is-loaded'/>
   </vertical>
 </bg>

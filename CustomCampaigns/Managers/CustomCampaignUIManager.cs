@@ -63,7 +63,9 @@ namespace CustomCampaigns.Managers
         private MissionStage[] _currentMissionStages;
 
         private CampaignMissionLeaderboardViewController _campaignMissionLeaderboardViewController;
+        private CampaignMissionSecondaryLeaderboardViewController _campaignMissionSecondaryLeaderboardViewController;
         private PlatformLeaderboardViewController _globalLeaderboardViewController;
+        private LeaderboardNavigationViewController _leaderboardNavigationViewController;
 
         [UIComponent("mission-name")]
         public TextMeshProUGUI MissionName;
@@ -76,7 +78,8 @@ namespace CustomCampaigns.Managers
 
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController,
-                                        CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, PlatformLeaderboardViewController globalLeaderboardViewController)
+                                        CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
+                                        PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
             _missionSelectionMapViewController = missionSelectionMapViewController;
@@ -103,7 +106,9 @@ namespace CustomCampaigns.Managers
             _gameplayModifiersModel = _missionLevelDetailViewController.GetField<GameplayModifiersModelSO, MissionLevelDetailViewController>("_gameplayModifiersModel");
 
             _campaignMissionLeaderboardViewController = campaignMissionLeaderboardViewController;
+            _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
             _globalLeaderboardViewController = globalLeaderboardViewController;
+            _leaderboardNavigationViewController = leaderboardNavigationViewController;
 
             var levelBar = _missionLevelDetailViewController.GetField<LevelBar, MissionLevelDetailViewController>("_levelBar");
             _levelBarBackground = levelBar.transform.GetChild(0).GetComponent<ImageView>();
@@ -140,6 +145,7 @@ namespace CustomCampaigns.Managers
             MissionName.alignment = TextAlignmentOptions.Bottom;
             MissionName.gameObject.SetActive(true);
 
+            _leaderboardNavigationViewController.CustomCampaignEnabled();
             YeetBaseGameNodes();
         }
 
@@ -356,28 +362,24 @@ namespace CustomCampaigns.Managers
         #region Leaderboard UI
         public void MissionLevelSelected(Mission mission)
         {
-            _campaignMissionLeaderboardViewController.mission = mission;
-
             var missionData = mission.GetMissionData(null); // campaign doesn't matter here
-            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
-            _campaignMissionLeaderboardViewController.UpdateLeaderboards();
+            //_campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
+            //_campaignMissionLeaderboardViewController.UpdateLeaderboards();
 
             UpdateLeaderboards(true);
         }
 
         public void UpdateLeaderboards(bool fullRefresh)
         {
-            if (fullRefresh)
-            {
-                _campaignMissionLeaderboardViewController.UpdateLeaderboards();
-            }
-
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO as CustomMissionDataSO;
             Mission mission = missionData.mission;
             CustomPreviewBeatmapLevel level = missionData.customLevel;
 
-            if (mission.allowStandardLevel && level != null)
+            bool showGlobalLeaderboard = mission.allowStandardLevel && level != null && Plugin.isScoreSaberInstalled;
+
+            if (showGlobalLeaderboard)
             {
+                _campaignMissionSecondaryLeaderboardViewController.mission = mission;
                 IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
                 if (difficultyBeatmap == null)
                 {
@@ -386,7 +388,18 @@ namespace CustomCampaigns.Managers
                 else
                 {
                     _globalLeaderboardViewController.SetData(difficultyBeatmap);
-                    _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetBottomScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
+                    _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
+                    _leaderboardNavigationViewController.SetGlobalLeaderbaordViewController();
+                    //_campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetBottomScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
+                }
+            }
+            else
+            {
+                _campaignMissionLeaderboardViewController.mission = mission;
+                _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
+                if (fullRefresh)
+                {
+                    _campaignMissionLeaderboardViewController.UpdateLeaderboards();
                 }
             }
         }
@@ -440,6 +453,7 @@ namespace CustomCampaigns.Managers
             UnYeetBaseGameNodes();
 
             InitializeCampaignUI();
+            _leaderboardNavigationViewController.CustomCampaignDisabled();
         }
 
         internal void SetMissionName(string missionName)
