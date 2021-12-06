@@ -15,6 +15,8 @@ namespace CustomCampaigns.Utils
 {
     public static class CustomCampaignLeaderboardLibraryUtils
     {
+        private static Color[] RainbowArray;
+
         public static async void SubmitScoreAsync(Mission mission, MissionCompletionResults missionCompletionResults)
         {
             SubmissionData submissionData = new SubmissionData();
@@ -46,18 +48,81 @@ namespace CustomCampaigns.Utils
             return sb.ToString();
         }
 
+        public static string GetSpecialName(string id, string name)
+        {
+            if (IsRainbowName(id))
+            {
+                return RainbowifyName(name);
+            }
+            else
+            {
+                var specialColor = GetSpecialPlayerColor(id);
+
+                if (specialColor != "")
+                {
+                    return $"<size=90%><color=#{specialColor}>{name}</color></size>";
+                }
+                else
+                {
+                    return $"<size=90%>{name}</size>";
+                }
+            }
+        }
+
+        private static string RainbowifyName(string name)
+        {
+            if (RainbowArray == null)
+            {
+                InitializeRainbowArray();
+            }
+
+            var sb = new StringBuilder();
+
+            int i = 0;
+            foreach (char c in name)
+            {
+                if (i >= RainbowArray.Length)
+                {
+                    i %= RainbowArray.Length;
+                }
+
+                var color = RainbowArray[i];
+                sb.Append($"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{c}</color>");
+                i++;
+            }
+
+            return sb.ToString();
+        }
+
+        private static void InitializeRainbowArray()
+        {
+            RainbowArray = new Color[] { Color.red,
+                                         new Color(1, 0.647f, 0), // Orange
+                                         Color.yellow,
+                                         Color.green,
+                                         Color.blue,
+                                         new Color(0.29f, 0, 0.51f), // Indigo
+                                         new Color(0.56f, 0, 1f) }; // Violet
+        }
+
         public static string GetSpecialPlayerColor(string userID)
         {
             switch (userID)
             {
-                case "76561198012241978":
+                case "76561198012241978": // Pulse
                     return "12CCC2";
-                case "76561198059398643":
+                case "76561198059398643": // monkey
                     return "82560b";
                 default:
                     return "";
             }
         }
+
+        private static bool IsRainbowName(string id)
+        {
+            return id == "76561198182060577"; // :)
+        }
+
     }
 
     class CompleteSubmission

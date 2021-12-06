@@ -107,16 +107,8 @@ namespace CustomCampaigns.UI.ViewControllers
         {
             Double acc = Math.Round((double) score.score / (double) maxScore * 100, 2);
 
-            var specialColor = CustomCampaignLeaderboardLibraryUtils.GetSpecialPlayerColor(score.id);
-            var name = "";
-            if (specialColor != "")
-            {
-                name = $"<size=90%><color=#{specialColor}>{score.name}</color> - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
-            }
-            else
-            {
-                name = $"<size=90%>{score.name} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
-            }
+            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(score.id, score.name);
+            name = $"{name} - <size=75%> (<color=#FFD42A>{acc}%</color>)</size>";
 
             return new ScoreData(score.score, name, rank, false);
         }
@@ -125,16 +117,11 @@ namespace CustomCampaigns.UI.ViewControllers
         {
             Double acc = Math.Round((double) yourData.score / (double) maxScore * 100, 2);
 
-            var specialColor = CustomCampaignLeaderboardLibraryUtils.GetSpecialPlayerColor(UserInfoManager.UserInfo.platformUserId);
-            var name = "";
-            if (specialColor != "")
-            {
-                name = $"<size=90%><color=#{specialColor}>{UserInfoManager.UserInfo.userName}</color> - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
-            }
-            else
-            {
-                name = $"<size=90%>{UserInfoManager.UserInfo.userName} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size></size>";
-            }
+            var id = UserInfoManager.UserInfo.platformUserId;
+            var username = UserInfoManager.UserInfo.userName;
+
+            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(id, username);
+            name = $"{name} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size>";
 
             return new ScoreData(yourData.score, name, yourData.position, false);
         }

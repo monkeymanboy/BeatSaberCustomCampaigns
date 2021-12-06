@@ -120,32 +120,19 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private ScoreData GetScoreData(OtherData score, int rank)
         {
-            var specialColor = CustomCampaignLeaderboardLibraryUtils.GetSpecialPlayerColor(score.id);
-            var name = "";
-            if (specialColor != "")
-            {
-                name = $"<color=#{specialColor}>{score.name}</color><size=50%> (Completed - {score.count})</size>";
-            }
-            else
-            {
-                name = $"{score.name}<size=50%> (Completed - {score.count})</size>";
-            }
+            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(score.id, score.name);
+            name = $"{name}<size=50%> (Completed - {score.count})</size>";
 
             return new ScoreData(score.score, name, rank, false);
         }
 
         private ScoreData GetScoreData(YourData yourData)
         {
-            var specialColor = CustomCampaignLeaderboardLibraryUtils.GetSpecialPlayerColor(UserInfoManager.UserInfo.platformUserId);
-            var name = "";
-            if (specialColor != "")
-            {
-                name = $"<color=#{specialColor}>{ UserInfoManager.UserInfo.userName}</color><size=50%> (Completed - {yourData.count})</size>";
-            }
-            else
-            {
-                name = $"{ UserInfoManager.UserInfo.userName}<size=50%> (Completed - {yourData.count})</size>";
-            }
+            var id = UserInfoManager.UserInfo.platformUserId;
+            var username = UserInfoManager.UserInfo.userName;
+
+            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(id, username);
+            name = $"{name}<size=50%> (Completed - {yourData.count})</size>";
 
             return new ScoreData(yourData.score, name, yourData.position, false);
         }
