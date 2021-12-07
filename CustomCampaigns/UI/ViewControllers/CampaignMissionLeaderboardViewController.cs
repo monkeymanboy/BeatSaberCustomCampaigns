@@ -24,6 +24,8 @@ namespace CustomCampaigns.UI.ViewControllers
     {
         [UIComponent("leaderboard")]
         internal LeaderboardTableView table;
+        [UIComponent("leaderboard")]
+        protected readonly Transform _leaderboardTransform;
 
         public Mission mission;
 
@@ -45,6 +47,13 @@ namespace CustomCampaigns.UI.ViewControllers
         protected bool isLoading { get => !isLoaded; }
 
         private bool _isLoaded = true;
+
+        [UIAction("#post-parse")]
+        public void PostParse()
+        {
+            Plugin.logger.Debug("destroying...");
+            GameObject.Destroy(_leaderboardTransform.Find("LoadingControl").gameObject);
+        }
 
         public void UpdateLeaderboards()
         {

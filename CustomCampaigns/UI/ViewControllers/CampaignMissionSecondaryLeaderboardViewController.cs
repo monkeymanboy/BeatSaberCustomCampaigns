@@ -24,9 +24,6 @@ namespace CustomCampaigns.UI.ViewControllers
     {
         private Mission _lastLoadedMission = null;
 
-        [UIComponent("leaderboard")]
-        private readonly Transform _leaderboardTransform;
-
         internal void Shown()
         {
             Plugin.logger.Debug("shown :D");
@@ -35,13 +32,6 @@ namespace CustomCampaigns.UI.ViewControllers
                 UpdateLeaderboards();
                 _lastLoadedMission = mission;
             }
-        }
-
-        [UIAction("#post-parse")]
-        public void PostParse()
-        {
-            Plugin.logger.Debug("destroying...");
-            GameObject.Destroy(_leaderboardTransform.Find("LoadingControl").gameObject);
         }
     }
 }

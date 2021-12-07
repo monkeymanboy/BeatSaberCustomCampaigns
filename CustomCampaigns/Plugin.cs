@@ -2,6 +2,7 @@
 using CustomCampaigns.Utils;
 using HarmonyLib;
 using IPA;
+using IPA.Config.Stores;
 using IPA.Loader;
 using SiraUtil;
 using SiraUtil.Zenject;
@@ -17,19 +18,29 @@ namespace CustomCampaigns
     {
         public static Hive.Versioning.Version version;
         public static IPALogger logger;
+        internal static Config config;
+
         internal static bool isScoreSaberInstalled;
 
         private readonly Harmony _harmony;
         private const string _harmonyID = "dev.PulseLane.BeatSaber.CustomCampaigns";
 
+       
+
         [Init]
-        public Plugin(IPALogger logger, Zenjector zenjector, PluginMetadata metadata)
+        public Plugin(IPALogger logger, IPA.Config.Config conf, Zenjector zenjector, PluginMetadata metadata)
         {
+            config = conf.Generated<Config>();
+
             version = metadata.HVersion;
             Plugin.logger = logger;
             _harmony = new Harmony(_harmonyID);
 
-            zenjector.On<PCAppInit>().Pseudo(Container => Container.BindLoggerAsSiraLogger(logger));
+            zenjector.On<PCAppInit>().Pseudo(Container =>
+                                    {
+                                        Container.BindLoggerAsSiraLogger(logger);
+                                        Container.BindInstance(config).AsSingle();
+                                    });
             zenjector.OnApp<Installers.AppInstaller>();
             zenjector.OnMenu<Installers.MenuInstaller>();
             zenjector.OnGame<Installers.CampaignInstaller>().ShortCircuitForMultiplayer().ShortCircuitForTutorial().ShortCircuitForStandard();

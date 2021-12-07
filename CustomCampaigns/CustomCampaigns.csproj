@@ -34,10 +34,12 @@
       <None Remove="UI\Views\campaign-leaderboard.bsml" />
       <None Remove="UI\Views\campaign-list.bsml" />
       <None Remove="UI\Views\campaign-detail.bsml" />
+      <None Remove="UI\Views\gameplay-setup-settings.bsml" />
       <None Remove="UI\Views\leaderboard-navigation.bsml" />
       <None Remove="UI\Views\mission-detail.bsml" />
       <None Remove="UI\Views\mission-leaderboard.bsml" />
       <None Remove="UI\Views\mission-secondary-leaderboard.bsml" />
+      <None Remove="UI\Views\settings.bsml" />
     </ItemGroup>
 
     <ItemGroup>

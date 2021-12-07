@@ -1,6 +1,7 @@
 ﻿using CustomCampaigns.Managers;
 using CustomCampaigns.UI;
 using CustomCampaigns.UI.FlowCoordinators;
+using CustomCampaigns.UI.GameplaySetupUI;
 using CustomCampaigns.UI.ViewControllers;
 using SiraUtil;
 using System;
@@ -24,6 +25,9 @@ namespace CustomCampaigns.Installers
             Container.Bind<CampaignTotalLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+
+            Container.Bind<SettingsHandler>().AsSingle();
+            Container.Bind<GameplaySetupManager>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<CustomCampaignUIManager>().AsSingle();
             Container.Bind<Downloader>().AsSingle();

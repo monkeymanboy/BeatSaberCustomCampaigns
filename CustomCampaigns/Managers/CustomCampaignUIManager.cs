@@ -3,13 +3,16 @@ using BeatSaberMarkupLanguage.Attributes;
 using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.External;
+using CustomCampaigns.HarmonyPatches.ScoreSaber;
 using CustomCampaigns.UI.FlowCoordinators;
+using CustomCampaigns.UI.GameplaySetupUI;
 using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using TMPro;
@@ -67,6 +70,8 @@ namespace CustomCampaigns.Managers
         private PlatformLeaderboardViewController _globalLeaderboardViewController;
         private LeaderboardNavigationViewController _leaderboardNavigationViewController;
 
+        private Vector3 _leaderboardPosition;
+
         [UIComponent("mission-name")]
         public TextMeshProUGUI MissionName;
 
@@ -76,10 +81,17 @@ namespace CustomCampaigns.Managers
         private Color _mediumProgressColor;
         private Color _highProgressColor;
 
+
+        private Config _config;
+
+        private GameplaySetupManager _gameplaySetupManager;
+        private SettingsHandler _settingsHandler;
+
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController,
                                         CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
-                                        PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController)
+                                        PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
+                                        Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
             _missionSelectionMapViewController = missionSelectionMapViewController;
@@ -109,6 +121,13 @@ namespace CustomCampaigns.Managers
             _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
             _globalLeaderboardViewController = globalLeaderboardViewController;
             _leaderboardNavigationViewController = leaderboardNavigationViewController;
+
+            _config = config;
+
+            _gameplaySetupManager = gameplaySetupManager;
+            _settingsHandler = settingsHandler;
+
+            _leaderboardPosition = new Vector3(0, _config.floorLeaderboardPosition, 0);
 
             var levelBar = _missionLevelDetailViewController.GetField<LevelBar, MissionLevelDetailViewController>("_levelBar");
             _levelBarBackground = levelBar.transform.GetChild(0).GetComponent<ImageView>();
@@ -147,6 +166,10 @@ namespace CustomCampaigns.Managers
 
             _leaderboardNavigationViewController.CustomCampaignEnabled();
             YeetBaseGameNodes();
+            _settingsHandler.PropertyChanged += OnSettingsChanged;
+
+            PanelViewShowPatch.ViewShown -= OnViewActivated;
+            PanelViewShowPatch.ViewShown += OnViewActivated;
         }
 
         internal void SetupCampaignUI(Campaign.Campaign campaign)
@@ -355,6 +378,8 @@ namespace CustomCampaigns.Managers
         {
             GameplaySetupViewController gameplaySetupViewController = _campaignFlowCoordinator.GetField<GameplaySetupViewController, CampaignFlowCoordinator>("_gameplaySetupViewController");
             gameplaySetupViewController.SetField("_showEnvironmentOverrideSettings", true);
+
+            AddCustomTab();
             gameplaySetupViewController.RefreshContent();
         }
         #endregion
@@ -363,15 +388,19 @@ namespace CustomCampaigns.Managers
         public void MissionLevelSelected(Mission mission)
         {
             var missionData = mission.GetMissionData(null); // campaign doesn't matter here
-            //_campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
-            //_campaignMissionLeaderboardViewController.UpdateLeaderboards();
 
             UpdateLeaderboards(true);
         }
 
         public void UpdateLeaderboards(bool fullRefresh)
         {
-            CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO as CustomMissionDataSO;
+            Plugin.logger.Debug("updating leaderboards");
+            if (_missionLevelDetailViewController.missionNode == null)
+            {
+                return;
+            }
+
+            CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
             Mission mission = missionData.mission;
             CustomPreviewBeatmapLevel level = missionData.customLevel;
 
@@ -379,7 +408,7 @@ namespace CustomCampaigns.Managers
 
             if (showGlobalLeaderboard)
             {
-                _campaignMissionSecondaryLeaderboardViewController.mission = mission;
+                Plugin.logger.Debug("showing global leaderboard");
                 IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
                 if (difficultyBeatmap == null)
                 {
@@ -388,13 +417,29 @@ namespace CustomCampaigns.Managers
                 else
                 {
                     _globalLeaderboardViewController.SetData(difficultyBeatmap);
-                    _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
-                    _leaderboardNavigationViewController.SetGlobalLeaderbaordViewController();
-                    //_campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetBottomScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
+                    if (_config.floorLeaderboard)
+                    {
+                        Plugin.logger.Debug("floor leaderboard");
+                        _campaignMissionLeaderboardViewController.mission = mission;
+                        _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
+                        _campaignMissionLeaderboardViewController.UpdateLeaderboards();
+                        _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetBottomScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.None);
+
+                        _globalLeaderboardViewController.transform.localPosition = _leaderboardPosition;
+                    }
+                    else
+                    {
+                        Plugin.logger.Debug("boring leaderboard");
+                        _campaignMissionSecondaryLeaderboardViewController.mission = mission;
+                        _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
+                        
+                        _leaderboardNavigationViewController.SetGlobalLeaderboardViewController();
+                    }
                 }
             }
             else
             {
+                Plugin.logger.Debug("not showing global leaderboard");
                 _campaignMissionLeaderboardViewController.mission = mission;
                 _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
                 if (fullRefresh)
@@ -453,7 +498,9 @@ namespace CustomCampaigns.Managers
             UnYeetBaseGameNodes();
 
             InitializeCampaignUI();
+            PanelViewShowPatch.ViewShown -= OnViewActivated;
             _leaderboardNavigationViewController.CustomCampaignDisabled();
+            _gameplaySetupManager.CampaignExit();
         }
 
         internal void SetMissionName(string missionName)
@@ -550,6 +597,44 @@ namespace CustomCampaigns.Managers
                 GameplayModifierParamsSO gameplayModifierParamsSO = modifierParams[index];
                 gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
             });
+        }
+
+        private void AddCustomTab()
+        {
+             _gameplaySetupManager.Setup();
+        }
+
+        private void OnViewActivated()
+        {
+            Plugin.logger.Debug("view activated");
+            _globalLeaderboardViewController.transform.localPosition = _leaderboardPosition;
+        }
+
+        private void OnSettingsChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "floorLeaderboard":
+                    //if (_config.floorLeaderboard)
+                    //{
+                    //    _leaderboardNavigationViewController.FloorLeaderboardEnabled();
+                    //}
+                    //else
+                    //{
+                    //    _leaderboardNavigationViewController.FloorLeaderboardDisabled();
+                    //}
+                    //UpdateLeaderboards(false);
+                    break;
+                case "floorLeaderboardPosition":
+                    _leaderboardPosition = new Vector3(0, _config.floorLeaderboardPosition, 0);
+                    if (_config.floorLeaderboard)
+                    {
+                        _globalLeaderboardViewController.transform.localPosition = _leaderboardPosition;
+                    }
+                    break;
+                default:
+                    return;
+            }
         }
 
         #region Helper Functions

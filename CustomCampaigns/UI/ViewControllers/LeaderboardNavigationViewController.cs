@@ -20,6 +20,8 @@ namespace CustomCampaigns.UI.ViewControllers
     [ViewDefinition("CustomCampaigns.UI.Views.leaderboard.bsml")]
     public class LeaderboardNavigationViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
+        private Config _config;
+
         private PlatformLeaderboardViewController _platformLeaderboardViewController;
         private CampaignMissionSecondaryLeaderboardViewController _campaignMissionSecondaryLeaderboardViewController;
 
@@ -42,8 +44,10 @@ namespace CustomCampaigns.UI.ViewControllers
         private bool _initializedWithGlobalLeaderboards = false;
 
         [Inject]
-        public void Consruct(PlatformLeaderboardViewController platformLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController)
+        public void Consruct(Config config, PlatformLeaderboardViewController platformLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController)
         {
+            _config = config;
+
             _platformLeaderboardViewController = platformLeaderboardViewController;
             _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
         }
@@ -182,6 +186,11 @@ namespace CustomCampaigns.UI.ViewControllers
 
         internal void CustomCampaignEnabled()
         {
+            if (_config.floorLeaderboard)
+            {
+                return;
+            }
+
             Plugin.logger.Debug("custom campaign enabled");
             
             PanelViewShowPatch.ViewShown -= OnViewActivated;
@@ -191,6 +200,7 @@ namespace CustomCampaigns.UI.ViewControllers
 
             if (_toggleButtonImage)
             {
+                Plugin.logger.Debug("activating toggle button image");
                 _toggleButtonImage.gameObject.SetActive(true);
             }
             //Initialize();
@@ -202,22 +212,29 @@ namespace CustomCampaigns.UI.ViewControllers
 
             if (_toggleButtonImage)
             {
+                Plugin.logger.Debug("deactivating toggle button");
                 _toggleButtonImage.gameObject.SetActive(false);
             }
             
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             PanelViewsIsLoadedSetterPatch.ViewLoaded -= OnViewLoaded;
 
-            UnYeetSS();
-            //Dispose();
-            _initializedWithGlobalLeaderboards = false;
-            HideMissionLeaderboard();
+            if (_initializedWithGlobalLeaderboards)
+            {
+                Plugin.logger.Debug("was initialized");
+                UnYeetSS();
+                //Dispose();
+                _initializedWithGlobalLeaderboards = false;
+                HideMissionLeaderboard();
+            }
         }
 
-        internal void SetGlobalLeaderbaordViewController()
+        internal void SetGlobalLeaderboardViewController()
         {
+            Plugin.logger.Debug("in SetGlobalLeaderboardViewController");
             if (!_initializedWithGlobalLeaderboards)
             {
+                Plugin.logger.Debug("not initialized with global leaderboards");
                 OnViewActivated();
             }
             else if (!ssShown)
@@ -225,5 +242,16 @@ namespace CustomCampaigns.UI.ViewControllers
                 _campaignMissionSecondaryLeaderboardViewController.UpdateLeaderboards();
             }
         }
+
+        //internal void FloorLeaderboardEnabled()
+        //{
+        //    CustomCampaignDisabled();
+        //}
+
+        //internal void FloorLeaderboardDisabled()
+        //{
+            
+        //    CustomCampaignEnabled();
+        //}
     }
 }
