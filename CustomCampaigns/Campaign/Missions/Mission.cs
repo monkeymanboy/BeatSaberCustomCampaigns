@@ -62,8 +62,6 @@ namespace CustomCampaigns.Campaign.Missions
                     CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelPath, songidSearch, CompareOptions.IgnoreCase) >= 0);
                     return level;
                 }
-
-                
             }
 
             catch

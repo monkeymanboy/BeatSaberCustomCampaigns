@@ -10,7 +10,6 @@ using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -203,7 +202,7 @@ namespace CustomCampaigns.Managers
         {
             foreach (var node in _baseMissionNodes)
             {
-                 node.transform.localPosition += new Vector3(0, YEET_AMOUNT, 0);
+                node.transform.localPosition += new Vector3(0, YEET_AMOUNT, 0);
             }
         }
 
@@ -432,7 +431,7 @@ namespace CustomCampaigns.Managers
                         Plugin.logger.Debug("boring leaderboard");
                         _campaignMissionSecondaryLeaderboardViewController.mission = mission;
                         _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
-                        
+
                         _leaderboardNavigationViewController.SetGlobalLeaderboardViewController();
                     }
                 }
@@ -484,7 +483,7 @@ namespace CustomCampaigns.Managers
         internal void BaseCampaignEnabled()
         {
             MissionName.gameObject.SetActive(false);
-            
+
             _missionNodesManager.SetField("_rootMissionNode", _baseRootMissionNode);
             _missionNodesManager.SetField("_finalMissionNode", _baseFinalMissionNode);
             _missionNodesManager.SetField("_allMissionNodes", _baseMissionNodes);
@@ -557,7 +556,7 @@ namespace CustomCampaigns.Managers
                             Plugin.logger.Debug($"found mod {modName}");
                             modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.ModifierType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
                         }
-                            
+
                         break;
                     }
                 }
@@ -572,7 +571,7 @@ namespace CustomCampaigns.Managers
             {
                 modifierParams.Add(ModifierUtils.CreateUnlockableSongParam());
             }
-                
+
             _modifierParams = modifierParams;
             LoadModifiersPanel();
         }
@@ -601,7 +600,7 @@ namespace CustomCampaigns.Managers
 
         private void AddCustomTab()
         {
-             _gameplaySetupManager.Setup();
+            _gameplaySetupManager.Setup();
         }
 
         private void OnViewActivated()

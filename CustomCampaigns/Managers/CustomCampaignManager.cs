@@ -1,8 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
-using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
-using CustomCampaigns.External;
-using CustomCampaigns.External.Interfaces;
 using CustomCampaigns.HarmonyPatches;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
 using CustomCampaigns.Utils;
@@ -331,7 +328,7 @@ namespace CustomCampaigns.Managers
             currentMissionData = _currentMissionDataSO;
 
             _currentMissionCleared = _playerDataModel.playerData.GetPlayerMissionStatsData(_currentNode.missionId).cleared;
-            
+
             Mission mission = _currentMissionDataSO.mission;
 
             var errors = CheckForErrors(mission);
@@ -558,7 +555,7 @@ namespace CustomCampaigns.Managers
                     }
 
                     CompletionSubmission submission = new CompletionSubmission(CustomCampaignLeaderboardLibraryUtils.GetHash(mission.rawJSON), score, requirements);
-                    
+
                     submission.Submit(_currentCampaign.completionPost);
                 }
 
@@ -603,7 +600,7 @@ namespace CustomCampaigns.Managers
 
             var missionData = mission.GetMissionData(_currentCampaign);
             if (missionData.beatmapCharacteristic.descriptionLocalizationKey == "ERROR NOT FOUND")
-            { 
+            {
                 errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, CHARACTERISTIC_NOT_FOUND_ERROR_TITLE, $"{CHARACTERISTIC_NOT_FOUND_ERROR_DESCRIPTION}{mission.characteristic} {NOT_FOUND_ERROR_SUFFIX}"));
             }
             else

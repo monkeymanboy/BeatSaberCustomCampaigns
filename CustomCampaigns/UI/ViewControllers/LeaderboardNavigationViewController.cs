@@ -4,13 +4,8 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
 using CustomCampaigns.HarmonyPatches.ScoreSaber;
 using CustomCampaigns.Managers;
-using CustomCampaigns.Utils;
 using HMUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
 
@@ -99,7 +94,7 @@ namespace CustomCampaigns.UI.ViewControllers
             {
                 UnYeetSS();
                 HideMissionLeaderboard();
-                
+
             }
             else if (isLoaded && !ssShown)
             {
@@ -192,7 +187,7 @@ namespace CustomCampaigns.UI.ViewControllers
             }
 
             Plugin.logger.Debug("custom campaign enabled");
-            
+
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             PanelViewsIsLoadedSetterPatch.ViewLoaded -= OnViewLoaded;
             PanelViewShowPatch.ViewShown += OnViewActivated;
@@ -215,7 +210,7 @@ namespace CustomCampaigns.UI.ViewControllers
                 Plugin.logger.Debug("deactivating toggle button");
                 _toggleButtonImage.gameObject.SetActive(false);
             }
-            
+
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             PanelViewsIsLoadedSetterPatch.ViewLoaded -= OnViewLoaded;
 
@@ -250,7 +245,7 @@ namespace CustomCampaigns.UI.ViewControllers
 
         //internal void FloorLeaderboardDisabled()
         //{
-            
+
         //    CustomCampaignEnabled();
         //}
     }

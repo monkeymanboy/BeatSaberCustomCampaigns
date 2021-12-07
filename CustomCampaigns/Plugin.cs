@@ -25,7 +25,7 @@ namespace CustomCampaigns
         private readonly Harmony _harmony;
         private const string _harmonyID = "dev.PulseLane.BeatSaber.CustomCampaigns";
 
-       
+
 
         [Init]
         public Plugin(IPALogger logger, IPA.Config.Config conf, Zenjector zenjector, PluginMetadata metadata)

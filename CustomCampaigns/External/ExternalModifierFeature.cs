@@ -1,5 +1,4 @@
 ﻿using CustomCampaigns.Managers;
-using CustomCampaigns.Utils;
 using IPA.Loader;
 using IPA.Loader.Features;
 using Newtonsoft.Json.Linq;

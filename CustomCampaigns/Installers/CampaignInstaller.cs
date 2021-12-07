@@ -1,5 +1,4 @@
-﻿using CustomCampaigns.Campaign.Missions;
-using CustomCampaigns.CustomMissionObjectives;
+﻿using CustomCampaigns.CustomMissionObjectives;
 using CustomCampaigns.CustomMissionObjectives.Accuracy;
 using CustomCampaigns.CustomMissionObjectives.BombsHit;
 using CustomCampaigns.CustomMissionObjectives.HeadTimeInWall;
@@ -8,12 +7,7 @@ using CustomCampaigns.CustomMissionObjectives.PerfectCuts;
 using CustomCampaigns.CustomMissionObjectives.SaberTimeInWall;
 using CustomCampaigns.CustomMissionObjectives.Spins;
 using CustomCampaigns.CustomMissionObjectives.WallHeadbutts;
-using CustomCampaigns.External;
-using CustomCampaigns.Managers;
 using SiraUtil;
-using System;
-using UnityEngine;
-using Zenject;
 
 namespace CustomCampaigns.Installers
 {

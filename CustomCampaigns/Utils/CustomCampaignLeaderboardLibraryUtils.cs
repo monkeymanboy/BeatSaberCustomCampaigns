@@ -1,9 +1,7 @@
 ﻿using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
-using IPA.Utilities;
 using Newtonsoft.Json;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;

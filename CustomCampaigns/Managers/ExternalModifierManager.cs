@@ -2,12 +2,9 @@
 using CustomCampaigns.External;
 using CustomCampaigns.External.Interfaces;
 using CustomCampaigns.HarmonyPatches;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Zenject;
 
 namespace CustomCampaigns.Managers

@@ -95,7 +95,7 @@ namespace CustomCampaigns.Campaign
                     using (FileStream stream = File.Open(spritePath, FileMode.Open))
                     {
                         byte[] bytes = new byte[stream.Length];
-                        await stream.ReadAsync(bytes, 0, (int)stream.Length);
+                        await stream.ReadAsync(bytes, 0, (int) stream.Length);
                         Sprite sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(bytes);
                         textures[spritePath] = sprite;
                     }

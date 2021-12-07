@@ -14,7 +14,7 @@ namespace CustomCampaigns.HarmonyPatches
             [HarmonyReversePatch]
             public static void Init(object instance, SceneInfo[] scenes, SceneSetupData[] sceneSetupData)
             {
-                var scenesTransitionSetupDataSO = (ScenesTransitionSetupDataSO)instance;
+                var scenesTransitionSetupDataSO = (ScenesTransitionSetupDataSO) instance;
                 scenesTransitionSetupDataSO.SetProperty("scenes", scenes);
                 scenesTransitionSetupDataSO.SetProperty("sceneSetupDataArray", sceneSetupData);
             }

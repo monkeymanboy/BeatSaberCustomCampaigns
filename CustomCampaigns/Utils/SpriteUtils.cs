@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CustomCampaigns.Utils
@@ -55,8 +51,8 @@ namespace CustomCampaigns.Utils
         public static byte[] GetResource(Assembly assembly, string resourceName)
         {
             Stream stream = assembly.GetManifestResourceStream(resourceName);
-            byte[] data = new byte[(int)stream.Length];
-            stream.Read(data, 0, (int)stream.Length);
+            byte[] data = new byte[(int) stream.Length];
+            stream.Read(data, 0, (int) stream.Length);
             return data;
         }
     }

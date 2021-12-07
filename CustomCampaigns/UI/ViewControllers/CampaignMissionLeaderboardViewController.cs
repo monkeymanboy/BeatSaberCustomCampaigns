@@ -4,8 +4,6 @@ using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using CustomCampaigns.Utils;
-using HMUI;
-using IPA.Utilities;
 using SongCore;
 using System;
 using System.Collections;

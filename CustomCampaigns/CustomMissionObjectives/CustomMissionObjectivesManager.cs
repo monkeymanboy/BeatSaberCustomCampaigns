@@ -61,7 +61,6 @@ namespace CustomCampaigns.CustomMissionObjectives
                     CheckMissionObjectiveChecker(missionObjectiveChecker, false);
                 }
 
-                
                 _missionObjectiveCheckers.Clear();
                 InitializeBaseGameMissionObjectiveCheckers();
                 _missionObjectiveCheckersManager.GetField<Action, MissionObjectiveCheckersManager>("objectivesListDidChangeEvent")?.Invoke();

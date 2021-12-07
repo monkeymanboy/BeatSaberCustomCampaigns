@@ -1,17 +1,10 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.GameplaySetup;
 using CustomCampaigns.UI.GameplaySetupUI;
-using HMUI;
 using IPA.Utilities;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace CustomCampaigns.Managers
 {

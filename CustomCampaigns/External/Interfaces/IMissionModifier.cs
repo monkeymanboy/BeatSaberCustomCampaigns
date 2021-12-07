@@ -1,12 +1,4 @@
-﻿using CustomCampaigns.Campaign.Missions;
-using CustomCampaigns.External.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CustomCampaigns.External
+﻿namespace CustomCampaigns.External
 {
     public interface IMissionModifier
     {
