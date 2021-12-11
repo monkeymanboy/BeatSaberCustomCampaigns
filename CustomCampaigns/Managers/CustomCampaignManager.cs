@@ -5,6 +5,7 @@ using CustomCampaigns.UI.MissionObjectiveGameUI;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
+using SiraUtil.Affinity;
 using SongCore;
 using System;
 using System.Collections.Concurrent;
@@ -16,7 +17,7 @@ using static SongCore.Data.ExtraSongData;
 
 namespace CustomCampaigns.Managers
 {
-    public class CustomCampaignManager
+    public class CustomCampaignManager : IAffinity
     {
         public static bool unlockAllMissions = false;
 
@@ -635,6 +636,69 @@ namespace CustomCampaigns.Managers
         private HashSet<string> LoadExternalModifiers(Mission mission)
         {
             return _externalModifierManager.CheckForModLoadIssues(mission);
+        }
+        #endregion
+
+        #region Affinity Patches
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MissionLevelScenesTransitionSetupDataSO), "Init")]
+        public bool MissionLevelScenesTransitionSetupDataSOInitPrefix(ref MissionLevelScenesTransitionSetupDataSO __instance,
+                                                                      ref SceneInfo ____missionGameplaySceneInfo,
+                                                                      ref SceneInfo ____gameCoreSceneInfo,
+                                                                      string missionId,
+                                                                      IDifficultyBeatmap difficultyBeatmap,
+                                                                      IPreviewBeatmapLevel previewBeatmapLevel,
+                                                                      MissionObjective[] missionObjectives,
+                                                                      ColorScheme overrideColorScheme,
+                                                                      GameplayModifiers gameplayModifiers,
+                                                                      PlayerSpecificSettings playerSpecificSettings,
+                                                                      string backButtonText)
+        {
+            __instance.SetProperty("missionId", missionId);
+            __instance.SetProperty("difficultyBeatmap", difficultyBeatmap);
+            EnvironmentInfoSO environmentInfo = difficultyBeatmap.GetEnvironmentInfo();
+
+            GameplaySetupViewController gameplaySetupViewController = _campaignFlowCoordinator.GetField<GameplaySetupViewController, CampaignFlowCoordinator>("_gameplaySetupViewController");
+            OverrideEnvironmentSettings overrideEnvironmentSettings = gameplaySetupViewController.environmentOverrideSettings;
+            bool usingOverrideEnvironment = overrideEnvironmentSettings != null && overrideEnvironmentSettings.overrideEnvironments;
+
+            if (usingOverrideEnvironment)
+            {
+                EnvironmentInfoSO overrideEnvironmentInfoForType = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(environmentInfo.environmentType);
+                if (overrideEnvironmentInfoForType != null)
+                {
+                    if (environmentInfo.environmentName == overrideEnvironmentInfoForType.environmentName)
+                    {
+                        usingOverrideEnvironment = false;
+                    }
+                    else
+                    {
+                        environmentInfo = overrideEnvironmentInfoForType;
+                    }
+                }
+            }
+
+            ColorScheme colorScheme = overrideColorScheme ?? new ColorScheme(environmentInfo.colorScheme);
+            IBeatmapLevel level = difficultyBeatmap.level;
+            SceneInfo[] scenes = new SceneInfo[]
+            {
+                environmentInfo.sceneInfo,
+                ____missionGameplaySceneInfo,
+                ____gameCoreSceneInfo
+            };
+            SceneSetupData[] sceneSetupData = new SceneSetupData[]
+            {
+                new EnvironmentSceneSetupData(usingOverrideEnvironment),
+                new MissionGameplaySceneSetupData(missionObjectives, playerSpecificSettings.autoRestart, level, difficultyBeatmap.difficulty, difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic, gameplayModifiers, backButtonText),
+                new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, null, false, environmentInfo, colorScheme),
+                new GameCoreSceneSetupData()
+            };
+
+            var scenesTransitionSetupDataSO = (ScenesTransitionSetupDataSO) __instance;
+            scenesTransitionSetupDataSO.SetProperty("scenes", scenes);
+            scenesTransitionSetupDataSO.SetProperty("sceneSetupDataArray", sceneSetupData);
+
+            return false;
         }
         #endregion
     }

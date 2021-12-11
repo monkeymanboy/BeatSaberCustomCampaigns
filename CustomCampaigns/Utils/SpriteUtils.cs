@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace CustomCampaigns.Utils
@@ -51,6 +52,28 @@ namespace CustomCampaigns.Utils
         public static byte[] GetResource(Assembly assembly, string resourceName)
         {
             Stream stream = assembly.GetManifestResourceStream(resourceName);
+            return ReadStream(stream);
+        }
+
+        public static Sprite LoadSpriteFromFile(string fileLocation, float pixelsPerUnit = 100f)
+        {
+
+            Stream stream = new FileStream(fileLocation, FileMode.Open);
+            byte[] data;
+            if (stream != null)
+            {
+                data = ReadStream(stream);
+            }
+            else
+            {
+                return null;
+            }
+
+            return LoadSpriteRaw(data, pixelsPerUnit);
+        }
+
+        public static byte[] ReadStream(Stream stream)
+        {
             byte[] data = new byte[(int) stream.Length];
             stream.Read(data, 0, (int) stream.Length);
             return data;

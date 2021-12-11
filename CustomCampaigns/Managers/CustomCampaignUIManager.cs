@@ -10,6 +10,9 @@ using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
+using Polyglot;
+using SiraUtil.Affinity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -20,7 +23,7 @@ using UnityEngine.UI;
 
 namespace CustomCampaigns.Managers
 {
-    public class CustomCampaignUIManager
+    public class CustomCampaignUIManager : IAffinity
     {
         public const float EDITOR_TO_GAME_UNITS = 30f / 111;
         public const float HEIGHT_OFFSET = 20;
@@ -85,6 +88,9 @@ namespace CustomCampaigns.Managers
 
         private GameplaySetupManager _gameplaySetupManager;
         private SettingsHandler _settingsHandler;
+
+        private Transform _lastShownMissionHelp;
+        private Dictionary<string, Sprite> _loadedSprites = new Dictionary<string, Sprite>();
 
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController,
@@ -658,6 +664,106 @@ namespace CustomCampaigns.Managers
             _levelBarBackground.fillMethod = Image.FillMethod.Horizontal;
             _levelBarBackground.fillAmount = 0;
         }
+        #endregion
+
+        #region Affinity Patches
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MissionHelpViewController), "Setup")]
+        private void MissionHelpViewControllerSetupPostfix(MissionHelpSO missionHelp, MissionHelpViewController __instance)
+        {
+            CustomMissionHelpSO customMissionHelp = missionHelp as CustomMissionHelpSO;
+            if (customMissionHelp != null)
+            {
+                Transform content = __instance.transform.GetChild(0);
+                InitializeMissionHelpContent(content, missionHelp as CustomMissionHelpSO);
+            }
+
+            else
+            {
+                __instance.transform.GetChild(0).GetComponentInChildren<CurvedTextMeshPro>().text = "NEW OBJECTIVE";
+            }
+        }
+
+        private void InitializeMissionHelpContent(Transform content, CustomMissionHelpSO missionHelp)
+        {
+            MissionInfo missionInfo = missionHelp.missionInfo;
+
+            CurvedTextMeshPro title = content.GetChild(0).GetChild(1).GetComponent<CurvedTextMeshPro>();
+
+            GameObject.Destroy(title.GetComponent<LocalizedTextMeshProUGUI>());
+            title.text = missionInfo.title;
+            title.richText = true;
+            Transform infoContainer = GameObject.Instantiate(content.GetChild(1), content);
+            infoContainer.SetSiblingIndex(content.childCount - 2);
+            infoContainer.gameObject.SetActive(true);
+            if (_lastShownMissionHelp != null)
+            {
+                GameObject.Destroy(_lastShownMissionHelp.gameObject);
+            }
+            _lastShownMissionHelp = infoContainer;
+
+            foreach (Transform child in infoContainer)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+
+            InitializeInfoSegments(content, infoContainer, missionHelp);
+        }
+
+        private void InitializeInfoSegments(Transform content, Transform infoContainer, CustomMissionHelpSO missionHelp)
+        {
+            Transform seperatorPrefab = content.GetChild(6).GetChild(1);
+            Transform segmentPrefab = content.GetChild(1).GetChild(1);
+
+            MissionInfo missionInfo = missionHelp.missionInfo;
+            string imagePath = missionHelp.imagePath;
+
+            foreach (InfoSegment infoSegment in missionInfo.segments)
+            {
+                Transform segment = GameObject.Instantiate(segmentPrefab, infoContainer);
+                GameObject.Destroy(segment.GetComponentInChildren<LocalizedTextMeshProUGUI>());
+
+                if (infoSegment.text == "")
+                {
+                    GameObject.Destroy(segment.GetComponentInChildren<CurvedTextMeshPro>().gameObject);
+                }
+                else
+                {
+                    segment.GetComponentInChildren<CurvedTextMeshPro>().text = infoSegment.text;
+                }
+
+                ImageView imageView = segment.GetComponentInChildren<ImageView>();
+                if (infoSegment.imageName == "")
+                {
+                    GameObject.Destroy(imageView.gameObject);
+                }
+                else
+                {
+                    string spritePath = imagePath + infoSegment.imageName;
+                    Plugin.logger.Debug(spritePath);
+                    SetupImage(imageView, spritePath);
+                }
+
+                if (infoSegment.hasSeparator)
+                {
+                    GameObject.Instantiate(seperatorPrefab, infoContainer);
+                }
+            }
+        }
+
+        private void SetupImage(ImageView imageView, string spritePath)
+        {
+            imageView.sprite = null;
+            imageView.gradient = false;
+
+            if (!_loadedSprites.ContainsKey(spritePath))
+            {
+                _loadedSprites[spritePath] = SpriteUtils.LoadSpriteFromFile(spritePath);
+            }
+
+            imageView.sprite = _loadedSprites[spritePath];
+        }
+
         #endregion
     }
 }

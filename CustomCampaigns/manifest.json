@@ -11,7 +11,7 @@
     "BeatSaberMarkupLanguage": "^1.5.3",
     "CustomCampaignLeaderboardLibrary": "^2.0.0",
     "BSIPA": "^4.2.0",
-    "SiraUtil": "^2.4.0"
+    "SiraUtil": "^3.0.0-rc1"
   },
   "features": {
     "IPA.DefineFeature": {

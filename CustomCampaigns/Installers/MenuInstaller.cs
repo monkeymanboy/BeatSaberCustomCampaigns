@@ -11,8 +11,18 @@ namespace CustomCampaigns.Installers
 {
     internal class MenuInstaller : Installer
     {
+        private readonly Config _config;
+
+        public MenuInstaller(Config config)
+        {
+            _config = config;
+        }
+
+
         public override void InstallBindings()
         {
+            Container.BindInstance(_config).AsSingle();
+
             Container.Bind<UserInfoManager>().AsSingle().NonLazy();
             Container.BindInterfacesTo<MenuButtonManager>().AsSingle();
             Container.BindInterfacesTo<AssetsManager>().AsSingle().NonLazy();
@@ -30,8 +40,11 @@ namespace CustomCampaigns.Installers
 
             Container.BindInterfacesAndSelfTo<CustomCampaignUIManager>().AsSingle();
             Container.Bind<Downloader>().AsSingle();
-            Container.Bind<CustomCampaignManager>().AsSingle();
-            Container.Bind<CustomCampaignFlowCoordinator>().FromNewComponentOnNewGameObject(nameof(CustomCampaignFlowCoordinator)).AsSingle();
+            Container.BindInterfacesAndSelfTo<CustomCampaignManager>().AsSingle();
+
+            GameObjectCreationParameters gameObjectCreationParameters = new GameObjectCreationParameters();
+            gameObjectCreationParameters.Name = nameof(CustomCampaignFlowCoordinator);
+            Container.Bind<CustomCampaignFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             InstallExternalLoaders();
         }

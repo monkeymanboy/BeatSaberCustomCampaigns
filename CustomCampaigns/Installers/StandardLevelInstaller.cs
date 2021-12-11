@@ -8,7 +8,7 @@ using CustomCampaigns.CustomMissionObjectives.Spins;
 using CustomCampaigns.CustomMissionObjectives.WallHeadbutts;
 using CustomCampaigns.Managers;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
-using SiraUtil;
+using Zenject;
 
 namespace CustomCampaigns.Installers
 {
