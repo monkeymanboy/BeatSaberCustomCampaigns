@@ -12,7 +12,7 @@ using Zenject;
 namespace CustomCampaigns.UI.ViewControllers
 {
     [HotReload(RelativePathToLayout = @"..\Views\leaderboard-navigation.bsml")]
-    [ViewDefinition("CustomCampaigns.UI.Views.leaderboard.bsml")]
+    [ViewDefinition("CustomCampaigns.UI.Views.leaderboard-navigation.bsml")]
     public class LeaderboardNavigationViewController : BSMLAutomaticViewController, IInitializable, IDisposable
     {
         private Config _config;
@@ -237,16 +237,5 @@ namespace CustomCampaigns.UI.ViewControllers
                 _campaignMissionSecondaryLeaderboardViewController.UpdateLeaderboards();
             }
         }
-
-        //internal void FloorLeaderboardEnabled()
-        //{
-        //    CustomCampaignDisabled();
-        //}
-
-        //internal void FloorLeaderboardDisabled()
-        //{
-
-        //    CustomCampaignEnabled();
-        //}
     }
 }
