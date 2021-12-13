@@ -10,29 +10,12 @@ namespace CustomCampaigns.CustomMissionObjectives
     {
         private MissionObjectiveCheckersManager _missionObjectiveCheckersManager;
         private List<MissionObjective> _missionObjectives = new List<MissionObjective>();
-        private List<MissionObjectiveChecker> _missionObjectiveCheckers = new List<MissionObjectiveChecker>();
+        private List<ICustomMissionObjectiveChecker> _missionObjectiveCheckers;
         private List<MissionObjectiveChecker> _activeMissionObjectiveCheckers = new List<MissionObjectiveChecker>();
 
         private bool objectiveListInitialized = false;
 
-        public void Register(MissionObjectiveChecker missionObjectiveChecker)
-        {
-            Plugin.logger.Debug($"Registering: {missionObjectiveChecker.name}");
-            lock (_activeMissionObjectiveCheckers)
-            {
-                // Don't register our custom mission objective checkers until the base game has dealt with its objective checkers
-                if (!objectiveListInitialized)
-                {
-                    Plugin.logger.Debug("Base game mission objective checkers manager hasn't initialized yet; waiting to initialize");
-                    _missionObjectiveCheckers.Add(missionObjectiveChecker);
-                    return;
-                }
-
-                CheckMissionObjectiveChecker(missionObjectiveChecker, true);
-            }
-        }
-
-        public CustomMissionObjectivesManager(MissionLevelGameplayManager missionLevelGameplayManager)
+        public CustomMissionObjectivesManager(MissionLevelGameplayManager missionLevelGameplayManager, List<ICustomMissionObjectiveChecker> customMissionObjectiveCheckers)
         {
             Plugin.logger.Debug("custom mission objectives manager");
 
@@ -40,6 +23,7 @@ namespace CustomCampaigns.CustomMissionObjectives
 
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent -= OnObjectivesListDidChange;
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent += OnObjectivesListDidChange;
+            _missionObjectiveCheckers = customMissionObjectiveCheckers;
         }
 
         private void OnObjectivesListDidChange()
@@ -58,7 +42,7 @@ namespace CustomCampaigns.CustomMissionObjectives
                 // TODO: fix inefficiency? Should never be enough checkers to make a difference...
                 foreach (var missionObjectiveChecker in _missionObjectiveCheckers)
                 {
-                    CheckMissionObjectiveChecker(missionObjectiveChecker, false);
+                    CheckMissionObjectiveChecker(missionObjectiveChecker as MissionObjectiveChecker, false);
                 }
 
                 _missionObjectiveCheckers.Clear();
@@ -102,6 +86,12 @@ namespace CustomCampaigns.CustomMissionObjectives
 
         private void CheckMissionObjectiveChecker(MissionObjectiveChecker missionObjectiveChecker, bool invokeListChangeEvent)
         {
+            if (missionObjectiveChecker == null)
+            {
+                Plugin.logger.Error("Given checker was not a valid MissionObjectiveChecker");
+                return;
+            }
+
             foreach (MissionObjective missionObjective in _missionObjectives)
             {
                 var customObjectiveChecker = missionObjectiveChecker as ICustomMissionObjectiveChecker;

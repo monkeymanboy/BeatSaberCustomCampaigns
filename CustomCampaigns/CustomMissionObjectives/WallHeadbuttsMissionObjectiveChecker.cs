@@ -1,15 +1,15 @@
 ﻿using CustomCampaigns.Campaign.Missions;
-using System;
-using UnityEngine;
+using System.Collections.Generic;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives.HeadTimeInWall
+namespace CustomCampaigns.CustomMissionObjectives
 {
-    public class HeadTimeInWallMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker
+    public class WallHeadbuttsMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker
     {
         private PlayerHeadAndObstacleInteraction _playerHeadAndObstacleInteraction;
         private PauseMenuManager _pauseMenuManager;
-        private float timeInWall = 0;
+
+        private HashSet<ObstacleData> headbuttedWalls = new HashSet<ObstacleData>();
 
         [Inject]
         public void Construct(PlayerHeadAndObstacleInteraction playerHeadAndObstacleInteraction, PauseMenuManager pauseMenuManager)
@@ -20,8 +20,6 @@ namespace CustomCampaigns.CustomMissionObjectives.HeadTimeInWall
 
         protected override void Init()
         {
-            Plugin.logger.Debug("init head time in wall");
-
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min || _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Equal)
             {
                 status = Status.NotClearedYet;
@@ -32,24 +30,26 @@ namespace CustomCampaigns.CustomMissionObjectives.HeadTimeInWall
             }
         }
 
-        public void LateUpdate()
+        public void Update()
         {
             if (_playerHeadAndObstacleInteraction == null || _pauseMenuManager.enabled)
             {
                 return;
             }
 
-            if (_playerHeadAndObstacleInteraction.intersectingObstacles.Count > 0)
+            foreach (ObstacleController obstacleController in _playerHeadAndObstacleInteraction.intersectingObstacles)
             {
-                timeInWall += Time.deltaTime;
-                checkedValue = (int) Math.Round(timeInWall * 1000);
-                CheckAndUpdateStatus();
+                if (headbuttedWalls.Add(obstacleController.obstacleData))
+                {
+                    checkedValue++;
+                    CheckAndUpdateStatus();
+                }
             }
         }
 
         public string GetMissionObjectiveType()
         {
-            return MissionRequirement.GetObjectiveName("headInWall");
+            return MissionRequirement.GetObjectiveName("wallHeadbutts");
         }
     }
 }

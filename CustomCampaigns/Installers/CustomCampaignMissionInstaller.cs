@@ -1,4 +1,5 @@
 ﻿using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.CustomMissionObjectives;
 using CustomCampaigns.External;
 using CustomCampaigns.Managers;
 using SiraUtil;
@@ -7,7 +8,7 @@ using Zenject;
 
 namespace CustomCampaigns.Installers
 {
-    internal abstract class ExternalModifierInstaller : Installer
+    internal abstract class CustomCampaignMissionInstaller : Installer
     {
         protected void InstallExternalModifiers()
         {
@@ -40,6 +41,18 @@ namespace CustomCampaigns.Installers
             {
                 Container.BindInterfacesAndSelfTo(externalModifier.ModifierType).AsSingle().NonLazy();
             }
+        }
+
+        protected void InstallObjectiveCheckers()
+        {
+            Container.BindInterfacesAndSelfTo<AccuracyMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<BombsHitMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<HeadTimeInWallMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<MaintainAccuracyMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<PerfectCutsMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<SaberTimeInWallMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<SpinsMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<WallHeadbuttsMissionObjectiveChecker>().FromNewComponentOnNewGameObject().AsSingle().NonLazy();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CustomCampaigns.Campaign.Missions;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives.BombsHit
+namespace CustomCampaigns.CustomMissionObjectives
 {
     public class BombsHitMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker
     {

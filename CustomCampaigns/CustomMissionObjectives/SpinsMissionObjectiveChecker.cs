@@ -3,7 +3,7 @@ using IPA.Utilities;
 using UnityEngine;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives.Spins
+namespace CustomCampaigns.CustomMissionObjectives
 {
     public class SpinsMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker
     {

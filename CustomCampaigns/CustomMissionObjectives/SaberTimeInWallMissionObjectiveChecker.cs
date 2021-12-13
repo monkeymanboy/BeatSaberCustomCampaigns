@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives.SaberTimeInWall
+namespace CustomCampaigns.CustomMissionObjectives
 {
     public class SaberTimeInWallMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker
     {

@@ -2,7 +2,7 @@
 using System;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives.MaintainAccuracy
+namespace CustomCampaigns.CustomMissionObjectives
 {
     public class MaintainAccuracyMissionObjectiveChecker : MissionObjectiveChecker, ICustomMissionObjectiveChecker
     {

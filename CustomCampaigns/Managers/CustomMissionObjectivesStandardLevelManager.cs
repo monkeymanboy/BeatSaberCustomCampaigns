@@ -18,20 +18,17 @@ namespace CustomCampaigns.Managers
         private CustomMissionObjectivesUIController _customMissionObjectivesUIController;
 
         private List<MissionObjective> _missionObjectives = new List<MissionObjective>();
+        private List<ICustomMissionObjectiveChecker> _customMissionObjectiveCheckers;
         private List<MissionObjectiveChecker> _activeMissionObjectiveCheckers = new List<MissionObjectiveChecker>();
 
         private List<IMissionModifier> _missionModifiers;
 
-        internal void Register(MissionObjectiveChecker missionObjectiveChecker)
+        public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, List<ICustomMissionObjectiveChecker> customMissionObjectiveCheckers,
+                                                           ILevelEndActions gameplayManager, BeatmapObjectManager beatmapObjectManager, IScoreController scoreController,
+                                                           SaberActivityCounter saberActivityCounter, List<IMissionModifier> missionModifiers)
         {
-            Plugin.logger.Debug($"Registering: {missionObjectiveChecker}");
-            CheckMissionObjectiveChecker(missionObjectiveChecker);
-        }
+            _customMissionObjectiveCheckers = customMissionObjectiveCheckers;
 
-        public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, ILevelEndActions gameplayManager,
-                                                            BeatmapObjectManager beatmapObjectManager, IScoreController scoreController, SaberActivityCounter saberActivityCounter,
-                                                            List<IMissionModifier> missionModifiers)
-        {
             _beatmapObjectManager = beatmapObjectManager;
             _scoreController = scoreController;
             _saberActivityCounter = saberActivityCounter;
@@ -50,6 +47,11 @@ namespace CustomCampaigns.Managers
         {
             HashSet<MissionObjective> missionObjectivesToRemove = new HashSet<MissionObjective>();
 
+            foreach (var customMissionObjectiveChecker in _customMissionObjectiveCheckers)
+            {
+                CheckMissionObjectiveChecker(customMissionObjectiveChecker as MissionObjectiveChecker);
+            }
+
             foreach (var missionObjective in _missionObjectives)
             {
                 MissionObjectiveChecker missionObjectiveChecker = GetBaseGameCheckerForObjective(missionObjective);
@@ -61,13 +63,12 @@ namespace CustomCampaigns.Managers
                     missionObjectivesToRemove.Add(missionObjective);
 
                     missionObjectiveChecker.statusDidChangeEvent += HandleMissionObjectiveCheckerStatusDidChange;
-
-                    // setup ui
-                    if (CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
-                    {
-                        _customMissionObjectivesUIController.AddUIElement(missionObjectiveChecker);
-                    }
                 }
+            }
+
+            if (CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
+            {
+                _customMissionObjectivesUIController.CreateUIElements(_activeMissionObjectiveCheckers);
             }
 
             foreach (var missionObjective in missionObjectivesToRemove)
@@ -169,6 +170,12 @@ namespace CustomCampaigns.Managers
 
         private void CheckMissionObjectiveChecker(MissionObjectiveChecker missionObjectiveChecker)
         {
+            if (missionObjectiveChecker == null)
+            {
+                Plugin.logger.Error("Given checker was not a valid MissionObjectiveChecker");
+                return;
+            }
+
             foreach (MissionObjective missionObjective in _missionObjectives)
             {
                 var customObjectiveChecker = missionObjectiveChecker as ICustomMissionObjectiveChecker;
@@ -182,12 +189,6 @@ namespace CustomCampaigns.Managers
                     _missionObjectives.Remove(missionObjective);
 
                     missionObjectiveChecker.statusDidChangeEvent += HandleMissionObjectiveCheckerStatusDidChange;
-
-                    // setup ui
-                    if (CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
-                    {
-                        _customMissionObjectivesUIController.AddUIElement(missionObjectiveChecker);
-                    }
                     return;
                 }
             }

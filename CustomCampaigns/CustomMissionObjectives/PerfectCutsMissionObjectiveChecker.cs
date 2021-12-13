@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Zenject;
 
-namespace CustomCampaigns.CustomMissionObjectives.PerfectCuts
+namespace CustomCampaigns.CustomMissionObjectives
 {
     public class PerfectCutsMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker, ISaberSwingRatingCounterDidFinishReceiver
     {
