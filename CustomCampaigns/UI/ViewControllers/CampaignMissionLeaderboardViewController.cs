@@ -112,30 +112,40 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private ScoreData GetScoreData(OtherData score, int maxScore, int rank)
         {
-            Double acc = Math.Round((double) score.score / (double) maxScore * 100, 2);
-
             var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(score.id, score.name);
-            name = $"{name} - <size=75%> (<color=#FFD42A>{acc}%</color>)</size>";
+            if (maxScore > 0)
+            {
+                Double acc = Math.Round((double) score.score / (double) maxScore * 100, 2);
+                name = $"{name} - <size=75%> (<color=#FFD42A>{acc}%</color>)</size>";
+            }
 
             return new ScoreData(score.score, name, rank, false);
         }
 
         private ScoreData GetScoreData(YourData yourData, int maxScore)
         {
-            Double acc = Math.Round((double) yourData.score / (double) maxScore * 100, 2);
-
             var id = UserInfoManager.UserInfo.platformUserId;
             var username = UserInfoManager.UserInfo.userName;
 
             var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(id, username);
-            name = $"{name} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size>";
+            
+            if (maxScore > 0)
+            {
+                Double acc = Math.Round((double) yourData.score / (double) maxScore * 100, 2);
+                name = $"{name} - <size=75%>(<color=#FFD42A>{acc}%</color>)</size>";
+            }
 
             return new ScoreData(yourData.score, name, yourData.position, false);
         }
 
         private int GetMaxScore()
         {
-            var levelId = mission.FindSong().levelID;
+            var level = mission.FindSong();
+            if (level == null)
+            {
+                return 0;
+            }
+            var levelId = level.levelID;
             var beatmapLevel = Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(levelId);
             if (beatmapLevel == null)
             {
