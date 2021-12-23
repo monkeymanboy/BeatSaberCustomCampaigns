@@ -4,7 +4,6 @@ using HarmonyLib;
 using IPA;
 using IPA.Config.Stores;
 using IPA.Loader;
-using SiraUtil;
 using SiraUtil.Zenject;
 using System;
 using System.Linq;
@@ -51,7 +50,7 @@ namespace CustomCampaigns
         [OnDisable]
         public void OnDisable()
         {
-            _harmony.UnpatchAll(_harmonyID);
+            _harmony.UnpatchSelf();
         }
 
         private void PatchScoreSaber()

@@ -5,13 +5,13 @@
   "author": "",
   "version": "3.0.0-beta.1",
   "description": "",
-  "gameVersion": "1.18.3",
+  "gameVersion": "1.19.0",
   "dependsOn": {
-    "SongCore": "^3.4.1",
-    "BeatSaberMarkupLanguage": "^1.5.3",
+    "SongCore": "^3.9.0",
+    "BeatSaberMarkupLanguage": "^1.6.0",
     "CustomCampaignLeaderboardLibrary": "^2.0.0",
-    "BSIPA": "^4.2.0",
-    "SiraUtil": "^3.0.0-rc1"
+    "BSIPA": "^4.2.1",
+    "SiraUtil": "^3.0.0"
   },
   "features": {
     "IPA.DefineFeature": {
