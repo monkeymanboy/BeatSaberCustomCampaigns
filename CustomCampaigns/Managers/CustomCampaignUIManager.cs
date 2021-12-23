@@ -8,7 +8,10 @@ using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.GameplaySetupUI;
 using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
+using HarmonyLib;
+using HarmonyLib.Tools;
 using HMUI;
+using IPA.Loader;
 using IPA.Utilities;
 using Polyglot;
 using SiraUtil.Affinity;
@@ -17,6 +20,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -83,6 +87,12 @@ namespace CustomCampaigns.Managers
         private Color _mediumProgressColor;
         private Color _highProgressColor;
 
+        private LevelParamsPanel _levelParamsPanelBase;
+        private LevelParamsPanel _levelParamsPanel;
+
+        private HoverHintController _hoverHintController;
+
+        private Vector2 _objectivesSizeDelta;
 
         private Config _config;
 
@@ -93,10 +103,10 @@ namespace CustomCampaigns.Managers
         private Dictionary<string, Sprite> _loadedSprites = new Dictionary<string, Sprite>();
 
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
-                                        MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController,
+                                        MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController, StandardLevelDetailViewController standardLevelDetailViewController,
                                         CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
                                         PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
-                                        Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler)
+                                        Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler, HoverHintController hoverHintController)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
             _missionSelectionMapViewController = missionSelectionMapViewController;
@@ -121,6 +131,11 @@ namespace CustomCampaigns.Managers
             _modifiersPanelGO = _missionLevelDetailViewController.GetField<GameObject, MissionLevelDetailViewController>("_modifiersPanelGO");
 
             _gameplayModifiersModel = _missionLevelDetailViewController.GetField<GameplayModifiersModelSO, MissionLevelDetailViewController>("_gameplayModifiersModel");
+
+            var standardLevelDetailView = standardLevelDetailViewController.GetField<StandardLevelDetailView, StandardLevelDetailViewController>("_standardLevelDetailView");
+            _levelParamsPanelBase = standardLevelDetailView.GetField<LevelParamsPanel, StandardLevelDetailView>("_levelParamsPanel");
+
+            _hoverHintController = hoverHintController;
 
             _campaignMissionLeaderboardViewController = campaignMissionLeaderboardViewController;
             _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
@@ -175,6 +190,8 @@ namespace CustomCampaigns.Managers
 
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             PanelViewShowPatch.ViewShown += OnViewActivated;
+            
+            InitializeLevelParamsPanel();
         }
 
         internal void SetupCampaignUI(Campaign.Campaign campaign)
@@ -387,14 +404,52 @@ namespace CustomCampaigns.Managers
             AddCustomTab();
             gameplaySetupViewController.RefreshContent();
         }
+
+        private void InitializeLevelParamsPanel()
+        {
+            if (_levelParamsPanel != null)
+            {
+                Plugin.logger.Debug("level params panel not null");
+                return;
+            }
+
+            Plugin.logger.Debug("initializing level params panel");
+            _levelParamsPanel = GameObject.Instantiate(_levelParamsPanelBase, _missionLevelDetailViewController.transform.GetChild(0));
+            _levelParamsPanel.transform.SetSiblingIndex(1);
+
+            foreach (var hoverHint in _levelParamsPanel.GetComponentsInChildren<HoverHint>())
+            {
+                hoverHint.SetField("_hoverHintController", _hoverHintController);
+            }
+            foreach (var localizedHoverHint in _levelParamsPanel.GetComponentsInChildren<LocalizedHoverHint>())
+            {
+                GameObject.Destroy(localizedHoverHint);
+            }
+
+            var obstacles = _levelParamsPanel.transform.GetChild(2);
+            var bombs = _levelParamsPanel.transform.GetChild(3);
+
+            obstacles.Find("Icon").GetComponent<ImageView>().SetImage("#ClockIcon");
+            bombs.Find("Icon").GetComponent<ImageView>().SetImage("#FastNotesIcon");
+            bombs.GetComponent<HoverHint>().text = "Note Jump Speed";
+            obstacles.GetComponent<HoverHint>().text = "Song Length";
+
+            var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
+            _objectivesSizeDelta = (objectives.transform as RectTransform).sizeDelta;
+        }
         #endregion
 
-        #region Leaderboard UI
+        #region Mission-Specific UI
         public void MissionLevelSelected(Mission mission)
         {
             var missionData = mission.GetMissionData(null); // campaign doesn't matter here
 
+            UpdateLevelParamsPanel();
             UpdateLeaderboards(true);
+
+            var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
+            _levelParamsPanel.transform.localPosition = new Vector3(objectives.localPosition.x, _levelParamsPanel.transform.localPosition.y, _levelParamsPanel.transform.localPosition.z);
+            _levelParamsPanel.transform.position = new Vector3(0.25f, _levelParamsPanel.transform.position.y, _levelParamsPanel.transform.position.z);
         }
 
         public void UpdateLeaderboards(bool fullRefresh)
@@ -454,6 +509,53 @@ namespace CustomCampaigns.Managers
             }
         }
 
+        private void UpdateLevelParamsPanel()
+        {
+            CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
+            Mission mission = missionData.mission;
+            CustomPreviewBeatmapLevel level = missionData.customLevel;
+
+            if (level == null)
+            {
+                SetLevelParamsTextNotAvailable();
+            }
+            else
+            {
+                IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
+                if (difficultyBeatmap == null)
+                {
+                    Plugin.logger.Debug("couldn't find matching difficultybeatmap");
+                    SetLevelParamsTextNotAvailable();
+                    return;
+                }
+
+                var audioClip = SongCore.Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(level.levelID).beatmapLevelData.audioClip;
+                _levelParamsPanel.notesPerSecond = difficultyBeatmap.beatmapData.cuttableNotesCount / audioClip.length;
+                _levelParamsPanel.notesCount = difficultyBeatmap.beatmapData.cuttableNotesCount;
+                //_levelParamsPanel.obstaclesCount = difficultyBeatmap.beatmapData.obstaclesCount;
+                SetTime(audioClip);
+                SetNJS(difficultyBeatmap.noteJumpMovementSpeed);
+            }
+        }
+
+        private void SetTime(AudioClip audioClip)
+        {
+            TimeSpan timeSpan = TimeSpan.FromSeconds(audioClip.length);
+            _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_obstaclesCountText").text = timeSpan.ToString(@"mm\:ss");
+        }
+
+        private void SetNJS(float njs)
+        {
+            _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_bombsCountText").text = njs.ToString("F1");
+        }
+
+        private void SetLevelParamsTextNotAvailable()
+        {
+            _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_notesPerSecondText").text = "N/A";
+            _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_notesCountText").text = "N/A";
+            _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_obstaclesCountText").text = "N/A";
+            _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_bombsCountText").text = "N/A";
+        }
         #endregion
 
         public void SetPlayButtonText(string text)
@@ -501,6 +603,12 @@ namespace CustomCampaigns.Managers
             _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _baseMapHeight);
 
             UnYeetBaseGameNodes();
+
+            if (_levelParamsPanel != null)
+            {
+                Plugin.logger.Debug("destroying level params panel");
+                GameObject.Destroy(_levelParamsPanel.gameObject);
+            }
 
             InitializeCampaignUI();
             PanelViewShowPatch.ViewShown -= OnViewActivated;
@@ -591,6 +699,28 @@ namespace CustomCampaigns.Managers
                 GameplayModifierParamsSO gameplayModifierParamsSO = _modifierParams[index];
                 gameplayModifierInfoListItem.SetModifier(gameplayModifierParamsSO, true);
             });
+
+            if (_modifierParams.Count > 0)
+            {
+                var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
+
+                Vector2 sd = _objectivesSizeDelta;
+                Plugin.logger.Debug($"objectives size: {_objectivesSizeDelta}");
+                
+                sd.x /= 2;
+                Plugin.logger.Debug($"sd size: {sd}");
+                (objectives.transform as RectTransform).SetProperty("sizeDelta", sd);
+                var modifiers = _missionLevelDetailViewController.transform.GetChild(0).GetChild(3);
+                (modifiers.transform as RectTransform).SetProperty("sizeDelta", sd);
+                modifiers.transform.position = objectives.transform.position;
+                modifiers.transform.localPosition = new Vector3(sd.x / 2, -1.5f, objectives.transform.localPosition.z);
+
+                objectives.transform.localPosition = new Vector3(-(sd.x / 2), objectives.transform.localPosition.y, objectives.transform.localPosition.z);
+            }
+            else
+            {
+            }
+            
         }
 
         public void LoadErrors(List<GameplayModifierParamsSO> modifierParams)
@@ -764,6 +894,61 @@ namespace CustomCampaigns.Managers
             imageView.sprite = _loadedSprites[spritePath];
         }
 
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MissionLevelDetailViewController), "RefreshContent")]
+        private void MissionLevelDetailViewControllerRefreshContentPostfix()
+        {
+            Plugin.logger.Debug("view controller refresh postfix");
+            
+        }
+
+        // TODO: Replace w/ transpiler
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
+        private bool MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelPrefix(MissionSelectionNavigationController __instance, MissionNode _missionNode, MissionLevelDetailViewController ____missionLevelDetailViewController)
+        {
+            if (_levelParamsPanel == null)
+            {
+                return true;
+            }
+
+            ____missionLevelDetailViewController.Setup(_missionNode);
+            if (!____missionLevelDetailViewController.isInViewControllerHierarchy)
+            {
+                __instance.PushViewController(this._missionLevelDetailViewController, ChangePosition, false);
+            }
+            return false;
+        }
+
+        //[AffinityTranspiler]
+        //[AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
+        //private static IEnumerable<CodeInstruction> MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelTranspiler(IEnumerable<CodeInstruction> instructions)
+        //{
+        //    List<CodeInstruction> newInstructions = new List<CodeInstruction>(instructions.Count() + 2);
+        //    foreach (var instruction in instructions)
+        //    {
+        //        if (instruction.opcode == OpCodes.Ldnull)
+        //        {
+        //            newInstructions.Add(new CodeInstruction(OpCodes.Ldarg_0));
+        //            var method = AccessTools.Method(typeof(CustomCampaignUIManager), "ChangePosition");
+        //            newInstructions.Add(new CodeInstruction(OpCodes.Ldftn, method));
+        //            var ctor = AccessTools.Constructor(typeof(System.Action), new Type[0]);
+        //            newInstructions.Add(new CodeInstruction(OpCodes.Newobj, ctor));
+        //        }
+        //        else
+        //        {
+        //            newInstructions.Add(instruction);
+        //        }
+        //    }
+        //    return newInstructions;
+        //}
+
+        private void ChangePosition()
+        {
+            var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
+            _levelParamsPanel.transform.localPosition = new Vector3(objectives.transform.localPosition.x, _levelParamsPanel.transform.localPosition.y, _levelParamsPanel.transform.localPosition.z);
+            _levelParamsPanel.transform.position = new Vector3(0.25f, _levelParamsPanel.transform.position.y, _levelParamsPanel.transform.position.z);
+        }
         #endregion
     }
 }
