@@ -46,12 +46,17 @@ namespace CustomCampaigns.Managers
                 _tabSelector.Refresh();
             }
 
-            _settingsTab.transform.parent.gameObject.SetActive(false);
+            _gameplaySetupViewController.didDeactivateEvent -= OnGameplaySetupDeactivated;
+            _gameplaySetupViewController.didDeactivateEvent += OnGameplaySetupDeactivated;
+
+            _mainTab.gameObject.SetActive(false);
             _mainTab.IsVisible = true;
         }
 
         public void CampaignExit()
         {
+            _gameplaySetupViewController.didDeactivateEvent -= OnGameplaySetupDeactivated;
+
             if (_mainTab != null)
             {
                 _mainTab.IsVisible = false;
@@ -61,6 +66,14 @@ namespace CustomCampaigns.Managers
                     Plugin.logger.Debug("reselected index");
                     _tabSelector.InvokeMethod<object, TabSelector>("TabSelected", null, 0);
                 }
+            }
+        }
+
+        public void OnGameplaySetupDeactivated(bool addedToHierarchy, bool screenSystemEnabling)
+        {
+            if (_mainTab != null)
+            {
+                _mainTab.gameObject.SetActive(false);
             }
         }
     }
