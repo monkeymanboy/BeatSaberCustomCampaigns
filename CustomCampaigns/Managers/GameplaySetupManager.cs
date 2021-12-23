@@ -13,6 +13,9 @@ namespace CustomCampaigns.Managers
         [UIComponent("settings-tab")]
         private Tab _settingsTab;
 
+        [UIComponent("tools-tab")]
+        private Tab _toolsTab;
+
         [UIComponent("cc-tab")]
         private Tab _mainTab;
 
@@ -21,11 +24,13 @@ namespace CustomCampaigns.Managers
 
         private GameplaySetupViewController _gameplaySetupViewController;
         private SettingsHandler _settingsHandler;
+        private ToolsHandler _toolsHandler;
 
-        public GameplaySetupManager(GameplaySetupViewController gameplaySetupViewController, SettingsHandler settingsHandler)
+        public GameplaySetupManager(GameplaySetupViewController gameplaySetupViewController, SettingsHandler settingsHandler, ToolsHandler toolsHandler)
         {
             _gameplaySetupViewController = gameplaySetupViewController;
             _settingsHandler = settingsHandler;
+            _toolsHandler = toolsHandler;
         }
 
         public void Setup()
@@ -38,6 +43,8 @@ namespace CustomCampaigns.Managers
                 BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.gameplay-setup-settings.bsml"), _gameplaySetupViewController.transform.Find("BSMLBackground").gameObject, this);
                 Plugin.logger.Debug("parsing settings");
                 BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.settings.bsml"), _settingsTab.gameObject, _settingsHandler);
+                Plugin.logger.Debug("parsing tools");
+                BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.tools.bsml"), _toolsTab.gameObject, _toolsHandler);
 
                 _tabSelector = _gameplaySetupViewController.transform.Find("BSMLBackground/BSMLTabSelector").GetComponent<TabSelector>();
                 _tabIndex = _tabSelector.GetField<List<Tab>, TabSelector>("tabs").Count;

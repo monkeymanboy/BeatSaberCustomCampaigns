@@ -36,6 +36,7 @@ namespace CustomCampaigns.Installers
             Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
 
             Container.Bind<SettingsHandler>().AsSingle();
+            Container.Bind<ToolsHandler>().AsSingle();
             Container.Bind<GameplaySetupManager>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<CustomCampaignUIManager>().AsSingle();
