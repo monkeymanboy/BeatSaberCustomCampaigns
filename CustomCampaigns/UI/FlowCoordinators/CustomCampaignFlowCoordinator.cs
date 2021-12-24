@@ -9,7 +9,7 @@ namespace CustomCampaigns.UI.FlowCoordinators
 {
     public class CustomCampaignFlowCoordinator : FlowCoordinator
     {
-        public static CustomCampaignManager CustomCampaignManager;
+        public static CustomCampaignManager CustomCampaignManager; // TODO: Remove this
 
         private CampaignFlowCoordinator _campaignFlowCoordinator;
 

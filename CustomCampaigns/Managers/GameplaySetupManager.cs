@@ -33,7 +33,7 @@ namespace CustomCampaigns.Managers
             _toolsHandler = toolsHandler;
         }
 
-        public void Setup()
+        public void Setup(Campaign.Campaign campaign)
         {
             Plugin.logger.Debug("setup");
 
@@ -58,6 +58,8 @@ namespace CustomCampaigns.Managers
 
             _mainTab.gameObject.SetActive(false);
             _mainTab.IsVisible = true;
+
+            _toolsHandler.SetCampaign(campaign);
         }
 
         public void CampaignExit()

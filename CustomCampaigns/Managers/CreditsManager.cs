@@ -1,11 +1,14 @@
 ﻿using HMUI;
+using IPA.Utilities;
 using Newtonsoft.Json;
 using SiraUtil.Affinity;
+using SongCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -22,12 +25,8 @@ namespace CustomCampaigns.Managers
 
         private List<Transform> _credits = new List<Transform>(0);
 
-        public void OnCreditsFinish(CreditsScenesTransitionSetupDataSO creditsScenesTransitionSetupDataSO)
-        {
-            Plugin.logger.Debug("credits finished");
-            _isCampaignCredits = false;
-            creditsScenesTransitionSetupDataSO.didFinishEvent -= OnCreditsFinish;
-        }
+        private Action<string> AudioLoaded;
+        private CreditsController _creditsController;
 
         [AffinityPrefix]
         [AffinityPatch(typeof(CreditsController), "Start")]
@@ -37,13 +36,14 @@ namespace CustomCampaigns.Managers
             {
                 return;
             }
-            Plugin.logger.Debug("start");
+            _creditsController = __instance;
 
             Transform title = __instance.gameObject.transform.GetChild(0).GetChild(0);
             Transform wrapper = __instance.gameObject.transform.GetChild(0).GetChild(1);
             
             CreateNewCredits(wrapper, title);
             HideOriginalCredits(wrapper);
+            _isCampaignCredits = false;
         }
 
         internal void StartingCustomCampaignCredits(Campaign.Campaign campaign)
@@ -57,7 +57,8 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("hiding original credis");
             for (int i = _credits.Count; i < wrapper.childCount; i++)
             {
-                wrapper.GetChild(i).gameObject.SetActive(false);
+                //wrapper.GetChild(i).gameObject.SetActive(false);
+                GameObject.Destroy(wrapper.GetChild(i).gameObject);
             }
         }
 
@@ -69,45 +70,109 @@ namespace CustomCampaigns.Managers
                 return;
             }
 
+            PlayNewAudio(credits);
+
             title.GetComponent<CurvedTextMeshPro>().text = credits.name;
             title.GetComponent<CurvedTextMeshPro>().richText = true;
 
             Plugin.logger.Debug("creating new credits");
             var creditsTextItem = wrapper.Find("CreditsTextItem");
             var creditsHeaderItem = wrapper.Find("CreditsHeaderItem");
-            //var creditsTitleItem = wrapper.Find("CreditsTitleItem");
+            var creditsTitleItem = wrapper.Find("CreditsTitleItem");
             _credits = new List<Transform>(wrapper.childCount);
-            Plugin.logger.Debug("hmm");
 
-            var position = wrapper.GetChild(0).localPosition - new Vector3(0, SPACE_BETWEEN_TEXTS);
+            // only separate the first header by the text offset
+            var position = wrapper.GetChild(0).localPosition + new Vector3(0, SPACE_BETWEEN_HEADERS - SPACE_BETWEEN_TEXTS);
             foreach (var section in credits.credits)
             {
-                var header = GameObject.Instantiate(creditsHeaderItem, wrapper);
-                header.localPosition = position;
-                header.GetComponent<CurvedTextMeshPro>().text = section.header.name;
-
-                Plugin.logger.Debug($"created header: {section.header.name}");
-                _credits.Add(header);
-                foreach (var person in section.header.people)
+                if (section.header != null)
                 {
-                    position -= new Vector3(0, SPACE_BETWEEN_TEXTS);
-                    var text = GameObject.Instantiate(creditsTextItem, wrapper);
-                    text.localPosition = position;
-                    text.GetComponent<CurvedTextMeshPro>().text = person;
-                    Plugin.logger.Debug($"created text: {person}");
-                    _credits.Add(text);
+                    AddHeader(section.header, wrapper, creditsHeaderItem, creditsTitleItem, creditsTextItem, ref position);
+                    
                 }
-
-                position -= new Vector3(0, SPACE_BETWEEN_HEADERS);
+                else
+                {
+                    AddTitle(section.title, wrapper, creditsTitleItem, creditsTextItem, ref position);
+                    
+                }
             }
 
-            Plugin.logger.Debug("reorganizing children");
             AddCustomCampaignCredits(wrapper, position);
 
             for (int i = _credits.Count - 1; i >= 0; i--)
             {
                 _credits[i].SetAsFirstSibling();
                 _credits[i].gameObject.SetActive(true);
+            }
+        }
+
+        private void AddHeader(Header header, Transform wrapper, Transform creditsHeaderItem, Transform creditsTitleItem, Transform creditsTextItem, ref Vector3 position)
+        {
+            position -= new Vector3(0, SPACE_BETWEEN_HEADERS);
+            var headerItem = GameObject.Instantiate(creditsHeaderItem, wrapper);
+            headerItem.localPosition = position;
+            headerItem.GetComponent<CurvedTextMeshPro>().text = header.name;
+
+            _credits.Add(headerItem);
+            AddGroupedTitles(header.titles, wrapper, creditsTitleItem, creditsTextItem, ref position);
+        }
+
+        private void AddGroupedTitles(List<Title> titles, Transform wrapper, Transform creditsTitleItem, Transform creditsTextItem, ref Vector3 position)
+        {
+            
+            if (titles.Count == 0)
+            {
+                return;
+            }
+            else if (titles.Count == 1)
+            {
+                AddTitle(titles[0], wrapper, creditsTitleItem, creditsTextItem, ref position);
+            }
+            else if (titles.Count == 2)
+            {
+                var originalY = position.y;
+                position -= new Vector3(50f, 0);
+                
+                AddTitle(titles[0], wrapper, creditsTitleItem, creditsTextItem, ref position);
+                position += new Vector3(100f, originalY - position.y);
+                AddTitle(titles[1], wrapper, creditsTitleItem, creditsTextItem, ref position);
+                // reset back to original x
+                position -= new Vector3(50f, 0);
+
+            }
+            else
+            {
+                var originalY = position.y;
+                position -= new Vector3(200f, 0);
+                for (int i = 0; i < 3; i++)
+                {
+                    position += new Vector3(100f, originalY - position.y);
+                    AddTitle(titles[i], wrapper, creditsTitleItem, creditsTextItem, ref position);
+                }
+                // reset back to original x
+                position -= new Vector3(100f, 0);
+                if (titles.Count > 3)
+                {
+                    AddGroupedTitles(titles.GetRange(3, titles.Count - 3), wrapper, creditsTitleItem, creditsTextItem, ref position);
+                }
+            }
+        }
+
+        private void AddTitle(Title title, Transform wrapper, Transform creditsTitleItem, Transform creditsTextItem, ref Vector3 position)
+        {
+            position -= new Vector3(0, SPACE_BETWEEN_HEADERS);
+            var titleItem = GameObject.Instantiate(creditsTitleItem, wrapper);
+            titleItem.localPosition = position;
+            titleItem.GetComponent<CurvedTextMeshPro>().text = title.name;
+
+            _credits.Add(titleItem);
+            foreach (var person in title.people)
+            {
+                position -= new Vector3(0, SPACE_BETWEEN_TEXTS);
+                var text = GameObject.Instantiate(creditsTextItem, wrapper);
+                text.localPosition = position;
+                text.GetComponent<CurvedTextMeshPro>().text = person;
+                _credits.Add(text);
             }
         }
 
@@ -128,26 +193,69 @@ namespace CustomCampaigns.Managers
 
         private void AddCustomCampaignCredits(Transform wrapper, Vector3 position)
         {
+            Title currentMaintainer = new Title("Current Mod", new List<string> { "PulseLane" });
+            Title oldMaintainer = new Title("Original Mod", new List<string> { "monkeymanboy" });
+
+            Header modCredits = new Header("Custom Campaigns Mod", new List<Title> { currentMaintainer, oldMaintainer });
+
             var creditsTextItem = wrapper.Find("CreditsTextItem");
             var creditsHeaderItem = wrapper.Find("CreditsHeaderItem");
+            var creditsTitleItem = wrapper.Find("CreditsTitleItem");
 
+            AddHeader(modCredits, wrapper, creditsHeaderItem, creditsTitleItem, creditsTextItem, ref position);
+        }
 
-            var header = GameObject.Instantiate(creditsHeaderItem, wrapper);
-            header.localPosition = position;
-            header.GetComponent<CurvedTextMeshPro>().text = "Custom Campaigns Mod";
-             _credits.Add(header);
+        private void PlayNewAudio(Credits credits)
+        {
+            Plugin.logger.Debug("audio time");
+            if (credits.mapAudioHash == null || credits.mapAudioHash == "")
+            {
+                Plugin.logger.Debug("no hash present");
+                return;
+            }
 
-            position -= new Vector3(0, SPACE_BETWEEN_TEXTS);
-            var text1 = GameObject.Instantiate(creditsTextItem, wrapper);
-            text1.localPosition = position;
-            text1.GetComponent<CurvedTextMeshPro>().text = "PulseLane";
-            _credits.Add(text1);
+            List<string> levelIDs = SongCore.Collections.levelIDsForHash(credits.mapAudioHash);
+            if (levelIDs.Count == 0)
+            {
+                Plugin.logger.Debug("no levels matching hash");
+                return;
+            }
 
-            position -= new Vector3(0, SPACE_BETWEEN_TEXTS);
-            var text2 = GameObject.Instantiate(creditsTextItem, wrapper);
-            text2.localPosition = position;
-            text2.GetComponent<CurvedTextMeshPro>().text = "Original mod by - monkeymanboy";
-            _credits.Add(text2);
+            CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
+            if (level == null)
+            {
+                Plugin.logger.Debug("no levels matching");
+                return;
+            }
+
+            AudioLoaded -= OnAudioLoad;
+            AudioLoaded += OnAudioLoad;
+            LoadBeatmap(level.levelID);
+        }
+
+        private void OnAudioLoad(string levelID)
+        {
+            var beatmapLevel = SongCore.Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(levelID);
+            var audioClip = beatmapLevel.beatmapLevelData.audioClip;
+
+            Plugin.logger.Debug("got audio clip");
+            var audioPlayer = _creditsController.GetField<AudioPlayerBase, CreditsController>("_audioPlayer") as SimpleAudioPlayer;
+            if (audioPlayer == null)
+            {
+                Plugin.logger.Error("Wrong audio player type");
+                return;
+            }
+
+            audioPlayer.SetField("_audioClip", audioClip);
+            audioPlayer.GetField<AudioSource, SimpleAudioPlayer>("_audioSource").clip = audioClip;
+            audioPlayer.GetField<AudioSource, SimpleAudioPlayer>("_audioSource").Play();
+        }
+
+        private async void LoadBeatmap(string levelID)
+        {
+            Plugin.logger.Debug($"Loading beatmap: {levelID}");
+            await Loader.BeatmapLevelsModelSO.GetBeatmapLevelAsync(levelID, CancellationToken.None);
+            AudioLoaded?.Invoke(levelID);
         }
     }
 
@@ -155,16 +263,36 @@ namespace CustomCampaigns.Managers
     {
         public string name;
         public List<CreditsSection> credits;
+        public string mapAudioHash;
     }
 
     class CreditsSection
     {
         public Header header;
+        public Title title;
     }
 
     class Header
     {
         public string name;
+        public List<Title> titles;
+
+        public Header(string name, List<Title> titles)
+        {
+            this.name = name;
+            this.titles = titles;
+        }
+    }
+
+    class Title
+    {
+        public string name;
         public List<string> people;
+
+        public Title(string name, List<string> people)
+        {
+            this.name = name;
+            this.people = people;
+        }
     }
 }

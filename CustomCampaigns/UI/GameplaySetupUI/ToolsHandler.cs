@@ -4,6 +4,8 @@ using CustomCampaigns.UI.FlowCoordinators;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +13,15 @@ using Zenject;
 
 namespace CustomCampaigns.UI.GameplaySetupUI
 {
-    public class ToolsHandler
+    public class ToolsHandler : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private MenuTransitionsHelper _menuTransitionsHelper;
         private CreditsManager _creditsManager;
+
+        [UIValue("credits-visible")]
+        public bool CreditsVisible { get; private set; }
 
         public ToolsHandler(MenuTransitionsHelper menuTransitionsHelper, CreditsManager creditsManager)
         {
@@ -22,11 +29,16 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             _creditsManager = creditsManager;
         }
 
+        internal void SetCampaign(Campaign.Campaign campaign)
+        {
+            CreditsVisible = File.Exists(campaign.campaignPath + "/" + "credits.json");
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisible)));
+        }
+
         [UIAction("credits-click")]
         public void ShowCredits()
         {
             Plugin.logger.Debug("credits :D");
-            _menuTransitionsHelper.GetField<CreditsScenesTransitionSetupDataSO, MenuTransitionsHelper>("_creditsScenesTransitionSetupData").didFinishEvent -= _creditsManager.OnCreditsFinish;
             _creditsManager.StartingCustomCampaignCredits(CustomCampaignFlowCoordinator.CustomCampaignManager.Campaign);
             _menuTransitionsHelper.ShowCredits();
         }

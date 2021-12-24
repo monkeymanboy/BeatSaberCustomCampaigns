@@ -40,6 +40,7 @@
       <None Remove="UI\Views\mission-leaderboard.bsml" />
       <None Remove="UI\Views\mission-secondary-leaderboard.bsml" />
       <None Remove="UI\Views\settings.bsml" />
+      <None Remove="UI\Views\tools.bsml" />
     </ItemGroup>
 
     <ItemGroup>
