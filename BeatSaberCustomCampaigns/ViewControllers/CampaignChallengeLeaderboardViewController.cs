@@ -75,6 +75,7 @@ namespace BeatSaberCustomCampaigns
 
                 catch (Exception e)
                 {
+                    Plugin.logger.Warn(e);
                 }
 
             }
@@ -97,7 +98,7 @@ namespace BeatSaberCustomCampaigns
                 }
                 catch (Exception e)
                 {
-
+                    Plugin.logger.Warn(e);
                 }
             }
         }

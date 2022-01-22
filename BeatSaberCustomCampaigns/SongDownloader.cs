@@ -114,6 +114,7 @@ namespace BeatSaberCustomCampaigns
                 }
                 catch (Exception e)
                 {
+                    Plugin.logger.Warn(e);
                     yield break;
                 }
                 Task extract = ExtractZipAsync(songid, zipStream, customSongsPath);
@@ -179,6 +180,7 @@ namespace BeatSaberCustomCampaigns
             }
             catch (Exception e)
             {
+                Plugin.logger.Warn(e);
                 return;
             }
         }

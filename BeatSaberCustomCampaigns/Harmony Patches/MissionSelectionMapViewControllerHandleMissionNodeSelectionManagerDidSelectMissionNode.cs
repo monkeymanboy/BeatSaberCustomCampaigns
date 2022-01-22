@@ -22,12 +22,9 @@ namespace BeatSaberCustomCampaigns.Harmony_Patches
                 CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
                 if (level!= null)
                 {
-                    var audioTask = level.GetPreviewAudioClipAsync(new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token);
-                    if (audioTask.IsCompleted)
-                    {
-                        ____songPreviewPlayer.CrossfadeTo(audioTask.Result, -4f, level.previewStartTime, level.previewDuration);
-                    }
+                    __instance.SongPlayerCrossfadeToLevelAsync(level);
                 }
+
                 __instance.GetPrivateField<Action<MissionSelectionMapViewController, MissionNode>>("didSelectMissionLevelEvent")(__instance, missionNodeVisualController.missionNode);
                 return false;
             }

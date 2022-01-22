@@ -30,6 +30,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Reference Include="Hive.Versioning">
+          <HintPath>H:\Beat.Saber.v1.19.0\Libs\Hive.Versioning.dll</HintPath>
+        </Reference>
         <Reference Include="UnityEngine.AudioModule">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
             <Private>False</Private>
@@ -102,10 +105,6 @@
             <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="SemVer">
-            <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
-            <Private>False</Private>
-        </Reference>
         <Reference Include="BS_Utils">
             <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
             <Private>False</Private>
@@ -125,15 +124,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')"/>
-        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')"/>
-        <None Include="BeatSaberCustomCampaigns.csproj.user" Condition="Exists('BeatSaberCustomCampaigns.csproj.user')"/>
+        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
+        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
+        <None Include="BeatSaberCustomCampaigns.csproj.user" Condition="Exists('BeatSaberCustomCampaigns.csproj.user')" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="manifest.json"/>
-        <EmbeddedResource Include="Resources\*.png"/>
-        <EmbeddedResource Include="Views\*.bsml"/>
+        <EmbeddedResource Include="manifest.json" />
+        <EmbeddedResource Include="Resources\*.png" />
+        <EmbeddedResource Include="Views\*.bsml" />
     </ItemGroup>
 
     <ItemGroup>

@@ -16,20 +16,23 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
+using HVersion =  Hive.Versioning.Version;
 
 namespace BeatSaberCustomCampaigns
 {
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        public static SemVer.Version version;
+        public static HVersion version;
+        public static IPA.Logging.Logger logger { get; private set; }
 
         private CustomCampaignFlowCoordinator campaignFlowCoordinator;
 
         [Init]
         public void Init(IPA.Logging.Logger log, PluginMetadata metadata)
         {
-            version = metadata?.Version;
+            logger = log;
+            version = metadata?.HVersion;
         }
         [OnStart]
         public async void OnApplicationStart()
@@ -42,9 +45,9 @@ namespace BeatSaberCustomCampaigns
             }
             catch (Exception e)
             {
-                Console.WriteLine("[Challenges] This plugin requires Harmony. Make sure you " +
+                logger.Critical("[Challenges] This plugin requires Harmony. Make sure you " +
                     "installed the plugin properly, as the Harmony DLL should have been installed with it.");
-                Console.WriteLine(e);
+                logger.Critical(e);
             }
             SceneManager.activeSceneChanged += OnActiveSceneChanged;
             await APITools.InitializeUserInfo();
