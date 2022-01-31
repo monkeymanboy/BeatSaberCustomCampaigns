@@ -3,7 +3,7 @@
   "id": "CustomCampaigns",
   "name": "CustomCampaigns",
   "author": "",
-  "version": "3.0.0-beta.1",
+  "version": "3.0.0-beta.2",
   "description": "",
   "gameVersion": "1.19.0",
   "dependsOn": {
