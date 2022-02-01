@@ -1,5 +1,6 @@
 ﻿using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.UI.ViewControllers;
+using CustomCampaigns.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -52,14 +53,14 @@ namespace CustomCampaigns.Campaign
 
         private async void GetSprites(CampaignListViewController viewController)
         {
-            icon = await LoadSprite(campaignPath + COVER_LOCATION);
+            icon = await LoadSprite(campaignPath + COVER_LOCATION, true);
         }
 
         public async Task LoadBackground()
         {
             if (background == null)
             {
-                background = await LoadSprite(campaignPath + BACKGROUND_LOCATION);
+                background = await LoadSprite(campaignPath + BACKGROUND_LOCATION, false);
             }
         }
 
@@ -81,7 +82,7 @@ namespace CustomCampaigns.Campaign
             Plugin.logger.Debug("loaded node sprites");
         }
 
-        private async Task<Sprite> LoadSprite(string spritePath)
+        private async Task<Sprite> LoadSprite(string spritePath, bool allowDownscaling = false)
         {
             if (!textures.ContainsKey(spritePath))
             {
@@ -92,13 +93,8 @@ namespace CustomCampaigns.Campaign
 
                 try
                 {
-                    using (FileStream stream = File.Open(spritePath, FileMode.Open))
-                    {
-                        byte[] bytes = new byte[stream.Length];
-                        await stream.ReadAsync(bytes, 0, (int) stream.Length);
-                        Sprite sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(bytes);
-                        textures[spritePath] = sprite;
-                    }
+                    Sprite sprite = await SpriteUtils.LoadSpriteFromFile(spritePath, allowDownscaling);
+                    textures[spritePath] = sprite;
                 }
                 catch (Exception e)
                 {

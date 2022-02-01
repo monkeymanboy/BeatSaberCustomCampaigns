@@ -23,6 +23,11 @@ namespace CustomCampaigns.Managers
 
         public void Initialize()
         {
+            LoadImages();
+        }
+
+        public void LoadImages()
+        {
             ErrorIcon = SpriteUtils.LoadSprite(RESOURCE_PREFIX + ".ErrorIcon.png");
             FailOnSaberClashIcon = SpriteUtils.LoadSprite(RESOURCE_PREFIX + ".FailOnSaberClashIcon.png");
 

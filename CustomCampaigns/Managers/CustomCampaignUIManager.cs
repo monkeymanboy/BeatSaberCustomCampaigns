@@ -881,14 +881,14 @@ namespace CustomCampaigns.Managers
             }
         }
 
-        private void SetupImage(ImageView imageView, string spritePath)
+        private async void SetupImage(ImageView imageView, string spritePath)
         {
             imageView.sprite = null;
             imageView.gradient = false;
 
             if (!_loadedSprites.ContainsKey(spritePath))
             {
-                _loadedSprites[spritePath] = SpriteUtils.LoadSpriteFromFile(spritePath);
+                _loadedSprites[spritePath] = await SpriteUtils.LoadSpriteFromFile(spritePath);
             }
 
             imageView.sprite = _loadedSprites[spritePath];

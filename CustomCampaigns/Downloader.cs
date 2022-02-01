@@ -220,14 +220,7 @@ namespace CustomCampaigns
             isDownloading = false;
             if (www.isNetworkError || www.isHttpError)
             {
-                if (www.isNetworkError)
-                {
-                    Plugin.logger.Debug("network error");
-                }
-                else
-                {
-                    Plugin.logger.Debug("http error");
-                }
+                Plugin.logger.Debug(www.error);
 
                 return null;
             }
