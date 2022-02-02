@@ -1,6 +1,8 @@
 ﻿using IPA.Utilities;
 using Newtonsoft.Json;
 using SongCore;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -123,7 +125,20 @@ namespace CustomCampaigns.Campaign.Missions
                         missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", characteristicSO);
                     }
                 }
+
+                SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
+                SongCore.Loader.SongsLoadedEvent += OnSongsLoaded;
             }
+        }
+
+        public void CampaignClosed()
+        {
+            SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
+        }
+
+        private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)
+        {
+            SetCustomLevel();
         }
 
         private string GetHash()

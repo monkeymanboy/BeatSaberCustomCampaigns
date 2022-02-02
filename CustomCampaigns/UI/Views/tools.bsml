@@ -1,5 +1,6 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
   <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
-    <button text="View Credits" on-click='credits-click' id='credits-button' align='Center' active='~credits-visible'/>
+    <button id='download-button' text='Download Missing Songs' on-click='download-click'/>
+    <button text="View Credits" on-click='credits-click' id='credits-button' active='~credits-visible'/>
   </vertical>
 </bg>

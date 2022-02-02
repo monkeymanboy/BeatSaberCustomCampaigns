@@ -49,7 +49,7 @@ namespace CustomCampaigns.Managers
         private const string OBJECTIVE_NOT_FOUND_ERROR_DESCRIPTION = "You likely have a typo in the requirement name";
 
         private CustomCampaignUIManager _customCampaignUIManager;
-        private Downloader _downloader;
+        private DownloadManager _downloadManager;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -74,14 +74,14 @@ namespace CustomCampaigns.Managers
 
         private ExternalModifierManager _externalModifierManager;
 
-        public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, Downloader downloader, CampaignFlowCoordinator campaignFlowCoordinator,
+        public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, DownloadManager downloadManager, CampaignFlowCoordinator campaignFlowCoordinator,
                                      MenuTransitionsHelper menuTransitionsHelper, MissionSelectionMapViewController missionSelectionMapViewController,
                                      MissionSelectionNavigationController missionSelectionNavigationController, MissionLevelDetailViewController missionLevelDetailViewController,
                                      MissionResultsViewController missionResultsViewController, MissionHelpViewController missionHelpViewController,
                                      UnlockableSongsManager unlockableSongsManager, PlayerDataModel playerDataModel, ExternalModifierManager externalModifierManager)
         {
             _customCampaignUIManager = customCampaignUIManager;
-            _downloader = downloader;
+            _downloadManager = downloadManager;
 
             _campaignFlowCoordinator = campaignFlowCoordinator;
             _campaignProgressModel = _customCampaignUIManager.CampaignFlowCoordinator.GetField<CampaignProgressModel, CampaignFlowCoordinator>("_campaignProgressModel");
@@ -196,7 +196,6 @@ namespace CustomCampaigns.Managers
             }
 
             _missionLevelDetailViewController.didPressPlayButtonEvent -= _missionSelectionNavigationController.HandleMissionLevelDetailViewControllerDidPressPlayButton;
-            //CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
             CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).mission.FindSong();
             if (level == null)
             {
@@ -239,7 +238,7 @@ namespace CustomCampaigns.Managers
             }
         }
 
-        private async void DownloadMap(MissionNode missionNode)
+        private void DownloadMap(MissionNode missionNode)
         {
             downloadingNode = missionNode;
             CustomMissionDataSO customMissionData = missionNode.missionData as CustomMissionDataSO;
@@ -247,21 +246,22 @@ namespace CustomCampaigns.Managers
             _customCampaignUIManager.SetPlayButtonText("DOWNLOADING...");
             _customCampaignUIManager.SetPlayButtonInteractable(false);
 
-            if (mission.customDownloadURL != "")
-            {
-                var path = Path.Combine(CustomLevelPathHelper.customLevelsDirectoryPath, mission.songid);
-                path = _downloader.DeterminePathNumber(path, _cancellationTokenSource.Token);
-                await _downloader.DownloadMapFromUrlAsync(mission.customDownloadURL, path, _cancellationTokenSource.Token, OnDownloadSucceeded, OnDownloadFailed, OnDownloadProgressUpdated, OnDownloadStatusUpdate);
-                return;
-            }
+            DownloadManager.DownloadEntry downloadEntry = new DownloadManager.DownloadEntry(mission.songid, mission.hash, mission.customDownloadURL);
+            _downloadManager.AddSongToQueue(downloadEntry);
 
-            if (mission.hash != "")
-            {
-                await _downloader.DownloadMapByHashAsync(mission.hash, mission.songid, _cancellationTokenSource.Token, OnDownloadSucceeded, OnDownloadFailed, OnDownloadProgressUpdated, OnDownloadStatusUpdate);
-                return;
-            }
+            _downloadManager.OnDownloadSuccess -= OnDownloadSucceeded;
+            _downloadManager.OnDownloadSuccess += OnDownloadSucceeded;
 
-            await _downloader.DownloadMapByIDAsync(mission.songid, _cancellationTokenSource.Token, OnDownloadSucceeded, OnDownloadFailed, OnDownloadProgressUpdated, OnDownloadStatusUpdate);
+            _downloadManager.OnDownloadFail -= OnDownloadFailed;
+            _downloadManager.OnDownloadFail += OnDownloadFailed;
+
+            _downloadManager.DownloadProgress -= OnDownloadProgressUpdated;
+            _downloadManager.DownloadProgress += OnDownloadProgressUpdated;
+
+            _downloadManager.DownloadStatus -= OnDownloadStatusUpdate;
+            _downloadManager.DownloadStatus += OnDownloadStatusUpdate;
+
+            _downloadManager.InitiateDownloads();
         }
 
         private void OnDownloadProgressUpdated(float progress)
@@ -285,19 +285,30 @@ namespace CustomCampaigns.Managers
             if (_missionLevelDetailViewController.missionNode == downloadingNode)
             {
                 downloadingNode = null;
-                _customCampaignUIManager.SetPlayButtonText("DOWNLOAD");
+                _customCampaignUIManager.SetPlayButtonText("DOWNLOAD FAILED");
                 _customCampaignUIManager.SetPlayButtonInteractable(true);
             }
             else
             {
                 Plugin.logger.Error("Currently selected node is not the downloading one");
             }
+
+            _downloadManager.OnDownloadSuccess -= OnDownloadSucceeded;
+            _downloadManager.OnDownloadFail -= OnDownloadFailed;
+            _downloadManager.DownloadProgress -= OnDownloadProgressUpdated;
+            _downloadManager.DownloadStatus -= OnDownloadStatusUpdate;
         }
 
         private void OnDownloadSucceeded()
         {
+            SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
             SongCore.Loader.SongsLoadedEvent += OnSongsLoaded;
             SongCore.Loader.Instance.RefreshSongs();
+
+            _downloadManager.OnDownloadSuccess -= OnDownloadSucceeded;
+            _downloadManager.OnDownloadFail -= OnDownloadFailed;
+            _downloadManager.DownloadProgress -= OnDownloadProgressUpdated;
+            _downloadManager.DownloadStatus -= OnDownloadStatusUpdate;
         }
 
         private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)
@@ -496,6 +507,11 @@ namespace CustomCampaigns.Managers
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = null;
             downloadingNode = null;
+
+            foreach (Mission mission in _currentCampaign.missions)
+            {
+                mission.CampaignClosed();
+            }
 
             _customCampaignUIManager.CampaignClosed();
             CampaignClosed?.Invoke(campaignFlowCoordinator);

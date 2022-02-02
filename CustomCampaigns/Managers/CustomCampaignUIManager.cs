@@ -902,7 +902,6 @@ namespace CustomCampaigns.Managers
             
         }
 
-        // TODO: Replace w/ transpiler
         [AffinityPrefix]
         [AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
         private bool MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelPrefix(MissionSelectionNavigationController __instance, MissionNode _missionNode, MissionLevelDetailViewController ____missionLevelDetailViewController)
@@ -919,29 +918,6 @@ namespace CustomCampaigns.Managers
             }
             return false;
         }
-
-        //[AffinityTranspiler]
-        //[AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
-        //private static IEnumerable<CodeInstruction> MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelTranspiler(IEnumerable<CodeInstruction> instructions)
-        //{
-        //    List<CodeInstruction> newInstructions = new List<CodeInstruction>(instructions.Count() + 2);
-        //    foreach (var instruction in instructions)
-        //    {
-        //        if (instruction.opcode == OpCodes.Ldnull)
-        //        {
-        //            newInstructions.Add(new CodeInstruction(OpCodes.Ldarg_0));
-        //            var method = AccessTools.Method(typeof(CustomCampaignUIManager), "ChangePosition");
-        //            newInstructions.Add(new CodeInstruction(OpCodes.Ldftn, method));
-        //            var ctor = AccessTools.Constructor(typeof(System.Action), new Type[0]);
-        //            newInstructions.Add(new CodeInstruction(OpCodes.Newobj, ctor));
-        //        }
-        //        else
-        //        {
-        //            newInstructions.Add(instruction);
-        //        }
-        //    }
-        //    return newInstructions;
-        //}
 
         private void ChangePosition()
         {
