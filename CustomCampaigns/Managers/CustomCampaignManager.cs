@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 using static SongCore.Data.ExtraSongData;
 
@@ -331,7 +332,7 @@ namespace CustomCampaigns.Managers
             _missionNodeSelectionManager.GetField<Action<MissionNodeVisualController>, MissionNodeSelectionManager>("didSelectMissionNodeEvent")(_missionLevelDetailViewController.missionNode.missionNodeVisualController);
         }
 
-        private void PlayMap(MissionLevelDetailViewController missionLevelDetailViewController)
+        private async void PlayMap(MissionLevelDetailViewController missionLevelDetailViewController)
         {
             Plugin.logger.Debug("play");
             _currentNode = missionLevelDetailViewController.missionNode;
@@ -343,8 +344,13 @@ namespace CustomCampaigns.Managers
 
             Mission mission = _currentMissionDataSO.mission;
 
-            var errors = CheckForErrors(mission);
+            _customCampaignUIManager.SetPlayButtonText("Waiting for Modifiers...");
+            _customCampaignUIManager.SetPlayButtonInteractable(false);
 
+            var errors = await CheckForErrors(mission);
+
+            _customCampaignUIManager.SetPlayButtonText("PLAY");
+            _customCampaignUIManager.SetPlayButtonInteractable(true);
             if (errors.Count > 0)
             {
                 Plugin.logger.Debug("Had errors, not starting mission");
@@ -456,12 +462,12 @@ namespace CustomCampaigns.Managers
             isCampaignLevel = false;
         }
 
-        private void OnRetryButtonPressed(MissionResultsViewController missionResultsViewController)
+        private async void OnRetryButtonPressed(MissionResultsViewController missionResultsViewController)
         {
             Plugin.logger.Debug("retry button pressed");
 
             Mission mission = _currentMissionDataSO.mission;
-            HashSet<string> failedMods = LoadExternalModifiers(mission);
+            HashSet<string> failedMods = await LoadExternalModifiers(mission);
 
             if (failedMods.Count > 0)
             {
@@ -495,7 +501,6 @@ namespace CustomCampaigns.Managers
         private void OnContinueButtonPressed(MissionResultsViewController missionResultsViewController)
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            _customCampaignUIManager.UpdateLeaderboards(true);
             _customCampaignUIManager.LoadModifiersPanel();
         }
 
@@ -576,8 +581,11 @@ namespace CustomCampaigns.Managers
                     submission.Submit(_currentCampaign.completionPost);
                 }
 
-                Plugin.logger.Debug("submitting score...");
-                CustomCampaignLeaderboardLibraryUtils.SubmitScoreAsync(mission, missionCompletionResults);
+                if (_currentCampaign.info.customMissionLeaderboard == "")
+                {
+                    Plugin.logger.Debug("submitting score...");
+                    CustomCampaignLeaderboardLibraryUtils.SubmitScoreAsync(mission, missionCompletionResults);
+                }
             }
             else
             {
@@ -587,6 +595,8 @@ namespace CustomCampaigns.Managers
                     _campaignProgressModel.__SetMissionCleared(_currentNode.missionId, false);
                 }
             }
+
+            _customCampaignUIManager.UpdateLeaderboards(true);
         }
         #endregion
 
@@ -603,15 +613,16 @@ namespace CustomCampaigns.Managers
             _campaignProgressModel.SetField("_numberOfClearedMissionsDirty", true);
         }
 
-        private List<GameplayModifierParamsSO> CheckForErrors(Mission mission)
+        private async Task<List<GameplayModifierParamsSO>> CheckForErrors(Mission mission)
         {
             List<GameplayModifierParamsSO> errorList = new List<GameplayModifierParamsSO>();
-            HashSet<string> failedMods = LoadExternalModifiers(mission);
+            HashSet<string> failedMods = await LoadExternalModifiers(mission);
             if (failedMods.Count > 0)
             {
                 foreach (var mod in failedMods)
                 {
-                    errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, EXTERNAL_MOD_ERROR_TITLE, $"{EXTERNAL_MOD_ERROR_DESCRIPTION} {mod}"));
+                    string errorMessage = $"{EXTERNAL_MOD_ERROR_DESCRIPTION} {mod}";
+                    errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, EXTERNAL_MOD_ERROR_TITLE, errorMessage));
                 }
             }
 
@@ -649,9 +660,9 @@ namespace CustomCampaigns.Managers
             return errorList;
         }
 
-        private HashSet<string> LoadExternalModifiers(Mission mission)
+        private async Task<HashSet<string>> LoadExternalModifiers(Mission mission)
         {
-            return _externalModifierManager.CheckForModLoadIssues(mission);
+            return await _externalModifierManager.CheckForModLoadIssues(mission);
         }
         #endregion
 

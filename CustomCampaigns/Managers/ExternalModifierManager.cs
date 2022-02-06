@@ -5,6 +5,7 @@ using CustomCampaigns.HarmonyPatches;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Zenject;
 
 namespace CustomCampaigns.Managers
@@ -16,6 +17,8 @@ namespace CustomCampaigns.Managers
         private List<IModifierHandler> _modifierHandlers;
         private List<INotifyMissionCompletionResults> _notifyMissionCompletionResults;
 
+        private Mission _currentMission;
+
         public ExternalModifierManager(List<IModifierHandler> modifierHandlers, List<INotifyMissionCompletionResults> notifyMissionCompletionResults)
         {
             Plugin.logger.Debug("external modifier manager");
@@ -25,28 +28,37 @@ namespace CustomCampaigns.Managers
 
         public void Initialize()
         {
+            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish -= OnMissionSceneFinish;
             CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionSceneFinish;
         }
 
-        public HashSet<string> CheckForModLoadIssues(Mission mission)
+        public async Task<HashSet<string>> CheckForModLoadIssues(Mission mission)
         {
+            _currentMission = mission;
             HashSet<string> modFailures = new HashSet<string>();
 
             foreach (var externalModifier in ExternalModifiers.Values)
             {
+                if (!mission.externalModifiers.ContainsKey(externalModifier.Name))
+                {
+                    continue;
+                }
+
                 if (externalModifier.HandlerLocation == null)
                 {
+                    Plugin.logger.Debug("null handler location");
                     continue;
                 }
 
                 var handlers = _modifierHandlers.Where(x => x.GetType() == externalModifier.HandlerType);
                 if (handlers.Count() == 0)
                 {
+                    Plugin.logger.Debug("no handlers");
                     continue;
                 }
 
                 var handler = handlers.First();
-                if (handler != null && !handler.OnLoadMission(mission.externalModifiers[externalModifier.Name]))
+                if (handler != null && !await handler.OnLoadMission(mission.externalModifiers[externalModifier.Name], mission))
                 {
                     modFailures.Add(externalModifier.Name);
                 }
@@ -73,21 +85,22 @@ namespace CustomCampaigns.Managers
             {
                 foreach (var handler in _modifierHandlers)
                 {
-                    handler.OnMissionFailedToLoad();
+                    handler.OnMissionFailedToLoad(mission);
                 }
             }
 
             return modFailures;
         }
 
-        private void OnMissionSceneFinish(MissionLevelScenesTransitionSetupDataSO _, MissionCompletionResults missionCompletionResults)
+        public void OnMissionSceneFinish(MissionLevelScenesTransitionSetupDataSO _, MissionCompletionResults missionCompletionResults)
         {
             Plugin.logger.Debug("mission scene finish");
 
             foreach (var modifierHandler in _modifierHandlers)
             {
-                modifierHandler.OnMissionEnd();
+                modifierHandler.OnMissionEnd(_currentMission);
             }
+
             foreach (var notifyMissionCompletionResults in _notifyMissionCompletionResults)
             {
                 notifyMissionCompletionResults.OnMissionCompletionResultsAvailable(missionCompletionResults);

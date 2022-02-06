@@ -7,7 +7,6 @@ namespace CustomCampaigns.Installers
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<ExternalModifierManager>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<CreditsManager>().AsSingle().NonLazy();
         }
     }

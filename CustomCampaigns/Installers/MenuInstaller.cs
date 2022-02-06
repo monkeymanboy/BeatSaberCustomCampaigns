@@ -49,6 +49,8 @@ namespace CustomCampaigns.Installers
             Container.Bind<CustomCampaignFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
 
             InstallExternalLoaders();
+
+            Container.BindInterfacesAndSelfTo<ExternalModifierManager>().AsSingle().NonLazy();
         }
 
         private void InstallExternalLoaders()

@@ -75,12 +75,6 @@ namespace CustomCampaigns.Managers
             {
                 _missionObjectives.Remove(missionObjective);
             }
-
-            foreach (var missionModifier in _missionModifiers)
-            {
-                Plugin.logger.Debug($"Telling {missionModifier} it's starting");
-                missionModifier.OnMissionStart();
-            }
         }
 
         private MissionObjectiveChecker GetBaseGameCheckerForObjective(MissionObjective missionObjective)
@@ -133,22 +127,12 @@ namespace CustomCampaigns.Managers
         {
             Plugin.logger.Debug("on level finished");
             CustomCampaignManager.missionObjectiveResults = GetResults();
-
-            foreach (var missionModifier in _missionModifiers)
-            {
-                missionModifier.OnMissionEnd();
-            }
         }
 
         private void OnLevelFailed()
         {
             Plugin.logger.Debug("on level failed");
             CustomCampaignManager.missionObjectiveResults = GetResults();
-
-            foreach (var missionModifier in _missionModifiers)
-            {
-                missionModifier.OnMissionFail();
-            }
         }
 
         private MissionObjectiveResult[] GetResults()
