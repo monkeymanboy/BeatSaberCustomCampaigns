@@ -158,6 +158,8 @@ namespace CustomCampaigns.UI.GameplaySetupUI
                 playlist = playlistManager.CreatePlaylist("", _campaign.info.name, _campaign.info.name, "");
             }
 
+            playlist.RemoveAll((x) => true);
+
             foreach (var mission in _campaign.missions)
             {
                 var song = new BeatSaberPlaylistsLib.Legacy.LegacyPlaylistSong();
