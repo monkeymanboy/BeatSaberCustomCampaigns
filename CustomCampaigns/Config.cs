@@ -17,6 +17,10 @@ namespace CustomCampaigns
         [NonNullable]
         public virtual Dictionary<string, HashSet<string>> disabledOptionalModWarnings { get; set; } = new Dictionary<string, HashSet<string>>();
 
+        [UseConverter(typeof(ListConverter<string>))]
+        [NonNullable]
+        public virtual List<string> creditsViewed { get; set; } = new List<string>();
+
         public virtual void Changed() { }
     }
 }

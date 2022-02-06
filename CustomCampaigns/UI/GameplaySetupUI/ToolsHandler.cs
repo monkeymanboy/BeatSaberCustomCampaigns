@@ -23,14 +23,18 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         private MenuTransitionsHelper _menuTransitionsHelper;
         private CreditsManager _creditsManager;
         private DownloadManager _downloadManager;
+        private Config _config;
 
         private Campaign.Campaign _campaign;
 
         private int songsDownloaded;
         private int downloadsFailed;
 
-        [UIValue("credits-visible")]
-        public bool CreditsVisible { get; private set; }
+        [UIValue("credits-visible-unviewed")]
+        public bool CreditsVisibleUnViewed { get; private set; }
+
+        [UIValue("credits-visible-viewed")]
+        public bool CreditsVisibleViewed { get; private set; }
 
         [UIValue("playlists-visible")]
         public bool PlaylistsVisible { get; private set; }
@@ -41,11 +45,12 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         [UIComponent("playlist-button")]
         Button playlistButton;
 
-        public ToolsHandler(MenuTransitionsHelper menuTransitionsHelper, CreditsManager creditsManager, DownloadManager downloadManager)
+        public ToolsHandler(MenuTransitionsHelper menuTransitionsHelper, CreditsManager creditsManager, DownloadManager downloadManager, Config config)
         {
             _menuTransitionsHelper = menuTransitionsHelper;
             _creditsManager = creditsManager;
             _downloadManager = downloadManager;
+            _config = config;
 
             PlaylistsVisible = Plugin.isPlaylistLibInstalled;
         }
@@ -53,8 +58,13 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         internal void SetCampaign(Campaign.Campaign campaign)
         {
             _campaign = campaign;
-            CreditsVisible = File.Exists(campaign.campaignPath + "/" + "credits.json");
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisible)));
+
+            var creditsVisible = File.Exists(campaign.campaignPath + "/" + "credits.json");
+            CreditsVisibleUnViewed = creditsVisible && !_config.creditsViewed.Contains(_campaign.info.name);
+            CreditsVisibleViewed = creditsVisible && _config.creditsViewed.Contains(_campaign.info.name);
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisibleUnViewed)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisibleViewed)));
 
             downloadButton.interactable = true;
             downloadButton.SetButtonText("Download Missing Songs");
@@ -236,11 +246,24 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             Plugin.logger.Debug("credits :D");
             _creditsManager.StartingCustomCampaignCredits(CustomCampaignFlowCoordinator.CustomCampaignManager.Campaign);
             _menuTransitionsHelper.ShowCredits();
+
+            if (_config.creditsViewed.Contains(_campaign.info.name))
+            {
+                return;
+            }
+            _config.creditsViewed.Add(_campaign.info.name);
+            _config.Changed();
+
+            CreditsVisibleViewed = true;
+            CreditsVisibleUnViewed = false;
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisibleUnViewed)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisibleViewed)));
         }
 
         private bool GetDoesPlaylistExist(Campaign.Campaign campaign)
         {
-            string fileName = GetPlaylistFileName(_campaign.info.name);
+            string fileName = GetPlaylistFileName(campaign.info.name);
             return File.Exists(Path.Combine(Environment.CurrentDirectory, "Playlists", "Custom Campaigns", fileName + ".bplist"));
         }
 
