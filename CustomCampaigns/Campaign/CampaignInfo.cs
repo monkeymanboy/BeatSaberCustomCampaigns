@@ -16,6 +16,7 @@ namespace CustomCampaigns.Campaign
         public float backgroundAlpha = 1;
         public CampaignLightColor lightColor = new CampaignLightColor(0.188f, 0.620f, 1);//if you're wondering what this is it's the games default light color
         public bool useStandardLevel = false;
+        public string customMissionLeaderboard = "";
     }
 
     public class CampaignMapPosition

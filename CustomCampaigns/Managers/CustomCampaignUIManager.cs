@@ -469,6 +469,7 @@ namespace CustomCampaigns.Managers
             if (showGlobalLeaderboard)
             {
                 Plugin.logger.Debug("showing global leaderboard");
+
                 IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
                 if (difficultyBeatmap == null)
                 {
@@ -480,6 +481,7 @@ namespace CustomCampaigns.Managers
                     if (_config.floorLeaderboard)
                     {
                         Plugin.logger.Debug("floor leaderboard");
+                        _campaignMissionLeaderboardViewController.customURL = missionData.campaign.info.customMissionLeaderboard;
                         _campaignMissionLeaderboardViewController.mission = mission;
                         _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
                         _campaignMissionLeaderboardViewController.UpdateLeaderboards();
@@ -490,6 +492,7 @@ namespace CustomCampaigns.Managers
                     else
                     {
                         Plugin.logger.Debug("boring leaderboard");
+                        _campaignMissionSecondaryLeaderboardViewController.customURL = missionData.campaign.info.customMissionLeaderboard;
                         _campaignMissionSecondaryLeaderboardViewController.mission = mission;
                         _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
 
@@ -500,6 +503,7 @@ namespace CustomCampaigns.Managers
             else
             {
                 Plugin.logger.Debug("not showing global leaderboard");
+                _campaignMissionLeaderboardViewController.customURL = missionData.campaign.info.customMissionLeaderboard;
                 _campaignMissionLeaderboardViewController.mission = mission;
                 _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
                 if (fullRefresh)
