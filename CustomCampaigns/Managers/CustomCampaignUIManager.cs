@@ -434,8 +434,12 @@ namespace CustomCampaigns.Managers
             obstacles.GetComponent<HoverHint>().text = "Song Length";
             bombs.GetComponent<HoverHint>().text = "Note Jump Speed";
 
-            var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
-            _objectivesSizeDelta = (objectives.transform as RectTransform).sizeDelta;
+            if (_objectivesSizeDelta.x == 0)
+            {
+                var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
+                _objectivesSizeDelta = (objectives.transform as RectTransform).sizeDelta;
+            }
+            
         }
         #endregion
 
