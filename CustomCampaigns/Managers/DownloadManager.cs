@@ -22,6 +22,8 @@ namespace CustomCampaigns.Managers
 
         public Action OnQueueComplete;
 
+        public bool IsDownloading { get => _isDownloading; }
+
         public DownloadManager(Downloader downloader)
         {
             _downloader = downloader;
@@ -40,7 +42,7 @@ namespace CustomCampaigns.Managers
 
             foreach (DownloadEntry song in _queue)
             {
-                if (_cancellationTokenSource.Token.IsCancellationRequested)
+                if (_cancellationTokenSource.IsCancellationRequested)
                 {
                     break;
                 }
@@ -100,7 +102,8 @@ namespace CustomCampaigns.Managers
 
         public void CancelDownloads()
         {
-            _cancellationTokenSource.Cancel();
+            Plugin.logger.Debug("cancel time");
+            _cancellationTokenSource?.Cancel();
         }
 
         internal class DownloadEntry

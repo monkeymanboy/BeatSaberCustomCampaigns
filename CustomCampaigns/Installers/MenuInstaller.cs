@@ -29,6 +29,7 @@ namespace CustomCampaigns.Installers
             Container.BindInterfacesAndSelfTo<UnlockableSongsManager>().AsSingle();
             Container.Bind<DownloadManager>().AsSingle();
 
+            Container.Bind<ModalController>().AsSingle();
             Container.BindInterfacesAndSelfTo<LeaderboardNavigationViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignListViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignDetailViewController>().FromNewComponentAsViewController().AsSingle();

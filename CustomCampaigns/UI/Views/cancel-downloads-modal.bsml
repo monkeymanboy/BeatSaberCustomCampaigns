@@ -1,0 +1,9 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <modal clickerino-offerino-closerino='true' move-to-center ='true' id='cancel-downloads-modal' show-event='confirm-download-cancel' hide-event='close-download-cancel' size-delta-x='80' size-delta-y='60'>
+    <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pad='8' pref-width='80' pref-height='60' child-expand-width='true'>
+      <text text='You still have downloads which will be aborted if you exit this campaign. Are you sure you want to continue?' word-wrapping='true'/>
+      <action-button text='Yes - Cancel Downloads' on-click='forced-downloads-cancel' click-event='close-download-cancel'/>
+      <button text='No - Keep Downloading' click-event='close-download-cancel'/>
+    </vertical>
+  </modal>
+</bg>

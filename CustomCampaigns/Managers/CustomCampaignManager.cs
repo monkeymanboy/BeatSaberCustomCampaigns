@@ -2,6 +2,7 @@
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.HarmonyPatches;
 using CustomCampaigns.UI.MissionObjectiveGameUI;
+using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
 using HMUI;
 using IPA.Utilities;
@@ -31,7 +32,7 @@ namespace CustomCampaigns.Managers
 
         internal static MissionObjectiveResult[] missionObjectiveResults;
         internal static MissionObjectiveGameUIView missionObjectiveGameUIViewPrefab = null;
-        internal static MissionNode downloadingNode;
+        private MissionNode _downloadingNode;
 
         public Campaign.Campaign Campaign { get => _currentCampaign; }
 
@@ -52,6 +53,8 @@ namespace CustomCampaigns.Managers
         private CustomCampaignUIManager _customCampaignUIManager;
         private DownloadManager _downloadManager;
 
+        private bool forceClose = false;
+
         private CancellationTokenSource _cancellationTokenSource;
 
         private CampaignProgressModel _campaignProgressModel;
@@ -66,6 +69,8 @@ namespace CustomCampaigns.Managers
         private MissionLevelDetailViewController _missionLevelDetailViewController;
         private MissionResultsViewController _missionResultsViewController;
 
+        private ModalController _modalController;
+
         private CustomMissionDataSO _currentMissionDataSO;
         private MissionHelpViewController _missionHelpViewController;
 
@@ -78,7 +83,7 @@ namespace CustomCampaigns.Managers
         public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, DownloadManager downloadManager, CampaignFlowCoordinator campaignFlowCoordinator,
                                      MenuTransitionsHelper menuTransitionsHelper, MissionSelectionMapViewController missionSelectionMapViewController,
                                      MissionSelectionNavigationController missionSelectionNavigationController, MissionLevelDetailViewController missionLevelDetailViewController,
-                                     MissionResultsViewController missionResultsViewController, MissionHelpViewController missionHelpViewController,
+                                     MissionResultsViewController missionResultsViewController, MissionHelpViewController missionHelpViewController, ModalController modalController,
                                      UnlockableSongsManager unlockableSongsManager, PlayerDataModel playerDataModel, ExternalModifierManager externalModifierManager)
         {
             _customCampaignUIManager = customCampaignUIManager;
@@ -96,6 +101,8 @@ namespace CustomCampaigns.Managers
             _missionResultsViewController = missionResultsViewController;
             _missionHelpViewController = missionHelpViewController;
 
+            _modalController = modalController;
+
             _unlockableSongsManager = unlockableSongsManager;
             _playerDataModel = playerDataModel;
 
@@ -106,6 +113,9 @@ namespace CustomCampaigns.Managers
         public void FirstActivation()
         {
             _customCampaignUIManager.FirstActivation();
+
+            _modalController.didForceCancelDownloads -= OnForcedDownloadsCancel;
+            _modalController.didForceCancelDownloads += OnForcedDownloadsCancel;
         }
 
         public void FlowCoordinatorPresented()
@@ -132,6 +142,9 @@ namespace CustomCampaigns.Managers
 
             _missionResultsViewController.continueButtonPressedEvent -= OnContinueButtonPressed;
             _missionResultsViewController.continueButtonPressedEvent += OnContinueButtonPressed;
+
+            SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
+            SongCore.Loader.SongsLoadedEvent += OnSongsLoaded;
 
             _customCampaignUIManager.FlowCoordinatorPresented(_currentCampaign);
         }
@@ -190,7 +203,7 @@ namespace CustomCampaigns.Managers
         #region Events
         private void OnDidSelectMissionNode(MissionNodeVisualController missionNodeVisualController)
         {
-            if (downloadingNode != null)
+            if (_downloadManager.IsDownloading)
             {
                 Plugin.logger.Error("Should never reach here - was downloading");
                 return;
@@ -241,7 +254,7 @@ namespace CustomCampaigns.Managers
 
         private void DownloadMap(MissionNode missionNode)
         {
-            downloadingNode = missionNode;
+            _downloadingNode = missionNode;
             CustomMissionDataSO customMissionData = missionNode.missionData as CustomMissionDataSO;
             Mission mission = customMissionData.mission;
             _customCampaignUIManager.SetPlayButtonText("DOWNLOADING...");
@@ -273,7 +286,7 @@ namespace CustomCampaigns.Managers
         private void OnDownloadStatusUpdate(string status)
         {
             Plugin.logger.Debug($"Download status update: {status}");
-            if (_missionLevelDetailViewController.missionNode == downloadingNode)
+            if (_missionLevelDetailViewController.missionNode == _downloadingNode)
             {
                 _customCampaignUIManager.SetPlayButtonText(status);
             }
@@ -283,9 +296,9 @@ namespace CustomCampaigns.Managers
         {
             Plugin.logger.Debug("Download for map failed :(");
             _customCampaignUIManager.ClearProgressBar();
-            if (_missionLevelDetailViewController.missionNode == downloadingNode)
+            if (_missionLevelDetailViewController.missionNode == _downloadingNode)
             {
-                downloadingNode = null;
+                _downloadingNode = null;
                 _customCampaignUIManager.SetPlayButtonText("DOWNLOAD FAILED");
                 _customCampaignUIManager.SetPlayButtonInteractable(true);
             }
@@ -302,8 +315,6 @@ namespace CustomCampaigns.Managers
 
         private void OnDownloadSucceeded()
         {
-            SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
-            SongCore.Loader.SongsLoadedEvent += OnSongsLoaded;
             SongCore.Loader.Instance.RefreshSongs();
 
             _downloadManager.OnDownloadSuccess -= OnDownloadSucceeded;
@@ -320,13 +331,7 @@ namespace CustomCampaigns.Managers
             _customCampaignUIManager.RefreshMissionNodeData();
             _customCampaignUIManager.ClearProgressBar();
 
-            bool isDownloadingNode = _missionLevelDetailViewController.missionNode == downloadingNode;
-            if (!isDownloadingNode)
-            {
-                Plugin.logger.Error("Currently selected node is not the downloading one");
-            }
-
-            downloadingNode = null;
+            _downloadingNode = null;
             _customCampaignUIManager.SetPlayButtonText("Play");
             _customCampaignUIManager.SetPlayButtonInteractable(true);
             _missionNodeSelectionManager.GetField<Action<MissionNodeVisualController>, MissionNodeSelectionManager>("didSelectMissionNodeEvent")(_missionLevelDetailViewController.missionNode.missionNodeVisualController);
@@ -511,7 +516,10 @@ namespace CustomCampaigns.Managers
 
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = null;
-            downloadingNode = null;
+            _downloadingNode = null;
+            forceClose = false;
+
+            SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
 
             foreach (Mission mission in _currentCampaign.missions)
             {
@@ -597,6 +605,13 @@ namespace CustomCampaigns.Managers
             }
 
             _customCampaignUIManager.UpdateLeaderboards(true);
+        }
+
+        private void OnForcedDownloadsCancel()
+        {
+            _downloadManager.CancelDownloads();
+            forceClose = true;
+            _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("BackButtonWasPressed", _missionSelectionNavigationController);
         }
         #endregion
 
@@ -726,6 +741,32 @@ namespace CustomCampaigns.Managers
             scenesTransitionSetupDataSO.SetProperty("sceneSetupDataArray", sceneSetupData);
 
             return false;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(CampaignFlowCoordinator), "BackButtonWasPressed")]
+        public bool CampaignFlowCoordinatorBackButtonWasPressedPrefix()
+        {
+            if (forceClose)
+            {
+                forceClose = false;
+                return true;
+            }
+
+            if (_downloadManager.IsDownloading)
+            {
+                _modalController.ShowCancelDownloadConfirmation();
+                return false;
+            }
+            
+            return true;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MissionToggle), "ChangeSelection")]
+        public bool MissionToggleChangeSelectionPrefix()
+        {
+            return !_downloadManager.IsDownloading;
         }
         #endregion
     }
