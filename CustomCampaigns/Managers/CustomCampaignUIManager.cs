@@ -892,7 +892,6 @@ namespace CustomCampaigns.Managers
 
             if (!_loadedSprites.ContainsKey(spritePath))
             {
-                _loadedSprites[spritePath] = await SpriteUtils.LoadSpriteFromFile(spritePath);
                 _loadedSprites[spritePath] = await SpriteUtils.LoadSpriteFromFile(spritePath, false);
             }
 
