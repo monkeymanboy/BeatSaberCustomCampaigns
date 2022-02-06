@@ -23,6 +23,7 @@ namespace CustomCampaigns.Campaign.Missions
         public MissionModifiers modifiers;
         public MissionRequirement[] requirements;
         public Dictionary<string, string[]> externalModifiers = new Dictionary<string, string[]>();
+        public Dictionary<string, string[]> optionalExternalModifiers = new Dictionary<string, string[]>();
         [JsonProperty("challengeInfo")]
         public MissionInfo missionInfo = null;
 

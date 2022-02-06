@@ -663,21 +663,12 @@ namespace CustomCampaigns.Managers
 
             foreach (string modName in mission.externalModifiers.Keys)
             {
-                Plugin.logger.Debug($"{modName}");
-                foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
-                {
-                    Plugin.logger.Debug($"{externalModifier.Name}");
-                    if (externalModifier.Name == modName)
-                    {
-                        foreach (ExternalModifier.ExternalModifierInfo modInfo in externalModifier.Infos)
-                        {
-                            Plugin.logger.Debug($"found mod {modName}");
-                            modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.ModifierType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
-                        }
+                CreateExternalModifierParamsList(modName, ref modifierParams);
+            }
 
-                        break;
-                    }
-                }
+            foreach (string modName in mission.optionalExternalModifiers.Keys)
+            {
+                CreateExternalModifierParamsList(modName, ref modifierParams);
             }
 
             foreach (UnlockableItem item in mission.unlockableItems)
@@ -797,6 +788,25 @@ namespace CustomCampaigns.Managers
             _levelBarBackground.type = Image.Type.Filled;
             _levelBarBackground.fillMethod = Image.FillMethod.Horizontal;
             _levelBarBackground.fillAmount = 0;
+        }
+
+        private void CreateExternalModifierParamsList(string modName, ref List<GameplayModifierParamsSO> modifierParams)
+        {
+            Plugin.logger.Debug($"{modName}");
+            foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
+            {
+                Plugin.logger.Debug($"{externalModifier.Name}");
+                if (externalModifier.Name == modName)
+                {
+                    foreach (ExternalModifier.ExternalModifierInfo modInfo in externalModifier.Infos)
+                    {
+                        Plugin.logger.Debug($"found mod {modName}");
+                        modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.ModifierType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
+                    }
+
+                    break;
+                }
+            }
         }
         #endregion
 

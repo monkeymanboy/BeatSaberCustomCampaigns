@@ -12,9 +12,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using static CustomCampaigns.Config;
 using static SongCore.Data.ExtraSongData;
 
 namespace CustomCampaigns.Managers
@@ -49,6 +51,10 @@ namespace CustomCampaigns.Managers
         private const string MISSING_CAPABILITY_ERROR_DESCRIPTION = "Could not find the capability to play levels with ";
         private const string OBJECTIVE_NOT_FOUND_ERROR_TITLE = "Error - Mission Objective Not Found";
         private const string OBJECTIVE_NOT_FOUND_ERROR_DESCRIPTION = "You likely have a typo in the requirement name";
+        private const string MISSING_OPTIONAL_TITLE = "Error - Optional Mod";
+        private const string MISSING_OPTIONAL_DESCRIPTION = "Missing optional mod ";
+        private const string OPTIONAL_FAILURE_TITLE = "Error - Optional Mod";
+        private const string OPTIONAL_FAILURE_DESCRIPTION = "Failure from optional mod ";
 
         private CustomCampaignUIManager _customCampaignUIManager;
         private DownloadManager _downloadManager;
@@ -80,11 +86,17 @@ namespace CustomCampaigns.Managers
 
         private ExternalModifierManager _externalModifierManager;
 
+        private Config _config;
+
+        private bool _waitingForWarningInteraction = false;
+        private bool _backingOutMissingOptional = false;
+        private bool _backingOutOptionalFailure = false;
+
         public CustomCampaignManager(CustomCampaignUIManager customCampaignUIManager, DownloadManager downloadManager, CampaignFlowCoordinator campaignFlowCoordinator,
                                      MenuTransitionsHelper menuTransitionsHelper, MissionSelectionMapViewController missionSelectionMapViewController,
                                      MissionSelectionNavigationController missionSelectionNavigationController, MissionLevelDetailViewController missionLevelDetailViewController,
                                      MissionResultsViewController missionResultsViewController, MissionHelpViewController missionHelpViewController, ModalController modalController,
-                                     UnlockableSongsManager unlockableSongsManager, PlayerDataModel playerDataModel, ExternalModifierManager externalModifierManager)
+                                     UnlockableSongsManager unlockableSongsManager, PlayerDataModel playerDataModel, ExternalModifierManager externalModifierManager, Config config)
         {
             _customCampaignUIManager = customCampaignUIManager;
             _downloadManager = downloadManager;
@@ -107,6 +119,8 @@ namespace CustomCampaigns.Managers
             _playerDataModel = playerDataModel;
 
             _externalModifierManager = externalModifierManager;
+
+            _config = config;
         }
 
         #region CampaignInit
@@ -472,13 +486,15 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("retry button pressed");
 
             Mission mission = _currentMissionDataSO.mission;
-            HashSet<string> failedMods = await LoadExternalModifiers(mission);
+            (HashSet<string>, HashSet<string>, HashSet<string>) failedMods = await LoadExternalModifiers(mission);
 
-            if (failedMods.Count > 0)
+            if (failedMods.Item1.Count > 0)
             {
                 Plugin.logger.Error("Error loading external modifiers");
                 return;
             }
+
+            // TODO: optional failures
 
             if (mission.allowStandardLevel)
             {
@@ -613,6 +629,45 @@ namespace CustomCampaigns.Managers
             forceClose = true;
             _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("BackButtonWasPressed", _missionSelectionNavigationController);
         }
+
+        private void OnDidDisableOptionalWarnings(string optionalMod)
+        {
+            Dictionary<string, HashSet<string>> disabledOptionalModWarnings = _config.disabledOptionalModWarnings;
+            if (_config.disabledOptionalModWarnings.ContainsKey(_currentCampaign.info.name))
+            {
+                _config.disabledOptionalModWarnings[_currentCampaign.info.name].Add(optionalMod);
+            }
+            else
+            {
+                _config.disabledOptionalModWarnings[_currentCampaign.info.name] = new HashSet<string>() { optionalMod };
+            }
+
+            _config.Changed();
+        }
+
+        private void OnDidContinueMissingOptional()
+        {
+            _backingOutMissingOptional = false;
+            _waitingForWarningInteraction = false;
+        }
+
+        private void OnDidBackOutMissingOptional()
+        {
+            _backingOutMissingOptional = true;
+            _waitingForWarningInteraction = false;
+        }
+
+        private void OnDidContinueOptionalFailure()
+        {
+            _backingOutOptionalFailure = false;
+            _waitingForWarningInteraction = false;
+        }
+
+        private void OnDidBackOutOptionalFailure()
+        {
+            _backingOutOptionalFailure = true;
+            _waitingForWarningInteraction = false;
+        }
         #endregion
 
         #region Helper Functions
@@ -631,10 +686,13 @@ namespace CustomCampaigns.Managers
         private async Task<List<GameplayModifierParamsSO>> CheckForErrors(Mission mission)
         {
             List<GameplayModifierParamsSO> errorList = new List<GameplayModifierParamsSO>();
-            HashSet<string> failedMods = await LoadExternalModifiers(mission);
-            if (failedMods.Count > 0)
+
+            // requiredModFailures, missingOptionalMods, optionalModFailures
+            (HashSet<string>, HashSet<string>, HashSet<string>) failedMods = await LoadExternalModifiers(mission);
+
+            if (failedMods.Item1.Count > 0)
             {
-                foreach (var mod in failedMods)
+                foreach (var mod in failedMods.Item1)
                 {
                     string errorMessage = $"{EXTERNAL_MOD_ERROR_DESCRIPTION} {mod}";
                     errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, EXTERNAL_MOD_ERROR_TITLE, errorMessage));
@@ -672,10 +730,76 @@ namespace CustomCampaigns.Managers
                 }
             }
 
+            _backingOutMissingOptional = false;
+            _backingOutOptionalFailure = false;
+            string missingOptional = "";
+
+            // TODO: support multiple optional mods
+            foreach (var optionalMod in failedMods.Item2)
+            {
+                if (!OptionalWarningsDisabled(optionalMod))
+                {
+                    _waitingForWarningInteraction = true;
+
+                    _modalController.didDisableOptionalWarnings -= OnDidDisableOptionalWarnings;
+                    _modalController.didDisableOptionalWarnings += OnDidDisableOptionalWarnings;
+
+                    _modalController.didContinueMissingOptional -= OnDidContinueMissingOptional;
+                    _modalController.didContinueMissingOptional += OnDidContinueMissingOptional;
+
+                    _modalController.didBackOutMissingOptional -= OnDidBackOutMissingOptional;
+                    _modalController.didBackOutMissingOptional += OnDidBackOutMissingOptional;
+
+                    missingOptional = optionalMod;
+                    _modalController.ShowMissingOptionalModWarning(optionalMod);
+                    break;
+                }
+            }
+
+            if (!_waitingForWarningInteraction)
+            {
+                foreach (var optionalMod in failedMods.Item3)
+                {
+                    Plugin.logger.Debug($"Failed optional mod: {optionalMod}");
+                    _waitingForWarningInteraction = true;
+
+                    _modalController.didContinueOptionalFailure -= OnDidContinueOptionalFailure;
+                    _modalController.didContinueOptionalFailure += OnDidContinueOptionalFailure;
+
+                    _modalController.didBackOutOptionalFailure -= OnDidBackOutOptionalFailure;
+                    _modalController.didBackOutOptionalFailure += OnDidBackOutOptionalFailure;
+
+                    missingOptional = optionalMod;
+                    _modalController.ShowOptionalModFailureWarning(optionalMod);
+                    break;
+                }
+            }
+
+            while (_waitingForWarningInteraction)
+            {
+                await Task.Yield();
+            }
+
+            if (_backingOutMissingOptional)
+            {
+                errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, MISSING_OPTIONAL_TITLE, $"{MISSING_OPTIONAL_DESCRIPTION}{missingOptional}"));
+            }
+
+            if (_backingOutOptionalFailure)
+            {
+                errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, OPTIONAL_FAILURE_TITLE, $"{OPTIONAL_FAILURE_DESCRIPTION}{missingOptional}"));
+            }
+
             return errorList;
         }
 
-        private async Task<HashSet<string>> LoadExternalModifiers(Mission mission)
+        private bool OptionalWarningsDisabled(string optionalMod)
+        {
+            return _config.disabledOptionalModWarnings.ContainsKey(_currentCampaign.info.name) &&
+                   _config.disabledOptionalModWarnings[_currentCampaign.info.name].Contains(optionalMod);
+        }
+
+        private async Task<(HashSet<string>, HashSet<string>, HashSet<string>)> LoadExternalModifiers(Mission mission)
         {
             return await _externalModifierManager.CheckForModLoadIssues(mission);
         }

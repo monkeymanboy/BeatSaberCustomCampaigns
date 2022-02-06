@@ -12,16 +12,9 @@ namespace CustomCampaigns.Installers
     {
         protected void InstallExternalModifiers()
         {
-            foreach (string modName in (CustomCampaignManager.currentMissionData as CustomMissionDataSO).mission.externalModifiers.Keys)
+            foreach (var externalModifier in ExternalModifierManager.ExternalModifiersToInstall.Values)
             {
-                foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
-                {
-                    if (externalModifier.Name == modName)
-                    {
-                        InstallExternalModifier(externalModifier);
-                        break;
-                    }
-                }
+                InstallExternalModifier(externalModifier);
             }
         }
 

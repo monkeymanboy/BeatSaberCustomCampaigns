@@ -37,9 +37,11 @@
       <None Remove="UI\Views\cancel-downloads-modal.bsml" />
       <None Remove="UI\Views\gameplay-setup-settings.bsml" />
       <None Remove="UI\Views\leaderboard-navigation.bsml" />
+      <None Remove="UI\Views\missing-optional-mod-warning.bsml" />
       <None Remove="UI\Views\mission-detail.bsml" />
       <None Remove="UI\Views\mission-leaderboard.bsml" />
       <None Remove="UI\Views\mission-secondary-leaderboard.bsml" />
+      <None Remove="UI\Views\optional-mod-failure-warning.bsml" />
       <None Remove="UI\Views\settings.bsml" />
       <None Remove="UI\Views\tools.bsml" />
     </ItemGroup>

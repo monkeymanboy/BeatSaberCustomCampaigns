@@ -13,6 +13,7 @@ namespace CustomCampaigns.Managers
     public class ExternalModifierManager : IInitializable
     {
         internal static Dictionary<Assembly, ExternalModifier> ExternalModifiers { get; private set; } = new Dictionary<Assembly, ExternalModifier>();
+        internal static Dictionary<Assembly, ExternalModifier> ExternalModifiersToInstall { get; private set; } = new Dictionary<Assembly, ExternalModifier>();
 
         private List<IModifierHandler> _modifierHandlers;
         private List<INotifyMissionCompletionResults> _notifyMissionCompletionResults;
@@ -32,14 +33,21 @@ namespace CustomCampaigns.Managers
             CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionSceneFinish;
         }
 
-        public async Task<HashSet<string>> CheckForModLoadIssues(Mission mission)
+        public async Task<(HashSet<string>, HashSet<string>, HashSet<string>)> CheckForModLoadIssues(Mission mission)
         {
             _currentMission = mission;
-            HashSet<string> modFailures = new HashSet<string>();
 
-            foreach (var externalModifier in ExternalModifiers.Values)
+            // requiredModFailures, missingOptionalMods, optionalModFailures
+            (HashSet<string>, HashSet<string>, HashSet<string>) modFailures = (new HashSet<string>(), new HashSet<string>(), new HashSet<string>());
+
+            List<IModifierHandler> currentMissionHandlers = new List<IModifierHandler>();
+
+            ExternalModifiersToInstall = new Dictionary<Assembly, ExternalModifier>();
+
+            foreach (var kvp in ExternalModifiers)
             {
-                if (!mission.externalModifiers.ContainsKey(externalModifier.Name))
+                var externalModifier = kvp.Value;
+                if (!mission.externalModifiers.ContainsKey(externalModifier.Name) && !mission.optionalExternalModifiers.ContainsKey(externalModifier.Name))
                 {
                     continue;
                 }
@@ -58,38 +66,67 @@ namespace CustomCampaigns.Managers
                 }
 
                 var handler = handlers.First();
-                if (handler != null && !await handler.OnLoadMission(mission.externalModifiers[externalModifier.Name], mission))
-                {
-                    modFailures.Add(externalModifier.Name);
-                }
-            }
+                currentMissionHandlers.Add(handler);
 
-            foreach (var modName in mission.externalModifiers.Keys)
-            {
-                bool foundMod = false;
-                foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
+                if (handler != null)
                 {
-                    if (externalModifier.Name == modName)
+                    ExternalModifiersToInstall.Add(kvp.Key, kvp.Value);
+                    if (mission.externalModifiers.ContainsKey(externalModifier.Name))
                     {
-                        foundMod = true;
+                        if (!await handler.OnLoadMission(mission.externalModifiers[externalModifier.Name], mission))
+                        {
+                            modFailures.Item1.Add(externalModifier.Name);
+                        }
+                    }
+                    else
+                    {
+                        if (!await handler.OnLoadMission(mission.optionalExternalModifiers[externalModifier.Name], mission))
+                        {
+                            Plugin.logger.Debug("optional mod failure");
+                            modFailures.Item3.Add(externalModifier.Name);
+                        }
                     }
                 }
-
-                if (!foundMod)
-                {
-                    modFailures.Add(modName);
-                }
             }
 
-            if (modFailures.Count > 0)
+            Plugin.logger.Debug("checking required external mods");
+            foreach (var modName in mission.externalModifiers.Keys)
             {
-                foreach (var handler in _modifierHandlers)
+                CheckExternalModifier(modName, ref modFailures.Item1);
+            }
+
+            Plugin.logger.Debug("checking optional external mods");
+            foreach (var modName in mission.optionalExternalModifiers.Keys)
+            {
+                CheckExternalModifier(modName, ref modFailures.Item2);
+            }
+
+            if (modFailures.Item1.Count > 0)
+            {
+                foreach (var handler in currentMissionHandlers)
                 {
                     handler.OnMissionFailedToLoad(mission);
                 }
             }
 
             return modFailures;
+        }
+
+        private void CheckExternalModifier(string modName, ref HashSet<string> modFailures)
+        {
+            bool foundMod = false;
+            foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
+            {
+                if (externalModifier.Name == modName)
+                {
+                    foundMod = true;
+                }
+            }
+
+            if (!foundMod)
+            {
+                modFailures.Add(modName);
+            }
         }
 
         public void OnMissionSceneFinish(MissionLevelScenesTransitionSetupDataSO _, MissionCompletionResults missionCompletionResults)

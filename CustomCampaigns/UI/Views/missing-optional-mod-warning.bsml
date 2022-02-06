@@ -1,0 +1,11 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <modal clickerino-offerino-closerino='false' move-to-center ='true' id='optional-mod-missing-warning-modal' show-event='missing-optional-mod' hide-event='close-optional-mod-warning' size-delta-x='80' size-delta-y='80'>
+    <vertical spacing='2' horizontal-fit='PreferredSize' vertical-fit='PreferredSize' pad='8' pref-width='80' pref-height='80' child-expand-width='true'>
+      <text text='You are missing an optional mod.' id='missing-mod-text' word-wrapping='true' align='Center'/>
+      <text text='Would you still like to continue?' word-wrapping='true' align='Center'/>
+      <button text="Yes - Don't show again" on-click='continue-missing-optional-disable-warning' click-event='close-optional-mod-warning'/>
+      <button text='Yes - Show again' on-click='continue-missing-optional' click-event='close-optional-mod-warning'/>
+      <action-button text='No' on-click='back-out-missing-optional' click-event='close-optional-mod-warning'/>
+    </vertical>
+  </modal>
+</bg>
