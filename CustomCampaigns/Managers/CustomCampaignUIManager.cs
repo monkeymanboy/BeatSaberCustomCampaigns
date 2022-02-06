@@ -697,25 +697,8 @@ namespace CustomCampaigns.Managers
 
             if (_modifierParams.Count > 0)
             {
-                var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
-
-                Vector2 sd = _objectivesSizeDelta;
-                Plugin.logger.Debug($"objectives size: {_objectivesSizeDelta}");
-                
-                sd.x /= 2;
-                Plugin.logger.Debug($"sd size: {sd}");
-                (objectives.transform as RectTransform).SetProperty("sizeDelta", sd);
-                var modifiers = _missionLevelDetailViewController.transform.GetChild(0).GetChild(3);
-                (modifiers.transform as RectTransform).SetProperty("sizeDelta", sd);
-                modifiers.transform.position = objectives.transform.position;
-                modifiers.transform.localPosition = new Vector3(sd.x / 2, -1.5f, objectives.transform.localPosition.z);
-
-                objectives.transform.localPosition = new Vector3(-(sd.x / 2), objectives.transform.localPosition.y, objectives.transform.localPosition.z);
+                AdjustObjectiveModifierTransforms();
             }
-            else
-            {
-            }
-            
         }
 
         public void LoadErrors(List<GameplayModifierParamsSO> modifierParams)
@@ -807,6 +790,24 @@ namespace CustomCampaigns.Managers
                     break;
                 }
             }
+        }
+
+        private void AdjustObjectiveModifierTransforms()
+        {
+            var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
+
+            Vector2 sd = _objectivesSizeDelta;
+            Plugin.logger.Debug($"objectives size: {_objectivesSizeDelta}");
+
+            sd.x /= 2;
+            Plugin.logger.Debug($"sd size: {sd}");
+            (objectives.transform as RectTransform).SetProperty("sizeDelta", sd);
+            var modifiers = _missionLevelDetailViewController.transform.GetChild(0).GetChild(3);
+            (modifiers.transform as RectTransform).SetProperty("sizeDelta", sd);
+            modifiers.transform.position = objectives.transform.position;
+            modifiers.transform.localPosition = new Vector3(sd.x / 2, -1.5f, objectives.transform.localPosition.z);
+
+            objectives.transform.localPosition = new Vector3(-(sd.x / 2), objectives.transform.localPosition.y, objectives.transform.localPosition.z);
         }
         #endregion
 
@@ -922,6 +923,7 @@ namespace CustomCampaigns.Managers
         [AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
         private bool MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelPrefix(MissionSelectionNavigationController __instance, MissionNode _missionNode, MissionLevelDetailViewController ____missionLevelDetailViewController)
         {
+            Plugin.logger.Debug("HandleMissionSelectionMapViewControllerDidSelectMissionLevel");
             if (_levelParamsPanel == null)
             {
                 return true;
@@ -940,6 +942,8 @@ namespace CustomCampaigns.Managers
             var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
             _levelParamsPanel.transform.localPosition = new Vector3(objectives.transform.localPosition.x, _levelParamsPanel.transform.localPosition.y, _levelParamsPanel.transform.localPosition.z);
             _levelParamsPanel.transform.position = new Vector3(0.25f, _levelParamsPanel.transform.position.y, _levelParamsPanel.transform.position.z);
+
+            AdjustObjectiveModifierTransforms();
         }
         #endregion
     }
