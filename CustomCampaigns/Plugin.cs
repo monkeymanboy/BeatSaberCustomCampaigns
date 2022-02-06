@@ -20,6 +20,7 @@ namespace CustomCampaigns
         internal static Config config;
 
         internal static bool isScoreSaberInstalled;
+        internal static bool isPlaylistLibInstalled;
 
         private readonly Harmony _harmony;
         private const string _harmonyID = "dev.PulseLane.BeatSaber.CustomCampaigns";
@@ -45,6 +46,7 @@ namespace CustomCampaigns
             _harmony.PatchAll();
             BSUtilsUtils.CheckForBSUtilsInstall();
             PatchScoreSaber();
+            IsPlaylistsLibInstalled();
         }
 
         [OnDisable]
@@ -85,6 +87,22 @@ namespace CustomCampaigns
                 isScoreSaberInstalled = false;
             }
             return isScoreSaberInstalled;
+        }
+
+        private bool IsPlaylistsLibInstalled()
+        {
+            Plugin.logger.Debug("checking for playlists lib install");
+            try
+            {
+                var metadatas = PluginManager.EnabledPlugins.Where(x => x.Id == "BeatSaberPlaylistsLib");
+                isPlaylistLibInstalled = metadatas.Count() > 0;
+            }
+            catch (Exception e)
+            {
+                logger.Debug($"Error checking for SS install: {e.Message}");
+                isPlaylistLibInstalled = false;
+            }
+            return isPlaylistLibInstalled;
         }
     }
 }

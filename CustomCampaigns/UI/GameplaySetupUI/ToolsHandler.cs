@@ -32,14 +32,22 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         [UIValue("credits-visible")]
         public bool CreditsVisible { get; private set; }
 
+        [UIValue("playlists-visible")]
+        public bool PlaylistsVisible { get; private set; }
+
         [UIComponent("download-button")]
         Button downloadButton;
+
+        [UIComponent("playlist-button")]
+        Button playlistButton;
 
         public ToolsHandler(MenuTransitionsHelper menuTransitionsHelper, CreditsManager creditsManager, DownloadManager downloadManager)
         {
             _menuTransitionsHelper = menuTransitionsHelper;
             _creditsManager = creditsManager;
             _downloadManager = downloadManager;
+
+            PlaylistsVisible = Plugin.isPlaylistLibInstalled;
         }
 
         internal void SetCampaign(Campaign.Campaign campaign)
@@ -50,8 +58,13 @@ namespace CustomCampaigns.UI.GameplaySetupUI
 
             downloadButton.interactable = true;
             downloadButton.SetButtonText("Download Missing Songs");
+
+            playlistButton.interactable = true;
+            
+            playlistButton.SetButtonText(GetDoesPlaylistExist(_campaign) ? "Update Playlist" : "Create Playlist");
         }
 
+        #region Download Buton
         [UIAction("download-click")]
         public void DownloadMissingSongs()
         {
@@ -129,6 +142,91 @@ namespace CustomCampaigns.UI.GameplaySetupUI
 
             downloadButton.SetButtonText($"Downloading {songsDownloaded + 1} / {_downloadManager.GetQueueSize()}...");
         }
+        #endregion
+
+        [UIAction("playlist-click")]
+        public void ExportPlaylist()
+        {
+            playlistButton.interactable = false;
+            playlistButton.SetButtonText("Creating Playlist");
+
+            BeatSaberPlaylistsLib.PlaylistManager playlistManager = BeatSaberPlaylistsLib.PlaylistManager.DefaultManager.CreateChildManager("Custom Campaigns");
+            BeatSaberPlaylistsLib.Types.IPlaylist playlist;
+
+            if (!playlistManager.TryGetPlaylist(GetPlaylistFileName(_campaign.info.name), out playlist))
+            {
+                playlist = playlistManager.CreatePlaylist("", _campaign.info.name, _campaign.info.name, "");
+            }
+
+            foreach (var mission in _campaign.missions)
+            {
+                var song = new BeatSaberPlaylistsLib.Legacy.LegacyPlaylistSong();
+
+                if (mission.customDownloadURL != "")
+                {
+                    var customPreviewBeatmapLevel = mission.FindSong();
+                    if (customPreviewBeatmapLevel == null)
+                    {
+                        continue;
+                    }
+
+                    song.LevelId = customPreviewBeatmapLevel.levelID;
+                    song.Key = mission.songid;
+                }
+
+                else if (mission.hash != "")
+                {
+                    song.Hash = mission.hash;
+                    song.Key = mission.songid;
+                }
+
+                else
+                {
+                    song.Key = mission.songid;
+                }
+
+
+                var diff = new BeatSaberPlaylistsLib.Types.Difficulty
+                {
+                    Name = mission.difficulty.ToString(),
+                    Characteristic = mission.characteristic
+                };
+
+                bool songInPlaylist = false;
+                foreach (var song2 in playlist)
+                {
+                    if (song2.Hash == song.Hash)
+                    {
+                        songInPlaylist = true;
+                        (song2 as BeatSaberPlaylistsLib.Legacy.LegacyPlaylistSong).AddDifficulty(diff);
+                        break;
+                    }
+                }
+
+                if (!songInPlaylist)
+                {
+                    song.AddDifficulty(diff);
+                    playlist.Add(song);
+                }
+            }
+            
+            string fileLocation = _campaign.campaignPath + "/cover.png";
+            try
+            {
+                playlist.SetCover(new FileStream(fileLocation, FileMode.Open));
+            }
+            catch (Exception e)
+            {
+                Plugin.logger.Error($"Error setting cover image: {e}");
+                playlist.SetCover(_campaign.info.name);
+            }
+            
+
+            playlistManager.StorePlaylist(playlist);
+
+            
+            playlistButton.SetButtonText("Created Playlist");
+        }
 
         [UIAction("credits-click")]
         public void ShowCredits()
@@ -136,6 +234,17 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             Plugin.logger.Debug("credits :D");
             _creditsManager.StartingCustomCampaignCredits(CustomCampaignFlowCoordinator.CustomCampaignManager.Campaign);
             _menuTransitionsHelper.ShowCredits();
+        }
+
+        private bool GetDoesPlaylistExist(Campaign.Campaign campaign)
+        {
+            string fileName = GetPlaylistFileName(_campaign.info.name);
+            return File.Exists(Path.Combine(Environment.CurrentDirectory, "Playlists", "Custom Campaigns", fileName + ".bplist"));
+        }
+
+        private string GetPlaylistFileName(string name)
+        {
+            return string.Join("_", string.Join("", name.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)).Split()); ;
         }
     }
 }

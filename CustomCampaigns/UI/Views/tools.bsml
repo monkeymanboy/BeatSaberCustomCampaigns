@@ -1,6 +1,5 @@
-﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-  <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
-    <button id='download-button' text='Download Missing Songs' on-click='download-click'/>
-    <button text="View Credits" on-click='credits-click' id='credits-button' active='~credits-visible'/>
-  </vertical>
-</bg>
+﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <button id='download-button' text='Download Missing Songs' on-click='download-click'/>
+  <button id='playlist-button' text='Export to Playlist' on-click='playlist-click' active='~playlists-visible'/>
+  <button text="View Credits" on-click='credits-click' id='credits-button' active='~credits-visible'/>
+</settings-container>
