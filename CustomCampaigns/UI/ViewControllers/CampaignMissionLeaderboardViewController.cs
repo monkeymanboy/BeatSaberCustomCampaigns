@@ -56,8 +56,10 @@ namespace CustomCampaigns.UI.ViewControllers
 
         public void UpdateLeaderboards()
         {
-            if (mission != null)
+            Plugin.logger.Debug("update leaderboards");
+            if (mission != null && _leaderboardTransform != null)
             {
+                Plugin.logger.Debug("updating leaderboard");
                 isLoaded = false;
                 StartCoroutine(UpdateLeaderboardsCoroutine());
             }
@@ -98,8 +100,6 @@ namespace CustomCampaigns.UI.ViewControllers
                                   .Replace("{characteristic}", mission.characteristic)
                                   .Replace("{difficulty}", ((int) mission.difficulty).ToString())
                                   .Replace("{userID}", UserInfoManager.UserInfo.platformUserId);
-
-            Plugin.logger.Debug(url);
             return url;
         }
 

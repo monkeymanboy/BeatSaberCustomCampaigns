@@ -21,6 +21,7 @@ namespace CustomCampaigns
 
         internal static bool isScoreSaberInstalled;
         internal static bool isPlaylistLibInstalled;
+        internal static bool isLeaderboardCoreInstalled;
 
         private readonly Harmony _harmony;
         private const string _harmonyID = "dev.PulseLane.BeatSaber.CustomCampaigns";
@@ -46,7 +47,8 @@ namespace CustomCampaigns
             _harmony.PatchAll();
             BSUtilsUtils.CheckForBSUtilsInstall();
             PatchScoreSaber();
-            IsPlaylistsLibInstalled();
+            CheckForPlaylistsLibInstall();
+            CheckForLeaderboardCoreInstall();
         }
 
         [OnDisable]
@@ -89,7 +91,7 @@ namespace CustomCampaigns
             return isScoreSaberInstalled;
         }
 
-        private bool IsPlaylistsLibInstalled()
+        private bool CheckForPlaylistsLibInstall()
         {
             Plugin.logger.Debug("checking for playlists lib install");
             try
@@ -99,10 +101,26 @@ namespace CustomCampaigns
             }
             catch (Exception e)
             {
-                logger.Debug($"Error checking for SS install: {e.Message}");
+                logger.Debug($"Error checking for playlistslib install: {e.Message}");
                 isPlaylistLibInstalled = false;
             }
             return isPlaylistLibInstalled;
+        }
+
+        private bool CheckForLeaderboardCoreInstall()
+        {
+            Plugin.logger.Debug("checking for leaderboard core install");
+            try
+            {
+                var metadatas = PluginManager.EnabledPlugins.Where(x => x.Id == "LeaderboardCore");
+                isLeaderboardCoreInstalled = metadatas.Count() > 0;
+            }
+            catch (Exception e)
+            {
+                logger.Debug($"Error checking for leaderboardcore install: {e.Message}");
+                isLeaderboardCoreInstalled = false;
+            }
+            return isLeaderboardCoreInstalled;
         }
     }
 }

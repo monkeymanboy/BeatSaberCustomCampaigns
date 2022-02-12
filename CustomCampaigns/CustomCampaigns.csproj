@@ -40,6 +40,7 @@
       <None Remove="UI\Views\missing-optional-mod-warning.bsml" />
       <None Remove="UI\Views\mission-detail.bsml" />
       <None Remove="UI\Views\mission-leaderboard.bsml" />
+      <None Remove="UI\Views\mission-panel.bsml" />
       <None Remove="UI\Views\mission-secondary-leaderboard.bsml" />
       <None Remove="UI\Views\optional-mod-failure-warning.bsml" />
       <None Remove="UI\Views\settings.bsml" />
@@ -88,6 +89,10 @@
         </Reference>
         <Reference Include="IPA.Injector">
           <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Injector.dll</HintPath>
+        </Reference>
+        <Reference Include="LeaderboardCore">
+          <HintPath>$(BeatSaberDir)\Plugins\LeaderboardCore.dll</HintPath>
+          <Private>False</Private>
         </Reference>
         <Reference Include="MediaLoader">
           <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MediaLoader.dll</HintPath>

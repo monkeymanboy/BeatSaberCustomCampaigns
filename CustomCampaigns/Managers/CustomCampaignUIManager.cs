@@ -6,6 +6,7 @@ using CustomCampaigns.External;
 using CustomCampaigns.HarmonyPatches.ScoreSaber;
 using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.GameplaySetupUI;
+using CustomCampaigns.UI.LeaderboardCore;
 using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
 using HarmonyLib;
@@ -75,6 +76,7 @@ namespace CustomCampaigns.Managers
         private CampaignMissionSecondaryLeaderboardViewController _campaignMissionSecondaryLeaderboardViewController;
         private PlatformLeaderboardViewController _globalLeaderboardViewController;
         private LeaderboardNavigationViewController _leaderboardNavigationViewController;
+        private CustomCampaignsCustomLeaderboard _customCampaignsCustomLeaderboard;
 
         private Vector3 _leaderboardPosition;
 
@@ -105,7 +107,7 @@ namespace CustomCampaigns.Managers
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController, StandardLevelDetailViewController standardLevelDetailViewController,
                                         CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
-                                        PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
+                                        CustomCampaignsCustomLeaderboard customCampaignsCustomLeaderboard, PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
                                         Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler, HoverHintController hoverHintController)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
@@ -141,6 +143,7 @@ namespace CustomCampaigns.Managers
             _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
             _globalLeaderboardViewController = globalLeaderboardViewController;
             _leaderboardNavigationViewController = leaderboardNavigationViewController;
+            _customCampaignsCustomLeaderboard = customCampaignsCustomLeaderboard;
 
             _config = config;
 
@@ -184,7 +187,15 @@ namespace CustomCampaigns.Managers
             MissionName.alignment = TextAlignmentOptions.Bottom;
             MissionName.gameObject.SetActive(true);
 
-            _leaderboardNavigationViewController.CustomCampaignEnabled();
+            if (!_config.floorLeaderboard && !Plugin.isLeaderboardCoreInstalled)
+            {
+                _leaderboardNavigationViewController.CustomCampaignEnabled();
+            }
+            else if (!_config.floorLeaderboard && Plugin.isLeaderboardCoreInstalled)
+            {
+                _customCampaignsCustomLeaderboard.Register();
+            }
+            
             YeetBaseGameNodes();
             _settingsHandler.PropertyChanged += OnSettingsChanged;
 
@@ -498,9 +509,20 @@ namespace CustomCampaigns.Managers
                         Plugin.logger.Debug("boring leaderboard");
                         _campaignMissionSecondaryLeaderboardViewController.customURL = missionData.campaign.info.customMissionLeaderboard;
                         _campaignMissionSecondaryLeaderboardViewController.mission = mission;
-                        _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
 
-                        _leaderboardNavigationViewController.SetGlobalLeaderboardViewController();
+                        _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
+                        if (!Plugin.isLeaderboardCoreInstalled)
+                        {
+                            _leaderboardNavigationViewController.SetGlobalLeaderboardViewController();
+                        }
+                        else
+                        {
+                            _customCampaignsCustomLeaderboard.SetCustomURL(missionData.campaign.info.customMissionLeaderboard);
+                            _customCampaignsCustomLeaderboard.SetMission(mission);
+
+                            _customCampaignsCustomLeaderboard.SetColor(GetNodeColor(_missionLevelDetailViewController.missionNode));
+                            _customCampaignsCustomLeaderboard.UpdateLeaderboards();
+                        }
                     }
                 }
             }
@@ -621,6 +643,7 @@ namespace CustomCampaigns.Managers
             InitializeCampaignUI();
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             _leaderboardNavigationViewController.CustomCampaignDisabled();
+            _customCampaignsCustomLeaderboard.Unregister();
             _gameplaySetupManager.CampaignExit();
         }
 
@@ -779,15 +802,12 @@ namespace CustomCampaigns.Managers
 
         private void CreateExternalModifierParamsList(string modName, ref List<GameplayModifierParamsSO> modifierParams)
         {
-            Plugin.logger.Debug($"{modName}");
             foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
             {
-                Plugin.logger.Debug($"{externalModifier.Name}");
                 if (externalModifier.Name == modName)
                 {
                     foreach (ExternalModifier.ExternalModifierInfo modInfo in externalModifier.Infos)
                     {
-                        Plugin.logger.Debug($"found mod {modName}");
                         modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.ModifierType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
                     }
 
@@ -801,10 +821,8 @@ namespace CustomCampaigns.Managers
             var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
 
             Vector2 sd = _objectivesSizeDelta;
-            Plugin.logger.Debug($"objectives size: {_objectivesSizeDelta}");
 
             sd.x /= 2;
-            Plugin.logger.Debug($"sd size: {sd}");
             (objectives.transform as RectTransform).SetProperty("sizeDelta", sd);
             var modifiers = _missionLevelDetailViewController.transform.GetChild(0).GetChild(3);
             (modifiers.transform as RectTransform).SetProperty("sizeDelta", sd);
@@ -812,6 +830,14 @@ namespace CustomCampaigns.Managers
             modifiers.transform.localPosition = new Vector3(sd.x / 2, -1.5f, objectives.transform.localPosition.z);
 
             objectives.transform.localPosition = new Vector3(-(sd.x / 2), objectives.transform.localPosition.y, objectives.transform.localPosition.z);
+        }
+
+        private Color GetNodeColor(MissionNode missionNode)
+        {
+            var missionNodeVisualController = missionNode.GetField<MissionNodeVisualController, MissionNode>("_missionNodeVisualController");
+            var missionToggle = missionNodeVisualController.GetField<MissionToggle, MissionNodeVisualController>("_missionToggle");
+
+            return missionToggle.GetField<Color, MissionToggle>("_highlightColor");
         }
         #endregion
 

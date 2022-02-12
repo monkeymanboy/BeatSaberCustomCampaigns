@@ -2,6 +2,7 @@
 using CustomCampaigns.UI;
 using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.GameplaySetupUI;
+using CustomCampaigns.UI.LeaderboardCore;
 using CustomCampaigns.UI.ViewControllers;
 using SiraUtil;
 using UnityEngine;
@@ -36,6 +37,9 @@ namespace CustomCampaigns.Installers
             Container.Bind<CampaignTotalLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.Bind<CampaignMissionLeaderboardCoreViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<CampaignPanelViewController>().FromNewComponentAsViewController().AsSingle();
+            Container.BindInterfacesAndSelfTo<CustomCampaignsCustomLeaderboard>().AsSingle();
 
             Container.Bind<SettingsHandler>().AsSingle();
             Container.Bind<ToolsHandler>().AsSingle();
