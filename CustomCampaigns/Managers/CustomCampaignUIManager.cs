@@ -89,6 +89,10 @@ namespace CustomCampaigns.Managers
         private Color _mediumProgressColor;
         private Color _highProgressColor;
 
+        private CustomMissionDataSO _missionData;
+
+        private bool _inCustomCampaign = false;
+
         private LevelParamsPanel _levelParamsPanelBase;
         private LevelParamsPanel _levelParamsPanel;
 
@@ -203,6 +207,7 @@ namespace CustomCampaigns.Managers
             PanelViewShowPatch.ViewShown += OnViewActivated;
             
             InitializeLevelParamsPanel();
+            _inCustomCampaign = true;
         }
 
         internal void SetupCampaignUI(Campaign.Campaign campaign)
@@ -645,6 +650,7 @@ namespace CustomCampaigns.Managers
             _leaderboardNavigationViewController.CustomCampaignDisabled();
             _customCampaignsCustomLeaderboard.Unregister();
             _gameplaySetupManager.CampaignExit();
+            _inCustomCampaign = false;
         }
 
         internal void SetMissionName(string missionName)
@@ -941,14 +947,6 @@ namespace CustomCampaigns.Managers
             imageView.enabled = true;
         }
 
-        [AffinityPostfix]
-        [AffinityPatch(typeof(MissionLevelDetailViewController), "RefreshContent")]
-        private void MissionLevelDetailViewControllerRefreshContentPostfix()
-        {
-            Plugin.logger.Debug("view controller refresh postfix");
-            
-        }
-
         [AffinityPrefix]
         [AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
         private bool MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelPrefix(MissionSelectionNavigationController __instance, MissionNode _missionNode, MissionLevelDetailViewController ____missionLevelDetailViewController)
@@ -974,6 +972,63 @@ namespace CustomCampaigns.Managers
             _levelParamsPanel.transform.position = new Vector3(0.25f, _levelParamsPanel.transform.position.y, _levelParamsPanel.transform.position.z);
 
             AdjustObjectiveModifierTransforms();
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MissionLevelDetailViewController), "RefreshContent")]
+        private bool MissionLevelDetailViewControllerRefreshContentPrefix(MissionLevelDetailViewController __instance, MissionNode ____missionNode, LevelBar ____levelBar, ObjectiveListItemsList ____objectiveListItems,
+                            GameplayModifiersModelSO ____gameplayModifiersModel, GameObject ____modifiersPanelGO, GameplayModifierInfoListItemsList ____gameplayModifierInfoListItemsList)
+        {
+            if (____missionNode.missionData is CustomMissionDataSO && _inCustomCampaign)
+            {
+                _missionData = ____missionNode.missionData as CustomMissionDataSO;
+                CustomPreviewBeatmapLevel level = _missionData.customLevel;
+                if (level == null)
+                {
+                    ____levelBar.GetField<TextMeshProUGUI, LevelBar>("_songNameText").text = "SONG NOT FOUND";
+                    ____levelBar.GetField<TextMeshProUGUI, LevelBar>("_difficultyText").text = "SONG NOT FOUND";
+                    ____levelBar.GetField<TextMeshProUGUI, LevelBar>("_authorNameText").text = "SONG NOT FOUND";
+                    ____levelBar.GetField<ImageView, LevelBar>("_songArtworkImageView").sprite = SongCore.Loader.defaultCoverImage;
+                }
+                else
+                {
+                    ____levelBar.Setup(level, _missionData.beatmapCharacteristic, _missionData.beatmapDifficulty);
+                }
+                ChangePosition();
+
+                MissionObjective[] missionObjectives = _missionData.missionObjectives;
+                ____objectiveListItems.SetData((missionObjectives.Length == 0) ? 1 : missionObjectives.Length, OnItemFinish);
+
+                CreateModifierParamsList(____missionNode);
+                return false;
+            }
+            return true;
+        }
+
+        private void OnItemFinish(int idx, ObjectiveListItem objectiveListItem)
+        {
+            if (idx == 0 && _missionData.missionObjectives.Length == 0)
+            {
+                objectiveListItem.title = Localization.Get("CAMPAIGN_FINISH_LEVEL");
+                objectiveListItem.conditionText = "";
+                objectiveListItem.hideCondition = true;
+            }
+            else
+            {
+                MissionObjective missionObjective = _missionData.missionObjectives[idx];
+                if (missionObjective.type.noConditionValue)
+                {
+                    objectiveListItem.title = missionObjective.type.objectiveNameLocalized.Replace(" ", "\n");
+                    objectiveListItem.hideCondition = true;
+                }
+                else
+                {
+                    objectiveListItem.title = missionObjective.type.objectiveNameLocalized;
+                    objectiveListItem.hideCondition = false;
+                    ObjectiveValueFormatterSO objectiveValueFormater = missionObjective.type.objectiveValueFormater;
+                    objectiveListItem.conditionText = $"{MissionDataExtensions.Name(missionObjective.referenceValueComparisonType)} {objectiveValueFormater.FormatValue(missionObjective.referenceValue)}";
+                }
+            }
         }
         #endregion
     }

@@ -247,8 +247,6 @@ namespace CustomCampaigns.Managers
             _customCampaignUIManager.MissionLevelSelected(mission);
 
             _currentNode = missionNode;
-
-            _customCampaignUIManager.CreateModifierParamsList(missionNode);
         }
 
         private void OnDidPressPlayButton(MissionLevelDetailViewController missionLevelDetailViewController)
@@ -522,7 +520,6 @@ namespace CustomCampaigns.Managers
         private void OnContinueButtonPressed(MissionResultsViewController missionResultsViewController)
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            _customCampaignUIManager.LoadModifiersPanel();
         }
 
         private void OnDidCloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
