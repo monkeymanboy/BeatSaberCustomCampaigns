@@ -9,11 +9,6 @@ namespace CustomCampaigns.HarmonyPatches
     {
         public static bool Prefix(MissionObjectiveCheckersManager ____missionObjectiveCheckersManager, List<MissionObjectiveGameUIView> ____missionObjectiveGameUIViews)
         {
-            if (Plugin.config.disableObjectiveUI)
-            {
-                return false;
-            }
-
             // Base game does not unsubscribe MissionObjectiveGameUIViews from events when being Destroyed - so we'll do it ourselves
             if (____missionObjectiveGameUIViews != null)
             {
@@ -24,7 +19,7 @@ namespace CustomCampaigns.HarmonyPatches
                 }
             }
 
-            return true;
+            return !Plugin.config.disableObjectiveUI;
         }
     }
 }
