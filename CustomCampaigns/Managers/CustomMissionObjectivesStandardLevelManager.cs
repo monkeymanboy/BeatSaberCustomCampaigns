@@ -23,9 +23,11 @@ namespace CustomCampaigns.Managers
 
         private List<IMissionModifier> _missionModifiers;
 
+        private Config _config;
+
         public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, List<ICustomMissionObjectiveChecker> customMissionObjectiveCheckers,
                                                            ILevelEndActions gameplayManager, BeatmapObjectManager beatmapObjectManager, IScoreController scoreController,
-                                                           SaberActivityCounter saberActivityCounter, List<IMissionModifier> missionModifiers)
+                                                           SaberActivityCounter saberActivityCounter, List<IMissionModifier> missionModifiers, Config config)
         {
             _customMissionObjectiveCheckers = customMissionObjectiveCheckers;
 
@@ -34,6 +36,9 @@ namespace CustomCampaigns.Managers
             _saberActivityCounter = saberActivityCounter;
 
             _customMissionObjectivesUIController = customMissionObjectivesUIController;
+
+            _config = config;
+
             gameplayManager.levelFailedEvent += OnLevelFailed;
             gameplayManager.levelFinishedEvent += OnLevelFinished;
 
@@ -66,7 +71,7 @@ namespace CustomCampaigns.Managers
                 }
             }
 
-            if (CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
+            if (!_config.disableObjectiveUI && CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
             {
                 _customMissionObjectivesUIController.CreateUIElements(_activeMissionObjectiveCheckers);
             }

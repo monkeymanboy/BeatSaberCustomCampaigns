@@ -5,12 +5,19 @@ namespace CustomCampaigns.Installers
 {
     internal class CampaignInstaller : CustomCampaignMissionInstaller
     {
+        private readonly Config _config;
+
+        public CampaignInstaller(Config config)
+        {
+            _config = config;
+        }
+
         public override void InstallBindings()
         {
-            Plugin.logger.Debug("installing campaign bindings");
+            Container.BindInstance(_config).AsSingle();
 
             InstallObjectiveCheckers();
-            InstallExternalModifiers(); // TODO: call on missionstart, onmissionend, and onmissionfail
+            InstallExternalModifiers();
 
             Container.Bind<CustomMissionObjectivesManager>().AsSingle().NonLazy();
         }

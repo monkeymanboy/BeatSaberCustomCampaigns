@@ -24,6 +24,16 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             }
         }
 
+        [UIValue("objectiveUI")]
+        public bool objectiveUI
+        {
+            get => _config.disableObjectiveUI;
+            set
+            {
+                _config.disableObjectiveUI = value;
+            }
+        }
+
         [UIValue("floorLeaderboard")]
         public bool floorLeaderboard
         {

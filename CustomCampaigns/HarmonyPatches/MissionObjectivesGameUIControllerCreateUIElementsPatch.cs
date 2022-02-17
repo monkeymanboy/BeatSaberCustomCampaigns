@@ -7,8 +7,13 @@ namespace CustomCampaigns.HarmonyPatches
     [HarmonyPatch(typeof(MissionObjectivesGameUIController), "CreateUIElements")]
     class MissionObjectivesGameUIControllerCreateUIElementsPatch
     {
-        public static void Prefix(MissionObjectiveCheckersManager ____missionObjectiveCheckersManager, List<MissionObjectiveGameUIView> ____missionObjectiveGameUIViews)
+        public static bool Prefix(MissionObjectiveCheckersManager ____missionObjectiveCheckersManager, List<MissionObjectiveGameUIView> ____missionObjectiveGameUIViews)
         {
+            if (Plugin.config.disableObjectiveUI)
+            {
+                return false;
+            }
+
             // Base game does not unsubscribe MissionObjectiveGameUIViews from events when being Destroyed - so we'll do it ourselves
             if (____missionObjectiveGameUIViews != null)
             {
@@ -18,6 +23,8 @@ namespace CustomCampaigns.HarmonyPatches
                     missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").checkedValueDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveCheckedValueDidChange;
                 }
             }
+
+            return true;
         }
     }
 }

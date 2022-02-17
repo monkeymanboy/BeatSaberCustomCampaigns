@@ -37,8 +37,8 @@ namespace CustomCampaigns
 
             zenjector.Install<Installers.AppInstaller>(Location.App);
             zenjector.Install<Installers.MenuInstaller>(Location.Menu, config);
-            zenjector.Install<Installers.CampaignInstaller>(Location.CampaignPlayer);
-            zenjector.Install<Installers.StandardLevelInstaller>(Location.StandardPlayer);
+            zenjector.Install<Installers.CampaignInstaller>(Location.CampaignPlayer, config);
+            zenjector.Install<Installers.StandardLevelInstaller>(Location.StandardPlayer, config);
         }
 
         [OnEnable]

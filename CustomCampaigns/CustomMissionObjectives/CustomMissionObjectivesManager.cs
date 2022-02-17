@@ -1,4 +1,5 @@
 ﻿using IPA.Utilities;
+using SiraUtil.Affinity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,12 +14,10 @@ namespace CustomCampaigns.CustomMissionObjectives
         private List<ICustomMissionObjectiveChecker> _missionObjectiveCheckers;
         private List<MissionObjectiveChecker> _activeMissionObjectiveCheckers = new List<MissionObjectiveChecker>();
 
-        private bool objectiveListInitialized = false;
+        private Config _config;
 
-        public CustomMissionObjectivesManager(MissionLevelGameplayManager missionLevelGameplayManager, List<ICustomMissionObjectiveChecker> customMissionObjectiveCheckers)
+        public CustomMissionObjectivesManager(MissionLevelGameplayManager missionLevelGameplayManager, List<ICustomMissionObjectiveChecker> customMissionObjectiveCheckers, Config config)
         {
-            Plugin.logger.Debug("custom mission objectives manager");
-
             _missionObjectiveCheckersManager = missionLevelGameplayManager.GetField<MissionObjectiveCheckersManager, MissionLevelGameplayManager>("_missionObjectiveCheckersManager");
 
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent -= OnObjectivesListDidChange;
@@ -29,27 +28,23 @@ namespace CustomCampaigns.CustomMissionObjectives
         private void OnObjectivesListDidChange()
         {
             Plugin.logger.Debug("objective list change");
+
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent -= OnObjectivesListDidChange;
+            var activeMissionObjectiveCheckers = _missionObjectiveCheckersManager.GetField<MissionObjectiveChecker[], MissionObjectiveCheckersManager>("_activeMissionObjectiveCheckers");
+            Plugin.logger.Debug($"active mission objective checkers: {activeMissionObjectiveCheckers.Length}");
+            var missionObjectives = _missionObjectiveCheckersManager.GetField<MissionObjectiveCheckersManager.InitData, MissionObjectiveCheckersManager>("_initData").missionObjectives;
+            _activeMissionObjectiveCheckers = activeMissionObjectiveCheckers.ToList();
+            _missionObjectives = missionObjectives.ToList();
 
-            lock (_activeMissionObjectiveCheckers)
+            // TODO: fix inefficiency? Should never be enough checkers to make a difference...
+            foreach (var missionObjectiveChecker in _missionObjectiveCheckers)
             {
-                var activeMissionObjectiveCheckers = _missionObjectiveCheckersManager.GetField<MissionObjectiveChecker[], MissionObjectiveCheckersManager>("_activeMissionObjectiveCheckers");
-                Plugin.logger.Debug($"active mission objective checkers: {activeMissionObjectiveCheckers.Length}");
-                var missionObjectives = _missionObjectiveCheckersManager.GetField<MissionObjectiveCheckersManager.InitData, MissionObjectiveCheckersManager>("_initData").missionObjectives;
-                _activeMissionObjectiveCheckers = activeMissionObjectiveCheckers.ToList();
-                _missionObjectives = missionObjectives.ToList();
-
-                // TODO: fix inefficiency? Should never be enough checkers to make a difference...
-                foreach (var missionObjectiveChecker in _missionObjectiveCheckers)
-                {
-                    CheckMissionObjectiveChecker(missionObjectiveChecker as MissionObjectiveChecker, false);
-                }
-
-                _missionObjectiveCheckers.Clear();
-                InitializeBaseGameMissionObjectiveCheckers();
-                _missionObjectiveCheckersManager.GetField<Action, MissionObjectiveCheckersManager>("objectivesListDidChangeEvent")?.Invoke();
-                objectiveListInitialized = true;
+                CheckMissionObjectiveChecker(missionObjectiveChecker as MissionObjectiveChecker, false);
             }
+
+            _missionObjectiveCheckers.Clear();
+            InitializeBaseGameMissionObjectiveCheckers();
+            _missionObjectiveCheckersManager.GetField<Action, MissionObjectiveCheckersManager>("objectivesListDidChangeEvent")?.Invoke();
         }
 
         private void InitializeBaseGameMissionObjectiveCheckers()
