@@ -338,7 +338,6 @@ namespace CustomCampaigns.Managers
         private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)
         {
             Plugin.logger.Debug("songs loaded");
-            SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
             (_missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO).mission.SetCustomLevel();
             _customCampaignUIManager.RefreshMissionNodeData();
             _customCampaignUIManager.ClearProgressBar();
