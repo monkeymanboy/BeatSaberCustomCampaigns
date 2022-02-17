@@ -2,9 +2,9 @@
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "CustomCampaigns",
   "name": "CustomCampaigns",
-  "author": "",
-  "version": "3.0.0-rc3",
-  "description": "",
+  "author": "PulseLane",
+  "version": "3.0.0-rc4",
+  "description": "Adds the ability to load custom campaigns into the game.",
   "gameVersion": "1.19.0",
   "dependsOn": {
     "SongCore": "^3.9.0",

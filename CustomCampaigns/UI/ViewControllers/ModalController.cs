@@ -90,7 +90,7 @@ namespace CustomCampaigns.UI.ViewControllers
             parserParams.EmitEvent("missing-optional-mod");
         }
 
-        internal void ShowOptionalModFailureWarning(string optionalMod)
+        internal void ShowOptionalModFailureWarning(string optionalMod, string failureReason = "")
         {
             _optionalMod = optionalMod;
             if (!_parsedOptionalModFailureWarning)
@@ -100,6 +100,10 @@ namespace CustomCampaigns.UI.ViewControllers
 
             Plugin.logger.Debug("emitting optional mod failure event...");
             failureModText.text = $"The following optional mod has failed to load: \n{optionalMod}";
+            if (failureReason != "")
+            {
+                failureModText.text += $"\n({failureReason})";
+            }
             parserParams.EmitEvent("optional-mod-failure");
         }
 

@@ -33,12 +33,12 @@ namespace CustomCampaigns.Managers
             CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish += OnMissionSceneFinish;
         }
 
-        public async Task<(HashSet<string>, HashSet<string>, HashSet<string>)> CheckForModLoadIssues(Mission mission)
+        public async Task<(Dictionary<string, string>, HashSet<string>, Dictionary<string, string>)> CheckForModLoadIssues(Mission mission)
         {
             _currentMission = mission;
 
             // requiredModFailures, missingOptionalMods, optionalModFailures
-            (HashSet<string>, HashSet<string>, HashSet<string>) modFailures = (new HashSet<string>(), new HashSet<string>(), new HashSet<string>());
+            (Dictionary<string, string>, HashSet<string>, Dictionary<string, string>) modFailures = (new Dictionary<string, string>(), new HashSet<string>(), new Dictionary<string, string>());
 
             List<IModifierHandler> currentMissionHandlers = new List<IModifierHandler>();
 
@@ -75,15 +75,20 @@ namespace CustomCampaigns.Managers
                     {
                         if (!await handler.OnLoadMission(mission.externalModifiers[externalModifier.Name], mission))
                         {
-                            modFailures.Item1.Add(externalModifier.Name);
+                            string failureReason = (handler is IModifierFailureReasonProvider) ?
+                                                   (handler as IModifierFailureReasonProvider).GetFailureReason()
+                                                  : "";
+                            modFailures.Item1.Add(externalModifier.Name, failureReason);
                         }
                     }
                     else
                     {
                         if (!await handler.OnLoadMission(mission.optionalExternalModifiers[externalModifier.Name], mission))
                         {
-                            Plugin.logger.Debug("optional mod failure");
-                            modFailures.Item3.Add(externalModifier.Name);
+                            string failureReason = (handler is IModifierFailureReasonProvider) ?
+                                                   (handler as IModifierFailureReasonProvider).GetFailureReason()
+                                                  : "";
+                            modFailures.Item3.Add(externalModifier.Name, failureReason);
                         }
                     }
                 }
@@ -126,6 +131,23 @@ namespace CustomCampaigns.Managers
             if (!foundMod)
             {
                 modFailures.Add(modName);
+            }
+        }
+
+        private void CheckExternalModifier(string modName, ref Dictionary<string, string> modFailures)
+        {
+            bool foundMod = false;
+            foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
+            {
+                if (externalModifier.Name == modName)
+                {
+                    foundMod = true;
+                }
+            }
+
+            if (!foundMod)
+            {
+                modFailures.Add(modName, "");
             }
         }
 

@@ -483,7 +483,7 @@ namespace CustomCampaigns.Managers
             Plugin.logger.Debug("retry button pressed");
 
             Mission mission = _currentMissionDataSO.mission;
-            (HashSet<string>, HashSet<string>, HashSet<string>) failedMods = await LoadExternalModifiers(mission);
+            (Dictionary<string, string>, HashSet<string>, Dictionary<string, string>) failedMods = await LoadExternalModifiers(mission);
 
             if (failedMods.Item1.Count > 0)
             {
@@ -684,13 +684,15 @@ namespace CustomCampaigns.Managers
             List<GameplayModifierParamsSO> errorList = new List<GameplayModifierParamsSO>();
 
             // requiredModFailures, missingOptionalMods, optionalModFailures
-            (HashSet<string>, HashSet<string>, HashSet<string>) failedMods = await LoadExternalModifiers(mission);
+            (Dictionary<string, string>, HashSet<string>, Dictionary<string, string>) failedMods = await LoadExternalModifiers(mission);
 
             if (failedMods.Item1.Count > 0)
             {
-                foreach (var mod in failedMods.Item1)
+                foreach (var kvp in failedMods.Item1)
                 {
-                    string errorMessage = $"{EXTERNAL_MOD_ERROR_DESCRIPTION} {mod}";
+                    string mod = kvp.Key;
+                    string failureReason = kvp.Value == "" ? EXTERNAL_MOD_ERROR_DESCRIPTION : kvp.Value;
+                    string errorMessage = $"{failureReason} {mod}";
                     errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, EXTERNAL_MOD_ERROR_TITLE, errorMessage));
                 }
             }
@@ -754,8 +756,9 @@ namespace CustomCampaigns.Managers
 
             if (!_waitingForWarningInteraction)
             {
-                foreach (var optionalMod in failedMods.Item3)
+                foreach (var kvp in failedMods.Item3)
                 {
+                    string optionalMod = kvp.Key;
                     Plugin.logger.Debug($"Failed optional mod: {optionalMod}");
                     _waitingForWarningInteraction = true;
 
@@ -766,7 +769,7 @@ namespace CustomCampaigns.Managers
                     _modalController.didBackOutOptionalFailure += OnDidBackOutOptionalFailure;
 
                     missingOptional = optionalMod;
-                    _modalController.ShowOptionalModFailureWarning(optionalMod);
+                    _modalController.ShowOptionalModFailureWarning(optionalMod, kvp.Value);
                     break;
                 }
             }
@@ -795,7 +798,7 @@ namespace CustomCampaigns.Managers
                    _config.disabledOptionalModWarnings[_currentCampaign.info.name].Contains(optionalMod);
         }
 
-        private async Task<(HashSet<string>, HashSet<string>, HashSet<string>)> LoadExternalModifiers(Mission mission)
+        private async Task<(Dictionary<string, string>, HashSet<string>, Dictionary<string, string>)> LoadExternalModifiers(Mission mission)
         {
             return await _externalModifierManager.CheckForModLoadIssues(mission);
         }
