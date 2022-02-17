@@ -38,8 +38,12 @@ namespace CustomCampaigns.Installers
             Container.Bind<CampaignMissionLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionLeaderboardCoreViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<CampaignPanelViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.BindInterfacesAndSelfTo<CustomCampaignsCustomLeaderboard>().AsSingle();
+
+            if (Plugin.isLeaderboardCoreInstalled)
+            {
+                Container.BindInterfacesAndSelfTo<CampaignPanelViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.BindInterfacesAndSelfTo<CustomCampaignsCustomLeaderboard>().AsSingle();
+            }
 
             Container.Bind<SettingsHandler>().AsSingle();
             Container.Bind<ToolsHandler>().AsSingle();

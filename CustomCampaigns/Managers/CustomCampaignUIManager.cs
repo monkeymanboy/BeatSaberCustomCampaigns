@@ -25,6 +25,7 @@ using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace CustomCampaigns.Managers
 {
@@ -111,7 +112,7 @@ namespace CustomCampaigns.Managers
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController, StandardLevelDetailViewController standardLevelDetailViewController,
                                         CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
-                                        CustomCampaignsCustomLeaderboard customCampaignsCustomLeaderboard, PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
+                                        [InjectOptional] CustomCampaignsCustomLeaderboard customCampaignsCustomLeaderboard, PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
                                         Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler, HoverHintController hoverHintController)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
