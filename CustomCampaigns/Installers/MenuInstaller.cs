@@ -31,18 +31,22 @@ namespace CustomCampaigns.Installers
             Container.Bind<DownloadManager>().AsSingle();
 
             Container.Bind<ModalController>().AsSingle();
-            Container.BindInterfacesAndSelfTo<LeaderboardNavigationViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignListViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignDetailViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignTotalLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
-            Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
             Container.Bind<CampaignMissionLeaderboardCoreViewController>().FromNewComponentAsViewController().AsSingle();
 
             if (Plugin.isLeaderboardCoreInstalled)
             {
                 Container.BindInterfacesAndSelfTo<CampaignPanelViewController>().FromNewComponentAsViewController().AsSingle();
-                Container.BindInterfacesAndSelfTo<CustomCampaignsCustomLeaderboard>().AsSingle();
+                Container.BindInterfacesAndSelfTo<CustomCampaignsCustomLeaderboard>().AsSingle().NonLazy();
+            }
+            else
+            {
+               
+                Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
+                Container.BindInterfacesAndSelfTo<LeaderboardNavigationViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
             }
 
             Container.Bind<SettingsHandler>().AsSingle();

@@ -1,4 +1,5 @@
 ﻿using CustomCampaigns.Campaign.Missions;
+using CustomCampaigns.Managers;
 using CustomCampaigns.UI.ViewControllers;
 using HMUI;
 using LeaderboardCore.Managers;
@@ -20,11 +21,17 @@ namespace CustomCampaigns.UI.LeaderboardCore
         protected override ViewController panelViewController => _campaignMissionPanelViewController;
 
         internal CustomCampaignsCustomLeaderboard(CustomLeaderboardManager customLeaderboardManager, CampaignMissionLeaderboardCoreViewController campaignMissionLeaderboardCoreViewController,
-                                                  CampaignPanelViewController campaignPanelViewController)
+                                                  CampaignPanelViewController campaignPanelViewController, CustomCampaignUIManager customCampaignUIManager)
         {
             _customLeaderboardManager = customLeaderboardManager;
             _campaignMissionLeaderboardCoreViewController = campaignMissionLeaderboardCoreViewController;
             _campaignMissionPanelViewController = campaignPanelViewController;
+
+            customCampaignUIManager.customCampaignEnabledEvent += Register;
+            customCampaignUIManager.baseCampaignEnabledEvent += Unregister;
+
+            customCampaignUIManager.missionDataReadyEvent += OnMissionDataReady;
+            customCampaignUIManager.leaderboardUpdateEvent += UpdateLeaderboards;
         }
 
         public void Dispose()
@@ -61,6 +68,13 @@ namespace CustomCampaigns.UI.LeaderboardCore
         internal void SetColor(Color color)
         {
             _campaignMissionPanelViewController.SetColor(color);
+        }
+
+        private void OnMissionDataReady(Mission mission, string customURL, Color color)
+        {
+            SetMission(mission);
+            SetCustomURL(customURL);
+            SetColor(color);
         }
     }
 }

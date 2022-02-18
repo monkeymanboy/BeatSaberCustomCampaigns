@@ -25,7 +25,6 @@ using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
 namespace CustomCampaigns.Managers
 {
@@ -36,8 +35,12 @@ namespace CustomCampaigns.Managers
 
         private const int YEET_AMOUNT = 10000;
 
-        public CampaignFlowCoordinator CampaignFlowCoordinator { get => _campaignFlowCoordinator; }
+        public Action customCampaignEnabledEvent;
+        public Action baseCampaignEnabledEvent;
+        public Action<Mission, string, Color> missionDataReadyEvent;
+        public Action leaderboardUpdateEvent;
 
+        public CampaignFlowCoordinator CampaignFlowCoordinator { get => _campaignFlowCoordinator; }
         private CampaignFlowCoordinator _campaignFlowCoordinator;
 
         private MissionMapAnimationController _missionMapAnimationController;
@@ -74,10 +77,7 @@ namespace CustomCampaigns.Managers
         private MissionStage[] _currentMissionStages;
 
         private CampaignMissionLeaderboardViewController _campaignMissionLeaderboardViewController;
-        private CampaignMissionSecondaryLeaderboardViewController _campaignMissionSecondaryLeaderboardViewController;
         private PlatformLeaderboardViewController _globalLeaderboardViewController;
-        private LeaderboardNavigationViewController _leaderboardNavigationViewController;
-        private CustomCampaignsCustomLeaderboard _customCampaignsCustomLeaderboard;
 
         private Vector3 _leaderboardPosition;
 
@@ -111,8 +111,7 @@ namespace CustomCampaigns.Managers
 
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController, StandardLevelDetailViewController standardLevelDetailViewController,
-                                        CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
-                                        [InjectOptional] CustomCampaignsCustomLeaderboard customCampaignsCustomLeaderboard, PlatformLeaderboardViewController globalLeaderboardViewController, LeaderboardNavigationViewController leaderboardNavigationViewController,
+                                        CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, PlatformLeaderboardViewController globalLeaderboardViewController,
                                         Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler, HoverHintController hoverHintController)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
@@ -145,10 +144,7 @@ namespace CustomCampaigns.Managers
             _hoverHintController = hoverHintController;
 
             _campaignMissionLeaderboardViewController = campaignMissionLeaderboardViewController;
-            _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
             _globalLeaderboardViewController = globalLeaderboardViewController;
-            _leaderboardNavigationViewController = leaderboardNavigationViewController;
-            _customCampaignsCustomLeaderboard = customCampaignsCustomLeaderboard;
 
             _config = config;
 
@@ -192,13 +188,9 @@ namespace CustomCampaigns.Managers
             MissionName.alignment = TextAlignmentOptions.Bottom;
             MissionName.gameObject.SetActive(true);
 
-            if (!_config.floorLeaderboard && !Plugin.isLeaderboardCoreInstalled)
+            if (!_config.floorLeaderboard)
             {
-                _leaderboardNavigationViewController.CustomCampaignEnabled();
-            }
-            else if (!_config.floorLeaderboard && Plugin.isLeaderboardCoreInstalled)
-            {
-                _customCampaignsCustomLeaderboard.Register();
+                customCampaignEnabledEvent?.Invoke();
             }
             
             YeetBaseGameNodes();
@@ -513,22 +505,10 @@ namespace CustomCampaigns.Managers
                     else
                     {
                         Plugin.logger.Debug("boring leaderboard");
-                        _campaignMissionSecondaryLeaderboardViewController.customURL = missionData.campaign.info.customMissionLeaderboard;
-                        _campaignMissionSecondaryLeaderboardViewController.mission = mission;
-
                         _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
-                        if (!Plugin.isLeaderboardCoreInstalled)
-                        {
-                            _leaderboardNavigationViewController.SetGlobalLeaderboardViewController();
-                        }
-                        else
-                        {
-                            _customCampaignsCustomLeaderboard.SetCustomURL(missionData.campaign.info.customMissionLeaderboard);
-                            _customCampaignsCustomLeaderboard.SetMission(mission);
 
-                            _customCampaignsCustomLeaderboard.SetColor(GetNodeColor(_missionLevelDetailViewController.missionNode));
-                            _customCampaignsCustomLeaderboard.UpdateLeaderboards();
-                        }
+                        missionDataReadyEvent?.Invoke(mission, missionData.campaign.info.customMissionLeaderboard, GetNodeColor(_missionLevelDetailViewController.missionNode));
+                        leaderboardUpdateEvent?.Invoke();
                     }
                 }
             }
@@ -648,8 +628,7 @@ namespace CustomCampaigns.Managers
 
             InitializeCampaignUI();
             PanelViewShowPatch.ViewShown -= OnViewActivated;
-            _leaderboardNavigationViewController.CustomCampaignDisabled();
-            _customCampaignsCustomLeaderboard.Unregister();
+            baseCampaignEnabledEvent?.Invoke();
             _gameplaySetupManager.CampaignExit();
             _inCustomCampaign = false;
         }

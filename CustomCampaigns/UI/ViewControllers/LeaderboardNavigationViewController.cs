@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberMarkupLanguage.ViewControllers;
+using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.HarmonyPatches.ScoreSaber;
 using CustomCampaigns.Managers;
 using HMUI;
@@ -39,14 +40,20 @@ namespace CustomCampaigns.UI.ViewControllers
         private bool _initializedWithGlobalLeaderboards = false;
 
         [Inject]
-        public void Consruct(Config config, PlatformLeaderboardViewController platformLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController)
+        public void Consruct(Config config, PlatformLeaderboardViewController platformLeaderboardViewController, CampaignMissionSecondaryLeaderboardViewController campaignMissionSecondaryLeaderboardViewController,
+                             CustomCampaignUIManager customCampaignUIManager)
         {
             _config = config;
 
             _platformLeaderboardViewController = platformLeaderboardViewController;
             _campaignMissionSecondaryLeaderboardViewController = campaignMissionSecondaryLeaderboardViewController;
-        }
 
+            customCampaignUIManager.customCampaignEnabledEvent += CustomCampaignEnabled;
+            customCampaignUIManager.baseCampaignEnabledEvent += CustomCampaignDisabled;
+
+            customCampaignUIManager.missionDataReadyEvent += OnMissionDataReady;
+            customCampaignUIManager.leaderboardUpdateEvent += SetGlobalLeaderboardViewController;
+        }
         public void Initialize()
         {
             _floatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(25f, 25f), false, Vector3.zero, Quaternion.identity);
@@ -236,6 +243,12 @@ namespace CustomCampaigns.UI.ViewControllers
             {
                 _campaignMissionSecondaryLeaderboardViewController.UpdateLeaderboards();
             }
+        }
+
+        private void OnMissionDataReady(Mission mission, string customURL, Color color)
+        {
+            _campaignMissionSecondaryLeaderboardViewController.customURL = customURL;
+            _campaignMissionSecondaryLeaderboardViewController.mission = mission;
         }
     }
 }
