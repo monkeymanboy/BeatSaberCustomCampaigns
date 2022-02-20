@@ -8,10 +8,23 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         private Config _config;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        [UIValue("ssInstalled")]
-        protected bool isLoaded
+        private bool _globalLeaderboardEnabled = false;
+        [UIValue("globalLeaderboardEnabled")]
+        protected bool globalLeaderboardEnabled
         {
-            get => Plugin.isScoreSaberInstalled;
+            get => _globalLeaderboardEnabled;
+            set
+            {
+                _globalLeaderboardEnabled = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(globalLeaderboardEnabled)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(leaderboardPositionVisible)));
+            }
+        }
+
+        [UIValue("leaderboardPositionVisible")]
+        protected bool leaderboardPositionVisible
+        {
+            get => globalLeaderboardEnabled && _config.floorLeaderboard;
         }
 
         [UIValue("objectiveParticles")]
@@ -42,6 +55,7 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             {
                 _config.floorLeaderboard = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(floorLeaderboard)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(leaderboardPositionVisible)));
             }
         }
 
@@ -59,6 +73,11 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         public SettingsHandler(Config config)
         {
             _config = config;
+        }
+
+        internal void SetFloorLeaderboardSettingVisibility(bool visible)
+        {
+            globalLeaderboardEnabled = visible;
         }
     }
 }

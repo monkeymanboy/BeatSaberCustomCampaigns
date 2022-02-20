@@ -210,6 +210,7 @@ namespace CustomCampaigns.Managers
             SetCampaignMissionNodes(campaign);
 
             _mapScrollView.GetField<RectTransform, ScrollView>("_contentRectTransform").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, campaign.info.mapHeight * EDITOR_TO_GAME_UNITS + HEIGHT_OFFSET);
+            _settingsHandler.SetFloorLeaderboardSettingVisibility(false);
 
             InitializeCampaignUI();
         }
@@ -479,6 +480,7 @@ namespace CustomCampaigns.Managers
 
             bool showGlobalLeaderboard = mission.allowStandardLevel && level != null && Plugin.isScoreSaberInstalled;
 
+            _settingsHandler.SetFloorLeaderboardSettingVisibility(showGlobalLeaderboard);
             if (showGlobalLeaderboard)
             {
                 Plugin.logger.Debug("showing global leaderboard");
