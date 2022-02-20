@@ -948,7 +948,10 @@ namespace CustomCampaigns.Managers
             _levelParamsPanel.transform.localPosition = new Vector3(objectives.transform.localPosition.x, _levelParamsPanel.transform.localPosition.y, _levelParamsPanel.transform.localPosition.z);
             _levelParamsPanel.transform.position = new Vector3(0.25f, _levelParamsPanel.transform.position.y, _levelParamsPanel.transform.position.z);
 
-            AdjustObjectiveModifierTransforms();
+            if (_modifierParams != null && _modifierParams.Count > 0)
+            {
+                AdjustObjectiveModifierTransforms();
+            }
         }
 
         [AffinityPrefix]
