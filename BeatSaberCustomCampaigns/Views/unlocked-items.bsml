@@ -1,5 +1,0 @@
-<bg size-delta-y='0'>
-  <page-button id='left-button' on-click='left-click' direction='Left' glow-color='blue' anchor-pos-x='-70' anchor-min-y='0.5' anchor-max-y='0.5'></page-button>
-  <text id='text' font-size='6' align='Center'></text>
-  <page-button id='right-button' on-click='right-click' direction='Right' glow-color='blue' anchor-pos-x='70' anchor-min-y='0.5' anchor-max-y='0.5'></page-button>
-</bg>

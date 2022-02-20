@@ -1,5 +1,0 @@
-<bg>
-  <horizontal bg='panel-top' pad-left='7' pad-right='7' horizontal-fit='PreferredSize' anchor-max-y='0.95' anchor-min-y='1'>
-    <text id='challenge-name' text='Placeholder' align='Center' font-size='4'></text>
-  </horizontal>
-</bg>
