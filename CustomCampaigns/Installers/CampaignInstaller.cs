@@ -1,5 +1,4 @@
 ﻿using CustomCampaigns.CustomMissionObjectives;
-using Zenject;
 
 namespace CustomCampaigns.Installers
 {

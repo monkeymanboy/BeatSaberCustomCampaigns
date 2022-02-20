@@ -1,7 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
 using LeaderboardCore.Models.UI.ViewControllers;
-using System.ComponentModel;
 using System.Reflection;
 using UnityEngine;
 using Zenject;

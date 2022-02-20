@@ -7,11 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace CustomCampaigns.Managers
 {
@@ -40,7 +37,7 @@ namespace CustomCampaigns.Managers
 
             Transform title = __instance.gameObject.transform.GetChild(0).GetChild(0);
             Transform wrapper = __instance.gameObject.transform.GetChild(0).GetChild(1);
-            
+
             CreateNewCredits(wrapper, title);
             HideOriginalCredits(wrapper);
             _isCampaignCredits = false;
@@ -88,12 +85,12 @@ namespace CustomCampaigns.Managers
                 if (section.header != null)
                 {
                     AddHeader(section.header, wrapper, creditsHeaderItem, creditsTitleItem, creditsTextItem, ref position);
-                    
+
                 }
                 else
                 {
                     AddTitle(section.title, wrapper, creditsTitleItem, creditsTextItem, ref position);
-                    
+
                 }
             }
 
@@ -119,7 +116,7 @@ namespace CustomCampaigns.Managers
 
         private void AddGroupedTitles(List<Title> titles, Transform wrapper, Transform creditsTitleItem, Transform creditsTextItem, ref Vector3 position)
         {
-            
+
             if (titles.Count == 0)
             {
                 return;
@@ -132,7 +129,7 @@ namespace CustomCampaigns.Managers
             {
                 var originalY = position.y;
                 position -= new Vector3(50f, 0);
-                
+
                 AddTitle(titles[0], wrapper, creditsTitleItem, creditsTextItem, ref position);
                 position += new Vector3(100f, originalY - position.y);
                 AddTitle(titles[1], wrapper, creditsTitleItem, creditsTextItem, ref position);

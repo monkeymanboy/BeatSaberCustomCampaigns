@@ -3,16 +3,11 @@ using BeatSaberMarkupLanguage.Attributes;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using CustomCampaigns.UI.FlowCoordinators;
-using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine.UI;
-using Zenject;
 
 namespace CustomCampaigns.UI.GameplaySetupUI
 {
@@ -70,7 +65,7 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             downloadButton.SetButtonText("Download Missing Songs");
 
             playlistButton.interactable = true;
-            
+
             playlistButton.SetButtonText(GetDoesPlaylistExist(_campaign) ? "Update Playlist" : "Create Playlist");
         }
 
@@ -221,7 +216,7 @@ namespace CustomCampaigns.UI.GameplaySetupUI
                     playlist.Add(song);
                 }
             }
-            
+
             string fileLocation = _campaign.campaignPath + "/cover.png";
             try
             {
@@ -232,11 +227,11 @@ namespace CustomCampaigns.UI.GameplaySetupUI
                 Plugin.logger.Error($"Error setting cover image: {e}");
                 playlist.SetCover(_campaign.info.name);
             }
-            
+
 
             playlistManager.StorePlaylist(playlist);
 
-            
+
             playlistButton.SetButtonText("Created Playlist");
         }
 

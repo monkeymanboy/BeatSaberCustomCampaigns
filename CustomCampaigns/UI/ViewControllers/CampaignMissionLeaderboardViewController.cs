@@ -155,7 +155,7 @@ namespace CustomCampaigns.UI.ViewControllers
             var username = UserInfoManager.UserInfo.userName;
 
             var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(id, username);
-            
+
             if (maxScore > 0)
             {
                 Double acc = Math.Round((double) yourData.score / (double) maxScore * 100, 2);

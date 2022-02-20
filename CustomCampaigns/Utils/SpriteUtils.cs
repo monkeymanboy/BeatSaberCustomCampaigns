@@ -83,7 +83,7 @@ namespace CustomCampaigns.Utils
                 {
                     data = await ReadStreamAsync(stream);
                 }
-                
+
             }
             else
             {
@@ -108,7 +108,7 @@ namespace CustomCampaigns.Utils
         }
 
         public static Stream DownscaleImage(string fileLocation)
-        { 
+        {
             Image originalImage = Image.FromFile(fileLocation);
 
             if (originalImage.Width <= MAX_IMAGE_SIZE && originalImage.Height <= MAX_IMAGE_SIZE)

@@ -4,7 +4,6 @@ using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.GameplaySetupUI;
 using CustomCampaigns.UI.LeaderboardCore;
 using CustomCampaigns.UI.ViewControllers;
-using SiraUtil;
 using UnityEngine;
 using Zenject;
 
@@ -44,7 +43,7 @@ namespace CustomCampaigns.Installers
             }
             else
             {
-               
+
                 Container.Bind<CampaignMissionSecondaryLeaderboardViewController>().FromNewComponentAsViewController().AsSingle();
                 Container.BindInterfacesAndSelfTo<LeaderboardNavigationViewController>().FromNewComponentAsViewController().AsSingle().NonLazy();
             }

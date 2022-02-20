@@ -11,12 +11,9 @@ using SongCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using static CustomCampaigns.Config;
 using static SongCore.Data.ExtraSongData;
 
 namespace CustomCampaigns.Managers
@@ -881,7 +878,7 @@ namespace CustomCampaigns.Managers
                 _modalController.ShowCancelDownloadConfirmation();
                 return false;
             }
-            
+
             return true;
         }
 

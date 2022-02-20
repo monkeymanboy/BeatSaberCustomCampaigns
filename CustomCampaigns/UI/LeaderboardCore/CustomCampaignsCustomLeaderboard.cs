@@ -52,7 +52,7 @@ namespace CustomCampaigns.UI.LeaderboardCore
         internal void SetMission(Mission mission)
         {
             _campaignMissionLeaderboardCoreViewController.mission = mission;
-            
+
         }
 
         internal void SetCustomURL(string customURL)

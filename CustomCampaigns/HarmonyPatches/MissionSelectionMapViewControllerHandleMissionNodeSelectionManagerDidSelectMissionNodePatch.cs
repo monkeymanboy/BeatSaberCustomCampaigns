@@ -2,7 +2,6 @@
 using HarmonyLib;
 using IPA.Utilities;
 using System;
-using System.Threading;
 
 namespace CustomCampaigns.HarmonyPatches
 {

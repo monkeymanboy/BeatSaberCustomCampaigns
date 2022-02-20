@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace CustomCampaigns.Managers
 {
@@ -78,7 +75,7 @@ namespace CustomCampaigns.Managers
 
             _queue.Add(song);
             return true;
-            
+
         }
 
         internal bool AddSongsToQueue(List<DownloadEntry> songs)
@@ -119,6 +116,6 @@ namespace CustomCampaigns.Managers
                 this.customURL = customURL;
             }
         }
-        
+
     }
 }

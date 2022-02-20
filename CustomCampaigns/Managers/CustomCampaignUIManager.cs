@@ -6,13 +6,9 @@ using CustomCampaigns.External;
 using CustomCampaigns.HarmonyPatches.ScoreSaber;
 using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.GameplaySetupUI;
-using CustomCampaigns.UI.LeaderboardCore;
 using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
-using HarmonyLib;
-using HarmonyLib.Tools;
 using HMUI;
-using IPA.Loader;
 using IPA.Utilities;
 using Polyglot;
 using SiraUtil.Affinity;
@@ -21,7 +17,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -192,13 +187,13 @@ namespace CustomCampaigns.Managers
             {
                 customCampaignEnabledEvent?.Invoke();
             }
-            
+
             YeetBaseGameNodes();
             _settingsHandler.PropertyChanged += OnSettingsChanged;
 
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             PanelViewShowPatch.ViewShown += OnViewActivated;
-            
+
             InitializeLevelParamsPanel();
             _inCustomCampaign = true;
         }
@@ -449,7 +444,7 @@ namespace CustomCampaigns.Managers
                 var objectives = _missionLevelDetailViewController.transform.GetChild(0).GetChild(2);
                 _objectivesSizeDelta = (objectives.transform as RectTransform).sizeDelta;
             }
-            
+
         }
         #endregion
 

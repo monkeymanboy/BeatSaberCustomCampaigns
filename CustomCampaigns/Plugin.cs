@@ -67,7 +67,7 @@ namespace CustomCampaigns
                 var originalPanelViewShow = metadata.Assembly.GetType("ScoreSaber.UI.ViewControllers.PanelView").GetMethod("Show", (BindingFlags) (-1));
                 HarmonyMethod harmonyPanelViewShow = new HarmonyMethod(typeof(PanelViewShowPatch).GetMethod("Postfix", (BindingFlags) (-1)));
                 _harmony.Patch(originalPanelViewShow, harmonyPanelViewShow);
-                
+
                 // PanelViewSetIsLoaded
                 var originalPanelSetIsLoaded = metadata.Assembly.GetType("ScoreSaber.UI.ViewControllers.PanelView").GetMethod("set_isLoaded", (BindingFlags) (-1));
                 HarmonyMethod harmonyPanelViewSetIsLoaded = new HarmonyMethod(typeof(PanelViewsIsLoadedSetterPatch).GetMethod("Postfix", (BindingFlags) (-1)));
