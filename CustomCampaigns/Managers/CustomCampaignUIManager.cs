@@ -1010,6 +1010,19 @@ namespace CustomCampaigns.Managers
                 }
             }
         }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MissionNodeConnection), "SetActive")]
+        private bool MissionNodeConnectionSetActivePrefix(bool ____isActive, Image ____image,  bool animated)
+        {
+            if (_inCustomCampaign && !animated)
+            {
+                ____isActive = true;
+                ____image.color = Color.white;
+                return false;
+            }
+            return true;
+        }
         #endregion
     }
 }
