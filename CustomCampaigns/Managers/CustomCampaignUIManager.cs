@@ -1023,6 +1023,13 @@ namespace CustomCampaigns.Managers
             }
             return true;
         }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MissionNodeSelectionManager), "HandleNodeWasDisplayed")]
+        private bool MissionNodeSelectionManagerHandleNodeWasDisplayedPrefix()
+        {
+            return !_inCustomCampaign;
+        }
         #endregion
     }
 }
