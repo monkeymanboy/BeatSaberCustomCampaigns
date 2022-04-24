@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -522,7 +523,7 @@ namespace CustomCampaigns.Managers
             }
         }
 
-        private void UpdateLevelParamsPanel()
+        private async void UpdateLevelParamsPanel()
         {
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
             Mission mission = missionData.mission;
@@ -543,9 +544,24 @@ namespace CustomCampaigns.Managers
                 }
 
                 var audioClip = SongCore.Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(level.levelID).beatmapLevelData.audioClip;
-                _levelParamsPanel.notesPerSecond = difficultyBeatmap.beatmapData.cuttableNotesCount / audioClip.length;
-                _levelParamsPanel.notesCount = difficultyBeatmap.beatmapData.cuttableNotesCount;
-                //_levelParamsPanel.obstaclesCount = difficultyBeatmap.beatmapData.obstaclesCount;
+
+                CustomDifficultyBeatmap customDifficultyBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
+
+                if (customDifficultyBeatmap == null)
+                {
+                    Plugin.logger.Error("difficulty beatmap was not a custom beatmap??????!111");
+                    return;
+                }
+
+                IReadonlyBeatmapData beatmapData = null;
+                await Task.Run(delegate ()
+                {
+                    beatmapData = BeatmapDataLoader.GetBeatmapDataFromSaveData(customDifficultyBeatmap.beatmapSaveData, customDifficultyBeatmap.difficulty, customDifficultyBeatmap.level.beatsPerMinute, false, null, null);
+                });
+
+                _levelParamsPanel.notesPerSecond = beatmapData.cuttableNotesCount / audioClip.length;
+                _levelParamsPanel.notesCount = beatmapData.cuttableNotesCount;
+
                 SetTime(audioClip);
                 SetNJS(difficultyBeatmap.noteJumpMovementSpeed);
             }
@@ -1013,7 +1029,7 @@ namespace CustomCampaigns.Managers
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MissionNodeConnection), "SetActive")]
-        private bool MissionNodeConnectionSetActivePrefix(bool ____isActive, Image ____image,  bool animated)
+        private bool MissionNodeConnectionSetActivePrefix(ref bool ____isActive, ref Image ____image,  bool animated)
         {
             if (_inCustomCampaign && !animated)
             {

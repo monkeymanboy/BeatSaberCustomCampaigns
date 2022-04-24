@@ -25,6 +25,8 @@ namespace CustomCampaigns.UI.ViewControllers
         [UIComponent("leaderboard")]
         protected readonly Transform _leaderboardTransform;
 
+        private ScoreMultiplierCounter scoreMultiplierCounter;
+
         public Mission mission;
         public string customURL = "";
 
@@ -52,6 +54,8 @@ namespace CustomCampaigns.UI.ViewControllers
         {
             Plugin.logger.Debug("destroying...");
             GameObject.Destroy(_leaderboardTransform.Find("LoadingControl").gameObject);
+
+            scoreMultiplierCounter = new ScoreMultiplierCounter();
         }
 
         public void UpdateLeaderboards()
@@ -103,12 +107,12 @@ namespace CustomCampaigns.UI.ViewControllers
             return url;
         }
 
-        private void UpdateScores(LeaderboardResponse response)
+        private async void UpdateScores(LeaderboardResponse response)
         {
             List<ScoreData> scores = new List<ScoreData>();
             int specialPos = -1;
 
-            var maxScore = GetMaxScore();
+            var maxScore = await GetMaxScore();
             foreach (OtherData score in response.scores)
             {
                 if (score.id == UserInfoManager.UserInfo.platformUserId + "")
@@ -165,7 +169,7 @@ namespace CustomCampaigns.UI.ViewControllers
             return new ScoreData(yourData.score, name, yourData.position, false);
         }
 
-        private int GetMaxScore()
+        private async Task<int> GetMaxScore()
         {
             var level = mission.FindSong();
             if (level == null)
@@ -178,28 +182,81 @@ namespace CustomCampaigns.UI.ViewControllers
             {
                 return 0;
             }
-            var missionData = mission.GetMissionData(null); // campaign doesn't matter here
 
-            IDifficultyBeatmap beatmapDifficulty = BeatmapUtils.GetMatchingBeatmapDifficulty(levelId, missionData.beatmapCharacteristic, mission.difficulty);
-            if (beatmapDifficulty == null)
+            MissionDataSO missionData;
+            try
+            {
+                missionData = mission.TryGetMissionData();
+            }
+            catch (Exception e)
+            {
+                Plugin.logger.Error("Tried to get mission data before it was set! Please report this to the mod dev.");
+                return 0;
+            }
+            
+
+            IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(levelId, missionData.beatmapCharacteristic, mission.difficulty);
+            if (difficultyBeatmap == null)
             {
                 return 0;
             }
-            var noteCount = GetTrueNoteCount(beatmapDifficulty.beatmapData, beatmapLevel.beatmapLevelData.audioClip.length);
-            return ScoreModel.MaxRawScoreForNumberOfNotes(noteCount);
+
+            // TODO: Get beatmap version to determine if simple or complex method
+            return await GetMaxScoreBeatmapVThree(difficultyBeatmap);
         }
 
-        private int GetTrueNoteCount(BeatmapData beatmapData, float length)
+        private async Task<int> GetMaxScoreBeatmapVThree(IDifficultyBeatmap difficultyBeatmap)
         {
-            int noteCount = 0;
-            foreach (var beatmapObjectData in beatmapData.beatmapObjectsData)
+            CustomDifficultyBeatmap customDifficultyBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
+
+            if (customDifficultyBeatmap == null)
             {
-                if (beatmapObjectData is NoteData note && note.colorType != ColorType.None && note.time <= length)
+                Plugin.logger.Error("difficulty beatmap was not a custom beatmap??????!111");
+                return 0;
+            }
+
+            IReadonlyBeatmapData beatmapData = null;
+            await Task.Run(delegate ()
+            {
+                beatmapData = BeatmapDataLoader.GetBeatmapDataFromSaveData(customDifficultyBeatmap.beatmapSaveData, customDifficultyBeatmap.difficulty, customDifficultyBeatmap.level.beatsPerMinute, false, null, null);
+            });
+
+            IEnumerable<NoteData> beatmapDataItems = beatmapData.GetBeatmapDataItems<NoteData>();
+            IEnumerable<SliderData> beatmapDataItems2 = beatmapData.GetBeatmapDataItems<SliderData>();
+
+            List<ScoreModel.MaxScoreCounterElement> elements = new List<ScoreModel.MaxScoreCounterElement>(1000);
+
+            foreach (NoteData noteData in beatmapDataItems)
+            {
+                if (noteData.scoringType != NoteData.ScoringType.Ignore && noteData.gameplayType != NoteData.GameplayType.Bomb)
                 {
-                    noteCount++;
+                    elements.Add(new ScoreModel.MaxScoreCounterElement(noteData.scoringType, noteData.time));
                 }
             }
-            return noteCount;
+
+            foreach (SliderData sliderData in beatmapDataItems2)
+            {
+                if (sliderData.sliderType == SliderData.Type.Burst)
+                {
+                    elements.Add(new ScoreModel.MaxScoreCounterElement(NoteData.ScoringType.BurstSliderHead, sliderData.time));
+                    for (int i = 1; i < sliderData.sliceCount; i++)
+                    {
+                        float t = (float) i / (float) (sliderData.sliceCount - 1);
+                        elements.Add(new ScoreModel.MaxScoreCounterElement(NoteData.ScoringType.BurstSliderElement, Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, t)));
+                    }
+                }
+            }
+            elements.Sort();
+            int maxScore = 0;
+
+            scoreMultiplierCounter.Reset();
+            foreach (ScoreModel.MaxScoreCounterElement maxScoreCounterElement in elements)
+            {
+                scoreMultiplierCounter.ProcessMultiplierEvent(ScoreMultiplierCounter.MultiplierEventType.Positive);
+                maxScore += maxScoreCounterElement.noteScoreDefinition.maxCutScore * scoreMultiplierCounter.multiplier;
+            }
+
+            return maxScore;
         }
     }
 }

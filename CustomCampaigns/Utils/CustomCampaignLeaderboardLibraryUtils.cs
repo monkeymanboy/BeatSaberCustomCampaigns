@@ -19,7 +19,7 @@ namespace CustomCampaigns.Utils
         {
             SubmissionData submissionData = new SubmissionData();
             submissionData.challengeHash = GetHash(mission);
-            submissionData.score = missionCompletionResults.levelCompletionResults.rawScore;
+            submissionData.score = missionCompletionResults.levelCompletionResults.multipliedScore;
             submissionData.id = UserInfoManager.UserInfo.platformUserId;
             submissionData.user = UserInfoManager.UserInfo.userName + "";
             submissionData.hash = GetHash(submissionData.id + submissionData.user + submissionData.score + submissionData.challengeHash);

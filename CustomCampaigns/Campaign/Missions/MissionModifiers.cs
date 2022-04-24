@@ -25,8 +25,6 @@
         {
             var defaultModifiers = new GameplayModifiers();
             CustomGameplayModifiers modifiers = new CustomGameplayModifiers(new GameplayModifiers(
-                defaultModifiers.demoNoFail,
-                defaultModifiers.demoNoObstacles,
                 energyType,
                 noFail,
                 instaFail,

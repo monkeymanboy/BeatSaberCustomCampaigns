@@ -451,6 +451,7 @@ namespace CustomCampaigns.Managers
                                                         null,
                                                         "Menu",
                                                         false,
+                                                        false,
                                                         beforeSceneSwitchCallback,
                                                         OnFinishedStandardLevel);
         }
@@ -583,7 +584,7 @@ namespace CustomCampaigns.Managers
                 if (!string.IsNullOrWhiteSpace(_currentCampaign.completionPost))
                 {
                     var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission.rawJSON);
-                    var score = missionCompletionResults.levelCompletionResults.rawScore;
+                    var score = missionCompletionResults.levelCompletionResults.multipliedScore;
                     var requirements = new List<CompletionSubmission.Requirement>();
                     foreach (MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
                     {
@@ -842,6 +843,9 @@ namespace CustomCampaigns.Managers
 
             ColorScheme colorScheme = overrideColorScheme ?? new ColorScheme(environmentInfo.colorScheme);
             IBeatmapLevel level = difficultyBeatmap.level;
+
+            __instance.SetProperty<LevelScenesTransitionSetupDataSO, GameplayCoreSceneSetupData>("gameplayCoreSceneSetupData",
+                    new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, null, false, environmentInfo, colorScheme, __instance.GetField<MainSettingsModelSO, MissionLevelScenesTransitionSetupDataSO>("_mainSettingsModel"))); 
             SceneInfo[] scenes = new SceneInfo[]
             {
                 environmentInfo.sceneInfo,
@@ -850,15 +854,15 @@ namespace CustomCampaigns.Managers
             };
             SceneSetupData[] sceneSetupData = new SceneSetupData[]
             {
-                new EnvironmentSceneSetupData(usingOverrideEnvironment),
+                new EnvironmentSceneSetupData(difficultyBeatmap.GetEnvironmentInfo(), previewBeatmapLevel, hideBranding: false),
                 new MissionGameplaySceneSetupData(missionObjectives, playerSpecificSettings.autoRestart, level, difficultyBeatmap.difficulty, difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic, gameplayModifiers, backButtonText),
-                new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, null, false, environmentInfo, colorScheme),
+                __instance.GetProperty<GameplayCoreSceneSetupData, LevelScenesTransitionSetupDataSO>("gameplayCoreSceneSetupData"),
                 new GameCoreSceneSetupData()
             };
 
             var scenesTransitionSetupDataSO = (ScenesTransitionSetupDataSO) __instance;
             scenesTransitionSetupDataSO.SetProperty("scenes", scenes);
-            scenesTransitionSetupDataSO.SetProperty("sceneSetupDataArray", sceneSetupData);
+            scenesTransitionSetupDataSO.SetField("_sceneSetupDataArray", sceneSetupData);
 
             return false;
         }

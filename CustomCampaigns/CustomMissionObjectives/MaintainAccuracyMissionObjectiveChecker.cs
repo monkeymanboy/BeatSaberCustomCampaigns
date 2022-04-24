@@ -16,7 +16,6 @@ namespace CustomCampaigns.CustomMissionObjectives
 
         protected override void Init()
         {
-            Plugin.logger.Debug("init maintain acc");
             checkedValue = _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min ? 10000 : 0;
             status = Status.NotFailedYet;
 

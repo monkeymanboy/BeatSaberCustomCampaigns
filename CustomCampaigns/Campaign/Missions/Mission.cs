@@ -1,6 +1,7 @@
 ﻿using IPA.Utilities;
 using Newtonsoft.Json;
 using SongCore;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -99,6 +100,16 @@ namespace CustomCampaigns.Campaign.Missions
             return missionData;
         }
 
+        public MissionDataSO TryGetMissionData()
+        {
+            if (missionData == null)
+            {
+                throw new Exception("No mission data");
+            }
+
+            return missionData;
+        }
+
         public void SetCustomLevel()
         {
             if (missionData == null)
@@ -115,7 +126,7 @@ namespace CustomCampaigns.Campaign.Missions
                 {
                     try
                     {
-                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
+                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.ToArray().GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
                     }
                     catch
                     {

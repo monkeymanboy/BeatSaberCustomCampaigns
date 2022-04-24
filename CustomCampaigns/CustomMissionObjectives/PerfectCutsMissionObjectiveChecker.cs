@@ -1,24 +1,23 @@
 ﻿using CustomCampaigns.Campaign.Missions;
+using System;
 using System.Collections.Generic;
 using Zenject;
+using static ScoreModel;
 
 namespace CustomCampaigns.CustomMissionObjectives
 {
-    public class PerfectCutsMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker, ISaberSwingRatingCounterDidFinishReceiver
+    public class PerfectCutsMissionObjectiveChecker : SimpleValueMissionObjectiveChecker, ICustomMissionObjectiveChecker
     {
-        private BeatmapObjectManager _beatmapObjectManager;
-        private Dictionary<ISaberSwingRatingCounter, NoteCutInfo> cutNotes = new Dictionary<ISaberSwingRatingCounter, NoteCutInfo>();
+        private ScoreController _scoreController;
 
         [Inject]
-        public void Construct(BeatmapObjectManager beatmapObjectManager)
+        public void Construct(ScoreController scoreController)
         {
-            _beatmapObjectManager = beatmapObjectManager;
+            _scoreController = scoreController;
         }
 
         protected override void Init()
         {
-            Plugin.logger.Debug("init perfect cuts");
-
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min || _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Equal)
             {
                 status = Status.NotClearedYet;
@@ -28,47 +27,27 @@ namespace CustomCampaigns.CustomMissionObjectives
                 status = Status.NotFailedYet;
             }
 
-            if (_beatmapObjectManager != null)
+            if (_scoreController != null)
             {
-                _beatmapObjectManager.noteWasCutEvent -= OnNoteCut;
-                _beatmapObjectManager.noteWasCutEvent += OnNoteCut;
+                _scoreController.scoringForNoteFinishedEvent -= OnScoringForNoteFinished;
+                _scoreController.scoringForNoteFinishedEvent += OnScoringForNoteFinished;
             }
         }
 
-        public virtual void OnDestroy()
+        private void OnScoringForNoteFinished(ScoringElement scoringElement)
         {
-            if (_beatmapObjectManager != null)
+            if (scoringElement is GoodCutScoringElement goodCutScoringElement)
             {
-                _beatmapObjectManager.noteWasCutEvent -= OnNoteCut;
-            }
-        }
-
-        private void OnNoteCut(NoteController noteController, in NoteCutInfo noteCutInfo)
-        {
-            if (noteController.noteData.colorType == ColorType.None || !noteCutInfo.allIsOK)
-            {
-                return;
-            }
-
-            cutNotes.Add(noteCutInfo.swingRatingCounter, noteCutInfo);
-            noteCutInfo.swingRatingCounter.UnregisterDidFinishReceiver(this);
-            noteCutInfo.swingRatingCounter.RegisterDidFinishReceiver(this);
-        }
-
-        public void HandleSaberSwingRatingCounterDidFinish(ISaberSwingRatingCounter saberSwingRatingCounter)
-        {
-            saberSwingRatingCounter.UnregisterDidFinishReceiver(this);
-            if (cutNotes.ContainsKey(saberSwingRatingCounter))
-            {
-                NoteCutInfo info = cutNotes[saberSwingRatingCounter];
-                ScoreModel.RawScoreWithoutMultiplier(saberSwingRatingCounter, info.cutDistanceToCenter, out int before, out int after, out int cutDist);
-                int total = before + after + cutDist;
-                if (total == 115)
+                IReadonlyCutScoreBuffer cutScoreBuffer = goodCutScoringElement.cutScoreBuffer;
+                // Only count perfect cuts for notes that have acc component
+                if (cutScoreBuffer.noteScoreDefinition.maxCenterDistanceCutScore > 0)
                 {
-                    checkedValue++;
-                    CheckAndUpdateStatus();
+                    if (cutScoreBuffer.cutScore == cutScoreBuffer.maxPossibleCutScore)
+                    {
+                        checkedValue++;
+                        CheckAndUpdateStatus();
+                    }
                 }
-                cutNotes.Remove(saberSwingRatingCounter);
             }
         }
 

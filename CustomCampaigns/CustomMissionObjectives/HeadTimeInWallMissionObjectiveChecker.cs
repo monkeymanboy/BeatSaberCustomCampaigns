@@ -39,7 +39,7 @@ namespace CustomCampaigns.CustomMissionObjectives
                 return;
             }
 
-            if (_playerHeadAndObstacleInteraction.intersectingObstacles.Count > 0)
+            if (_playerHeadAndObstacleInteraction.playerHeadIsInObstacle)
             {
                 timeInWall += Time.deltaTime;
                 checkedValue = (int) Math.Round(timeInWall * 1000);
