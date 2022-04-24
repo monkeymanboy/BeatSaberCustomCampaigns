@@ -667,7 +667,20 @@ namespace CustomCampaigns.Managers
         #region Helper Functions
         public async void LoadBeatmap(MissionNodeVisualController missionNodeVisualController, string songId)
         {
-            await Loader.BeatmapLevelsModelSO.GetBeatmapLevelAsync(songId, CancellationToken.None);
+            bool loaded = false;
+            while (!loaded)
+            {
+                try
+                {
+                    await Loader.BeatmapLevelsModelSO.GetBeatmapLevelAsync(songId, CancellationToken.None);
+                    loaded = true;
+                }
+                catch (Exception e)
+                {
+                    Plugin.logger.Debug($"Could not load beatmap: {e.Message}");
+                }
+            }
+            
             _missionSelectionMapViewController.HandleMissionNodeSelectionManagerDidSelectMissionNode(missionNodeVisualController);
         }
 
