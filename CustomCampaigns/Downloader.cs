@@ -12,13 +12,10 @@ namespace CustomCampaigns
     public class Downloader
     {
         private const string BEATSAVER_PREFIX = "https://api.beatsaver.com/maps/";
+        private const string DOWNLOAD_URL_TEMPLATE = "https://cdn.beatsaver.com/<hash>.zip";
         private const string ID_ENDPOINT = "id/";
 
-        private const string KNOWN_ID = "ff9";
-        private const string KNOWN_HASH = "cb9f1581ff6c09130c991db8823c5953c660688f";
-
         private static string UserAgent = "";
-        private static string DownloadUrlTemplate = "";
 
         private static bool isDownloading = false;
 
@@ -36,21 +33,7 @@ namespace CustomCampaigns
                 return;
             }
 
-            if (DownloadUrlTemplate == "")
-            {
-                Plugin.logger.Debug("no download url template");
-                statusCallback?.Invoke("Getting Download Url...");
-                await GetDownloadUrlTemplateAsync(cancellationToken, progressCallback);
-                // it failed...
-                if (DownloadUrlTemplate == "")
-                {
-                    Plugin.logger.Debug("failed to retrieve template");
-                    onDownloadFail?.Invoke();
-                    return;
-                }
-            }
-
-            string downloadUrl = DownloadUrlTemplate.Replace(KNOWN_HASH, hash.ToLower());
+            string downloadUrl = DOWNLOAD_URL_TEMPLATE.Replace("<hash>", hash.ToLower());
             statusCallback?.Invoke("Getting Map Info...");
             DetailResponse detailResponse = await GetMapInformationAsync(id, cancellationToken, progressCallback);
             if (detailResponse == null || detailResponse.versions.Count == 0)
@@ -63,26 +46,6 @@ namespace CustomCampaigns
             statusCallback?.Invoke("Downloading map...");
             await DownloadMapFromUrlAsync(downloadUrl, path, cancellationToken, onDownloadSuccess, onDownloadFail, progressCallback, statusCallback);
 
-        }
-
-        private async Task GetDownloadUrlTemplateAsync(CancellationToken cancellationToken, Action<float> progressCallback = null)
-        {
-            DetailResponse detailResponse = await GetMapInformationAsync(KNOWN_ID, cancellationToken, progressCallback);
-            if (detailResponse == null || detailResponse.versions.Count == 0)
-            {
-                Plugin.logger.Error($"Was unable to retrieve download url template");
-                if (detailResponse == null)
-                {
-                    Plugin.logger.Error("detail response was null");
-                }
-                else
-                {
-                    Plugin.logger.Error("not enough versions in detailresponse");
-                }
-                return;
-            }
-
-            DownloadUrlTemplate = detailResponse.versions[0].downloadURL;
         }
 
         public async Task DownloadMapByIDAsync(string id, CancellationToken cancellationToken, Action onDownloadSuccess, Action onDownloadFail, Action<float> progressCallback = null, Action<string> statusCallback = null)
