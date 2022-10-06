@@ -3,9 +3,9 @@
   "id": "CustomCampaigns",
   "name": "CustomCampaigns",
   "author": "PulseLane",
-  "version": "3.1.2",
+  "version": "3.2.0",
   "description": "Adds the ability to load custom campaigns into the game.",
-  "gameVersion": "1.22.1",
+  "gameVersion": "1.25.0",
   "dependsOn": {
     "SongCore": "^3.9.0",
     "BeatSaberMarkupLanguage": "^1.6.0",

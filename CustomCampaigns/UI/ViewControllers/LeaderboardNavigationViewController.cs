@@ -82,11 +82,10 @@ namespace CustomCampaigns.UI.ViewControllers
                 _ssLeaderboardElementsPosition = _ssLeaderboardElementsTransform.localPosition;
             }
 
-
             if (_ssPanelScreenTransform == null)
             {
                 _ssPanelScreenTransform = _platformLeaderboardViewController.transform.Find("ScoreSaberPanelScreen");
-                _ssPanelScreenPosition = _ssPanelScreenTransform.localPosition;
+                 _ssPanelScreenPosition = _ssPanelScreenTransform.localPosition;
             }
 
             _floatingScreen.SetRootViewController(this, AnimationType.None);

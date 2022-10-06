@@ -2,6 +2,7 @@
 using CustomCampaigns.External;
 using CustomCampaigns.External.Interfaces;
 using CustomCampaigns.HarmonyPatches;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +11,7 @@ using Zenject;
 
 namespace CustomCampaigns.Managers
 {
-    public class ExternalModifierManager : IInitializable
+    public class ExternalModifierManager : IInitializable, IDisposable
     {
         internal static Dictionary<Assembly, ExternalModifier> ExternalModifiers { get; private set; } = new Dictionary<Assembly, ExternalModifier>();
         internal static Dictionary<Assembly, ExternalModifier> ExternalModifiersToInstall { get; private set; } = new Dictionary<Assembly, ExternalModifier>();
@@ -164,6 +165,11 @@ namespace CustomCampaigns.Managers
             {
                 notifyMissionCompletionResults.OnMissionCompletionResultsAvailable(missionCompletionResults);
             }
+        }
+
+        public void Dispose()
+        {
+            CampaignFlowCoordinatorHandleMissionLevelSceneDidFinishPatch.onMissionSceneFinish -= OnMissionSceneFinish;
         }
     }
 }

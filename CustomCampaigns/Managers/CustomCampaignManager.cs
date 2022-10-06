@@ -453,7 +453,8 @@ namespace CustomCampaigns.Managers
                                                         false,
                                                         false,
                                                         beforeSceneSwitchCallback,
-                                                        OnFinishedStandardLevel);
+                                                        OnFinishedStandardLevel,
+                                                        OnRestartedStandardLevel);
         }
 
         private void OnFinishedStandardLevel(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults)
@@ -474,6 +475,11 @@ namespace CustomCampaigns.Managers
             MissionCompletionResults missionCompletionResults = new MissionCompletionResults(levelCompletionResults, missionObjectiveResults);
             _campaignFlowCoordinator.HandleMissionLevelSceneDidFinish(null, missionCompletionResults);
             isCampaignLevel = false;
+        }
+
+        private void OnRestartedStandardLevel(LevelScenesTransitionSetupDataSO levelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults)
+        {
+
         }
 
         private async void OnRetryButtonPressed(MissionResultsViewController missionResultsViewController)

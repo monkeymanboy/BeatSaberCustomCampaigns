@@ -27,7 +27,7 @@ namespace CustomCampaigns.HarmonyPatches
                 ColorSchemesSettings colorSchemesSettings = ____playerDataModel.playerData.colorSchemesSettings;
                 ColorScheme overrideColorScheme = colorSchemesSettings.overrideDefaultColors ? colorSchemesSettings.GetSelectedColorScheme() : null;
 
-                ____menuTransitionsHelper.StartMissionLevel("", difficultyBeatmap, missionData.customLevel, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish);
+                ____menuTransitionsHelper.StartMissionLevel("", difficultyBeatmap, missionData.customLevel, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish, __instance.HandleMissionLevelSceneRestarted);
 
                 return false;
             }
