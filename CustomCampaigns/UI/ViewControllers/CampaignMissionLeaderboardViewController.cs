@@ -221,8 +221,8 @@ namespace CustomCampaigns.UI.ViewControllers
                 beatmapData = BeatmapDataLoader.GetBeatmapDataFromSaveData(customDifficultyBeatmap.beatmapSaveData, customDifficultyBeatmap.difficulty, customDifficultyBeatmap.level.beatsPerMinute, false, null, null);
             });
 
-            IEnumerable<NoteData> beatmapDataItems = beatmapData.GetBeatmapDataItems<NoteData>();
-            IEnumerable<SliderData> beatmapDataItems2 = beatmapData.GetBeatmapDataItems<SliderData>();
+            IEnumerable<NoteData> beatmapDataItems = beatmapData.GetBeatmapDataItems<NoteData>(0);
+            IEnumerable<SliderData> beatmapDataItems2 = beatmapData.GetBeatmapDataItems<SliderData>(0);
 
             List<ScoreModel.MaxScoreCounterElement> elements = new List<ScoreModel.MaxScoreCounterElement>(1000);
 

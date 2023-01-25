@@ -51,6 +51,10 @@ namespace CustomCampaigns.Campaign
             completionPost = File.Exists(campaignPath + COMPLETION_POST_LOCATION) ? File.ReadAllText(campaignPath + COMPLETION_POST_LOCATION) : "";
         }
 
+        public Campaign() : base("", "", null)
+        {
+
+        }
         private async void GetSprites(CampaignListViewController viewController)
         {
             icon = await LoadSprite(campaignPath + COVER_LOCATION, true);
