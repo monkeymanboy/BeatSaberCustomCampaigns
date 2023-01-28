@@ -1,5 +1,6 @@
 ﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-<horizontal bg='panel-top' pad-left='7' pad-right='7' horizontal-fit='PreferredSize' anchor-max-y='0.95' anchor-min-y='1'>
-  <text id='mission-name'  align='Center' font-size='4'></text>
-</horizontal>
+<vertical horizontal-fit='PreferredSize' vertical-fit="PreferredSize" anchor-max-y='0.95' anchor-min-y='1' child-expand-width='false'>
+	<text id='mission-name'  align='Center' font-size='4' pref-height='7.5'/>
+	<dropdown-list-setting anchor-min-x='0.6' anchor-max-x='0.7' id='mission-alt-select' options='missionAlts' on-change='missionAltSelected' value='selected-alt' text='' align='Center' font-size='4' pref-height='7.5'/>
+</vertical>
 </bg>

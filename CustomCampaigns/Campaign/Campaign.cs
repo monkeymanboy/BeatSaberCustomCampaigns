@@ -44,6 +44,19 @@ namespace CustomCampaigns.Campaign
                 string rawJSON = File.ReadAllText(campaignPath + "/" + i + ".json").Replace("\n", "");
                 Mission mission = JsonConvert.DeserializeObject<Mission>(rawJSON);
                 mission.rawJSON = rawJSON;
+
+
+                // Find mission-alts
+                foreach (var file in Directory.GetFiles(campaignPath, $"{i}.?*.json"))
+                {
+                    rawJSON = File.ReadAllText(file).Replace("\n", "");
+                    Mission missionAlt = JsonConvert.DeserializeObject<Mission>(rawJSON);
+                    missionAlt.rawJSON = rawJSON;
+
+                    missionAlt.missionParent = mission;
+                    mission.missionAlts.Add(missionAlt);
+                }
+
                 missions.Add(mission);
             }
 
@@ -55,6 +68,7 @@ namespace CustomCampaigns.Campaign
         {
 
         }
+
         private async void GetSprites(CampaignListViewController viewController)
         {
             icon = await LoadSprite(campaignPath + COVER_LOCATION, true);

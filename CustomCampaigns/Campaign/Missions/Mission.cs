@@ -35,6 +35,11 @@ namespace CustomCampaigns.Campaign.Missions
         [JsonIgnore]
         public string rawJSON;
         [JsonIgnore]
+        public Mission missionParent;
+        [JsonIgnore]
+        public List<Mission> missionAlts = new List<Mission>();
+
+        [JsonIgnore]
         private CustomMissionDataSO missionData = null;
 
         public MissionObjective[] GetMissionObjectives()
@@ -145,6 +150,36 @@ namespace CustomCampaigns.Campaign.Missions
         public void CampaignClosed()
         {
             SongCore.Loader.SongsLoadedEvent -= OnSongsLoaded;
+        }
+
+        public Dictionary<string, Mission> GetMissionAlts()
+        {
+            if (missionParent != null)
+            {
+                return missionParent.GetMissionAlts();
+            }
+
+            Dictionary<string, Mission> alts = new Dictionary<string, Mission>();
+
+            alts.Add(name, this);
+            foreach (var mission in missionAlts)
+            {
+                alts.Add(mission.name, mission);
+            }
+
+            return alts;
+        }
+
+        public List<string> GetMissionAltNames()
+        {
+            List<string> altNames = new List<string>();
+            altNames.Add(name);
+            foreach (var mission in missionAlts)
+            {
+                altNames.Add(mission.name);
+            }
+
+            return altNames;
         }
 
         private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)

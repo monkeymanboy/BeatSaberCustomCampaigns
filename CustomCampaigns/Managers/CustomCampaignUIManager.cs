@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components.Settings;
 using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.External;
@@ -22,10 +23,11 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 
 namespace CustomCampaigns.Managers
 {
-    public class CustomCampaignUIManager : IAffinity
+    public class CustomCampaignUIManager : IAffinity, INotifyPropertyChanged
     {
         public const float EDITOR_TO_GAME_UNITS = 30f / 111;
         public const float HEIGHT_OFFSET = 20;
@@ -72,14 +74,40 @@ namespace CustomCampaigns.Managers
 
         private MissionNode[] _currentCampaignNodes;
         private MissionStage[] _currentMissionStages;
+        private Mission _currentMission;
 
         private CampaignMissionLeaderboardViewController _campaignMissionLeaderboardViewController;
         private PlatformLeaderboardViewController _globalLeaderboardViewController;
 
         private Vector3 _leaderboardPosition;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         [UIComponent("mission-name")]
         public TextMeshProUGUI MissionName;
+        [UIComponent("mission-alt-select")]
+        public DropDownListSetting MissionAltSelect;
+
+        private bool _alts = false;
+
+        [UIValue("alts")]
+        protected bool alts
+        {
+            get => _alts;
+            set
+            {
+                _alts = value;
+                ToggleDropdown(value);
+            }
+        }
+
+        private Dictionary<string, Mission> _missionAlts;
+
+        [UIValue("selected-alt")]
+        private string selectedAlt;
+
+        [UIValue("missionAlts")]
+        public List<object> missionAlts = new object[] { "t" }.ToList(); 
 
         private ImageView _levelBarBackground;
         private Color _originalLevelBarBackgroundColor;
@@ -182,9 +210,9 @@ namespace CustomCampaigns.Managers
         internal void CustomCampaignEnabled()
         {
             Plugin.logger.Debug("custom campaign enabled");
-            MissionName.alignment = TextAlignmentOptions.Bottom;
-            MissionName.gameObject.SetActive(true);
 
+            InitializeMissionDetails();
+           
             if (!_config.floorLeaderboard)
             {
                 customCampaignEnabledEvent?.Invoke();
@@ -463,7 +491,9 @@ namespace CustomCampaigns.Managers
         #region Mission-Specific UI
         public void MissionLevelSelected(Mission mission)
         {
-            var missionData = mission.GetMissionData(null); // campaign doesn't matter here
+            _currentMission = mission;
+
+            SetMissionAltSelection(mission);
 
             UpdateLevelParamsPanel();
             UpdateLeaderboards(true);
@@ -578,6 +608,77 @@ namespace CustomCampaigns.Managers
             }
         }
 
+        private void SetMissionAltSelection(Mission mission)
+        {
+
+            _missionAlts = mission.GetMissionAlts();
+            missionAlts = _missionAlts.Select(x => x.Key).ToList<object>();
+
+            MissionAltSelect.values = missionAlts;
+            MissionAltSelect.UpdateChoices();
+
+            alts = mission.missionAlts.Count > 0 || mission.missionParent != null;
+        }
+
+        [UIAction("missionAltSelected")]
+        private void OnMissionAltSelected(string missionAlt)
+        {
+            _missionAlts.TryGetValue(missionAlt, out Mission mission);
+
+            if (mission == null)
+            {
+                Plugin.logger.Error($"Could not find matching mission: {missionAlt} for current mission {_currentMission.name}");
+            }
+
+            else
+            {
+                Plugin.logger.Debug($"Selected {missionAlt}");
+                MissionNodeVisualController missionNodeVisualController = _missionNodeSelectionManager.GetField<MissionNodeVisualController, MissionNodeSelectionManager>("_selectedNode");
+
+                MissionNode missionNode = missionNodeVisualController.GetField<MissionNode, MissionNodeVisualController>("_missionNode");
+                CustomMissionDataSO customMissionData = missionNode.missionData as CustomMissionDataSO;
+                missionNode.SetField("_missionDataSO", mission.GetMissionData(customMissionData.campaign));
+                missionNodeVisualController.SetSelected(false);
+                missionNodeVisualController.SetSelected(true);
+            }
+        }
+
+        [UIAction("#post-parse")]
+        void Parsed()
+        {
+            MissionAltSelect.dropdown.GetField<TextMeshProUGUI, SimpleTextDropdown>("_text").richText = true;
+            MissionAltSelect.dropdown.GetField<SimpleTextTableCell, SimpleTextDropdown>("_cellPrefab").GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").richText = true;
+
+            var tableView = MissionAltSelect.dropdown.GetField<TableView, DropdownWithTableView>("_tableView");
+
+            foreach (var reusableCells in tableView.GetField<Dictionary<string, List<TableCell>>, TableView>("_reusableCells").Values)
+            {
+                foreach (var tableCell in reusableCells)
+                {
+                    if (tableCell is SimpleTextTableCell simpleText)
+                    {
+                        simpleText.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").richText = true;
+                    }
+                }
+            }
+
+            foreach (var tableCell in tableView.GetField<List<TableCell>, TableView>("_visibleCells"))
+            {
+                if (tableCell is SimpleTextTableCell simpleText)
+                {
+                    simpleText.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").richText = true;
+                }
+            }
+        }
+
+        // BSML's 'active' tag for dropdown only affects the dropdown itself, not the label associated with it - so we'll do this ourselves.
+        private void ToggleDropdown(bool dropdownActive)
+        {
+            MissionName.gameObject.SetActive(!dropdownActive);
+            MissionAltSelect.gameObject.SetActive(dropdownActive);
+            MissionAltSelect.transform.parent.gameObject.SetActive(dropdownActive);
+        }
+
         private void SetTime(AudioClip audioClip)
         {
             TimeSpan timeSpan = TimeSpan.FromSeconds(audioClip.length);
@@ -630,6 +731,7 @@ namespace CustomCampaigns.Managers
 
         internal void BaseCampaignEnabled()
         {
+            ToggleDropdown(false);
             MissionName.gameObject.SetActive(false);
 
             _missionNodesManager.SetField("_rootMissionNode", _baseRootMissionNode);
@@ -659,6 +761,7 @@ namespace CustomCampaigns.Managers
 
         internal void SetMissionName(string missionName)
         {
+            selectedAlt = missionName;
             MissionName.text = missionName;
         }
 
@@ -848,6 +951,14 @@ namespace CustomCampaigns.Managers
             var missionToggle = missionNodeVisualController.GetField<MissionToggle, MissionNodeVisualController>("_missionToggle");
 
             return missionToggle.GetField<Color, MissionToggle>("_highlightColor");
+        }
+
+        private void InitializeMissionDetails()
+        {
+            MissionName.alignment = TextAlignmentOptions.Bottom;
+            ToggleDropdown(false);
+
+            MissionAltSelect.dropdown.ReloadData();
         }
         #endregion
 
