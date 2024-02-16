@@ -31,7 +31,7 @@ namespace CustomCampaigns.UI
 
         public void Dispose()
         {
-            if (MenuButtons.IsSingletonAvailable && BSMLParser.IsSingletonAvailable)
+            if (MenuButtons.instance != null && BSMLParser.instance != null)
             {
                 MenuButtons.instance.UnregisterButton(_menuButton);
             }

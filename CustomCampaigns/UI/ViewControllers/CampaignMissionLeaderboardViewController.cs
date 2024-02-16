@@ -4,11 +4,13 @@ using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using CustomCampaigns.Utils;
+using HarmonyLib;
 using SongCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -30,7 +32,7 @@ namespace CustomCampaigns.UI.ViewControllers
         public Mission mission;
         public string customURL = "";
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
 
         [UIValue("is-loaded")]
         protected bool isLoaded
@@ -188,12 +190,12 @@ namespace CustomCampaigns.UI.ViewControllers
             {
                 missionData = mission.TryGetMissionData();
             }
-            catch (Exception e)
+            catch
             {
                 Plugin.logger.Error("Tried to get mission data before it was set! Please report this to the mod dev.");
                 return 0;
             }
-            
+
 
             IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(levelId, missionData.beatmapCharacteristic, mission.difficulty);
             if (difficultyBeatmap == null)
@@ -224,13 +226,16 @@ namespace CustomCampaigns.UI.ViewControllers
             IEnumerable<NoteData> beatmapDataItems = beatmapData.GetBeatmapDataItems<NoteData>(0);
             IEnumerable<SliderData> beatmapDataItems2 = beatmapData.GetBeatmapDataItems<SliderData>(0);
 
-            List<ScoreModel.MaxScoreCounterElement> elements = new List<ScoreModel.MaxScoreCounterElement>(1000);
+            Type maxScoreCounterElementType = typeof(ScoreModel).GetNestedType("MaxScoreCounterElement", System.Reflection.BindingFlags.NonPublic);
+            ConstructorInfo maxScoreCounterConstructorInfo = maxScoreCounterElementType.GetConstructor(AccessTools.all, null, new Type[] { typeof(NoteData.ScoringType), typeof(float) }, null);
+            List<object> elements = new List<object>(1000);
+
 
             foreach (NoteData noteData in beatmapDataItems)
             {
                 if (noteData.scoringType != NoteData.ScoringType.Ignore && noteData.gameplayType != NoteData.GameplayType.Bomb)
                 {
-                    elements.Add(new ScoreModel.MaxScoreCounterElement(noteData.scoringType, noteData.time));
+                    elements.Add(maxScoreCounterConstructorInfo?.Invoke(new object[] { noteData.scoringType, noteData.time }));
                 }
             }
 
@@ -238,11 +243,11 @@ namespace CustomCampaigns.UI.ViewControllers
             {
                 if (sliderData.sliderType == SliderData.Type.Burst)
                 {
-                    elements.Add(new ScoreModel.MaxScoreCounterElement(NoteData.ScoringType.BurstSliderHead, sliderData.time));
+                    elements.Add(maxScoreCounterConstructorInfo?.Invoke(new object[] { NoteData.ScoringType.BurstSliderHead, sliderData.tailTime }));
                     for (int i = 1; i < sliderData.sliceCount; i++)
                     {
                         float t = (float) i / (float) (sliderData.sliceCount - 1);
-                        elements.Add(new ScoreModel.MaxScoreCounterElement(NoteData.ScoringType.BurstSliderElement, Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, t)));
+                        elements.Add(maxScoreCounterConstructorInfo?.Invoke(new object[] { NoteData.ScoringType.BurstSliderElement, Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, t) }));
                     }
                 }
             }
@@ -250,10 +255,17 @@ namespace CustomCampaigns.UI.ViewControllers
             int maxScore = 0;
 
             scoreMultiplierCounter.Reset();
-            foreach (ScoreModel.MaxScoreCounterElement maxScoreCounterElement in elements)
+
+            PropertyInfo noteScoreDefinitionProperty = maxScoreCounterElementType.GetProperty("noteScoreDefinition", AccessTools.all);
+            PropertyInfo maxCutScoreProperty = typeof(ScoreModel.NoteScoreDefinition).GetProperty("maxCutScore", AccessTools.all);
+
+            foreach (object maxScoreCounterElement in elements)
             {
                 scoreMultiplierCounter.ProcessMultiplierEvent(ScoreMultiplierCounter.MultiplierEventType.Positive);
-                maxScore += maxScoreCounterElement.noteScoreDefinition.maxCutScore * scoreMultiplierCounter.multiplier;
+                object noteScoreDefinition = noteScoreDefinitionProperty?.GetValue(maxScoreCounterElement);
+                int maxCutScore = (int?)maxCutScoreProperty?.GetValue(noteScoreDefinition) ?? 0;
+
+                maxScore += maxCutScore * scoreMultiplierCounter.multiplier;
             }
 
             return maxScore;

@@ -1,7 +1,10 @@
 ﻿using CustomCampaigns.Managers;
+using HarmonyLib;
 using IPA.Utilities;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CustomCampaigns.UI.MissionObjectiveGameUI
 {
@@ -25,8 +28,12 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
         {
             foreach (MissionObjectiveGameUIView missionObjectiveGameUIView in _missionObjectiveGameUIViews)
             {
-                missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").statusDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveStatusDidChange;
-                missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").checkedValueDidChangeEvent -= missionObjectiveGameUIView.HandleMissionObjectiveCheckedValueDidChange;
+                missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").statusDidChangeEvent -=
+                    (Action<MissionObjectiveChecker>) missionObjectiveGameUIView.GetType().GetMethod("HandleMissionObjectiveStatusDidChange", AccessTools.all)
+                        ?.CreateDelegate(typeof(Action<MissionObjectiveChecker>), missionObjectiveGameUIView);
+                missionObjectiveGameUIView.GetField<MissionObjectiveChecker, MissionObjectiveGameUIView>("_missionObjectiveChecker").checkedValueDidChangeEvent -=
+                    (Action<MissionObjectiveChecker>) missionObjectiveGameUIView.GetType().GetMethod("HandleMissionObjectiveCheckedValueDidChange", AccessTools.all)
+                        ?.CreateDelegate(typeof(Action<MissionObjectiveChecker>), missionObjectiveGameUIView);
                 Object.Destroy(missionObjectiveGameUIView.gameObject);
             }
             _missionObjectiveGameUIViews.Clear();
