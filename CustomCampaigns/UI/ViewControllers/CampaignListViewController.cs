@@ -16,7 +16,7 @@ namespace CustomCampaigns.UI.ViewControllers
     {
         const string CustomCampaignsPathName = "/CustomCampaigns";
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
 
         [UIComponent("campaign-list")]
         internal CustomListTableData customListTableData;

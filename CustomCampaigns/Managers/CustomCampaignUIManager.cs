@@ -8,6 +8,7 @@ using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.UI.GameplaySetupUI;
 using CustomCampaigns.UI.ViewControllers;
 using CustomCampaigns.Utils;
+using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
 using Polyglot;
@@ -166,7 +167,7 @@ namespace CustomCampaigns.Managers
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.mission-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
             if (!_missionNodesManager.IsInitialized)
             {
-                _missionNodesManager.Awake();
+                _missionNodesManager.GetType().GetMethod("Awake", AccessTools.all)?.Invoke(_missionNodesManager, null);
             }
             _baseMissionNodes = _missionNodesManager.GetField<MissionNode[], MissionNodesManager>("_allMissionNodes");
             _baseRootMissionNode = _missionNodesManager.GetField<MissionNode, MissionNodesManager>("_rootMissionNode");
@@ -359,7 +360,7 @@ namespace CustomCampaigns.Managers
                     missionToggle.SetField("_highlightColor", nodeHighlightColor);
                 }
 
-                missionToggle.RefreshUI();
+                missionToggle.GetType().GetMethod("RefreshUI", AccessTools.all)?.Invoke(missionToggle, null);
             }
         }
 
@@ -381,25 +382,35 @@ namespace CustomCampaigns.Managers
 
         private void InitializeCampaignUI()
         {
+            var nodeSelectionStartMethodInfo = _missionNodeSelectionManager.GetType().GetMethod("Start", AccessTools.all);
+            var nodesManagerAwakeMethodInfo = _missionNodesManager.GetType().GetMethod("Awake", AccessTools.all);
+            var nodeSelectionOnDestroyMethodInfo = _missionNodeSelectionManager.GetType().GetMethod("OnDestroy", AccessTools.all);
+            var createNodeConnectionsMethodInfo = _missionConnectionsGenerator.GetType().GetMethod("CreateNodeConnections", AccessTools.all);
+            var resetAllNodesMethodInfo = _missionNodesManager.GetType().GetMethod("ResetAllNodes",        AccessTools.all);
+            var setupNodeConnectionsMethodInfo = _missionNodesManager.GetType().GetMethod("SetupNodeConnections", AccessTools.all);
+            var mapScrollViewAwakeMethodInfo = _mapScrollView.GetType().GetMethod("Awake", AccessTools.all);
+            var mapScrollViewOnDestroyMethodInfo = _mapScrollView.GetType().GetMethod("OnDestroy", AccessTools.all);
+            var mapScrollViewItemsVisibilityControllerStartMethodInfo = _mapScrollViewItemsVisibilityController.GetType().GetMethod("Start", AccessTools.all);
+
             if (_missionNodeSelectionManager.GetField<MissionNode[], MissionNodeSelectionManager>("_missionNodes") == null)
             {
-                _missionNodeSelectionManager.Start();
+                nodeSelectionStartMethodInfo?.Invoke(_missionNodeSelectionManager, null);
             }
 
-            _missionNodeSelectionManager.OnDestroy();
+            nodeSelectionOnDestroyMethodInfo?.Invoke(_missionNodeSelectionManager, null);
+
             CustomCampaignFlowCoordinator.CustomCampaignManager.ResetProgressIds();
 
-            _missionNodesManager.Awake();
-            _missionNodeSelectionManager.Start();
-            _missionConnectionsGenerator.CreateNodeConnections();
-            _missionNodesManager.ResetAllNodes();
-            _missionNodesManager.SetupNodeConnections();
-
-            _mapScrollView.OnDestroy();
-            _mapScrollView.Awake();
+            nodesManagerAwakeMethodInfo?.Invoke(_missionNodesManager, null);
+            nodeSelectionStartMethodInfo?.Invoke(_missionNodeSelectionManager, null);
+            createNodeConnectionsMethodInfo?.Invoke(_missionConnectionsGenerator, null);
+            resetAllNodesMethodInfo?.Invoke(_missionNodesManager, null);
+            setupNodeConnectionsMethodInfo?.Invoke(_missionNodesManager, null);
+            mapScrollViewOnDestroyMethodInfo?.Invoke(_mapScrollView, null);
+            mapScrollViewAwakeMethodInfo?.Invoke(_mapScrollView, null);
 
             _missionMapAnimationController.ScrollToTopMostNotClearedMission();
-            _mapScrollViewItemsVisibilityController.Start();
+            mapScrollViewItemsVisibilityControllerStartMethodInfo?.Invoke(_mapScrollViewItemsVisibilityController, null);
         }
 
         private void SetupGameplaySetupViewController()
@@ -408,7 +419,7 @@ namespace CustomCampaigns.Managers
             gameplaySetupViewController.SetField("_showEnvironmentOverrideSettings", true);
 
             AddCustomTab();
-            gameplaySetupViewController.RefreshContent();
+            gameplaySetupViewController.GetType().GetMethod("RefreshContent", AccessTools.all)?.Invoke(gameplaySetupViewController, null);
         }
 
         private void InitializeLevelParamsPanel()

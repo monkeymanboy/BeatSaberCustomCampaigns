@@ -12,10 +12,10 @@ namespace CustomCampaigns.HarmonyPatches
             var missionData = missionNode.missionData as CustomMissionDataSO;
             if (missionData != null)
             {
-                __instance.ProcessMissionFinishData(missionNode, missionCompletionResults);
+                __instance.GetType().GetMethod("ProcessMissionFinishData", AccessTools.all)?.Invoke(__instance, new object[] { missionNode, missionCompletionResults });
                 var level = missionData.customLevel.levelID;
                 IDifficultyBeatmap difficultyBeatmap = BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(level).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty);
-                __instance.ProcessLevelFinishData(difficultyBeatmap, missionCompletionResults.levelCompletionResults);
+                __instance.GetType().GetMethod("ProcessLevelFinishData", AccessTools.all)?.Invoke(__instance, new object[] { difficultyBeatmap, missionCompletionResults.levelCompletionResults });
                 return false;
             }
             return true;

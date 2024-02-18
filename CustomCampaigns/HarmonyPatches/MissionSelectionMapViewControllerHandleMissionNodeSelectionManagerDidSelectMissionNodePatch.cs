@@ -2,6 +2,7 @@
 using HarmonyLib;
 using IPA.Utilities;
 using System;
+using System.Reflection;
 
 namespace CustomCampaigns.HarmonyPatches
 {
@@ -16,7 +17,7 @@ namespace CustomCampaigns.HarmonyPatches
                 CustomPreviewBeatmapLevel level = (missionNodeVisualController.missionNode.missionData as CustomMissionDataSO).customLevel;
                 if (level != null)
                 {
-                    __instance.SongPlayerCrossfadeToLevelAsync(level);
+                    __instance.GetType().GetMethod("SongPlayerCrossfadeToLevelAsync", AccessTools.all)?.Invoke(__instance, new object[] { level });
                 }
                 __instance.GetField<Action<MissionSelectionMapViewController, MissionNode>, MissionSelectionMapViewController>("didSelectMissionLevelEvent")?.Invoke(__instance, missionNodeVisualController.missionNode);
                 return false;

@@ -21,7 +21,7 @@ namespace CustomCampaigns.UI.ViewControllers
         [UIComponent("leaderboard")]
         internal LeaderboardTableView table;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
 
 
         [UIValue("is-loaded")]

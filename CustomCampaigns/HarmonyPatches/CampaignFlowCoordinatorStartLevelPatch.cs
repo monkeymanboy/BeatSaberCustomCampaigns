@@ -27,7 +27,9 @@ namespace CustomCampaigns.HarmonyPatches
                 ColorSchemesSettings colorSchemesSettings = ____playerDataModel.playerData.colorSchemesSettings;
                 ColorScheme overrideColorScheme = colorSchemesSettings.overrideDefaultColors ? colorSchemesSettings.GetSelectedColorScheme() : null;
 
-                ____menuTransitionsHelper.StartMissionLevel("", difficultyBeatmap, missionData.customLevel, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback, __instance.HandleMissionLevelSceneDidFinish, __instance.HandleMissionLevelSceneRestarted);
+                ____menuTransitionsHelper.StartMissionLevel("", difficultyBeatmap, missionData.customLevel, overrideColorScheme, gameplayModifiers, missionObjectives, playerSpecificSettings, beforeSceneSwitchCallback,
+                    levelFinishedCallback: (Action<MissionLevelScenesTransitionSetupDataSO, MissionCompletionResults> ) __instance.GetType().GetMethod("HandleMissionLevelSceneDidFinish", AccessTools.all)?.CreateDelegate(typeof(Action<MissionLevelScenesTransitionSetupDataSO, MissionCompletionResults>), __instance),
+                    levelRestartedCallback: (Action<MissionLevelScenesTransitionSetupDataSO, MissionCompletionResults>) __instance.GetType().GetMethod("HandleMissionLevelSceneRestarted", AccessTools.all)?.CreateDelegate(typeof(Action<MissionLevelScenesTransitionSetupDataSO, MissionCompletionResults>), __instance));
 
                 return false;
             }

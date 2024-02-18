@@ -65,7 +65,7 @@ namespace CustomCampaigns.Managers
             {
                 _mainTab.IsVisible = false;
 
-                if (_tabSelector.GetField<int, TabSelector>("lastClickedIndex") == _tabIndex)
+                if (_tabSelector.GetField<int, TabSelector>("currentPage") == _tabIndex)
                 {
                     Plugin.logger.Debug("reselected index");
                     _tabSelector.InvokeMethod<object, TabSelector>("TabSelected", null, 0);

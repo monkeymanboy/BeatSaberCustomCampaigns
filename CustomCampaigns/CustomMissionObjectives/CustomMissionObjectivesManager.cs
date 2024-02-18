@@ -1,7 +1,9 @@
-﻿using IPA.Utilities;
+﻿using HarmonyLib;
+using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace CustomCampaigns.CustomMissionObjectives
@@ -97,7 +99,9 @@ namespace CustomCampaigns.CustomMissionObjectives
                     _activeMissionObjectiveCheckers.Add(missionObjectiveChecker);
                     _missionObjectives.Remove(missionObjective);
 
-                    missionObjectiveChecker.statusDidChangeEvent += _missionObjectiveCheckersManager.HandleMissionObjectiveCheckerStatusDidChange;
+                    // HandleMissionObjectiveCheckerStatusDidChange is private, use reflection to bind it to the event
+                    var missionObjectiveCheckerStatusDidChange = (Action<MissionObjectiveChecker>)_missionObjectiveCheckersManager.GetType().GetMethod("HandleMissionObjectiveCheckerStatusDidChange", AccessTools.all)?.CreateDelegate(typeof(Action<MissionObjectiveChecker>), _missionObjectiveCheckersManager);
+                    missionObjectiveChecker.statusDidChangeEvent += missionObjectiveCheckerStatusDidChange;
 
                     _missionObjectiveCheckersManager.SetField("_activeMissionObjectiveCheckers", _activeMissionObjectiveCheckers.ToArray());
                     if (invokeListChangeEvent)

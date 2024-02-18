@@ -1,4 +1,6 @@
-﻿namespace CustomCampaigns.Managers
+﻿using System.Threading;
+
+namespace CustomCampaigns.Managers
 {
     public class UserInfoManager
     {
@@ -15,7 +17,7 @@
 
         public async void GetUserInfo()
         {
-            UserInfo = await _platformUserModel.GetUserInfo();
+            UserInfo = await _platformUserModel.GetUserInfo(CancellationToken.None);
         }
     }
 }
