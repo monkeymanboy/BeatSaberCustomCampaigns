@@ -203,72 +203,7 @@ namespace CustomCampaigns.UI.ViewControllers
                 return 0;
             }
 
-            // TODO: Get beatmap version to determine if simple or complex method
-            return await GetMaxScoreBeatmapVThree(difficultyBeatmap);
-        }
-
-        private async Task<int> GetMaxScoreBeatmapVThree(IDifficultyBeatmap difficultyBeatmap)
-        {
-            CustomDifficultyBeatmap customDifficultyBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
-
-            if (customDifficultyBeatmap == null)
-            {
-                Plugin.logger.Error("difficulty beatmap was not a custom beatmap??????!111");
-                return 0;
-            }
-
-            IReadonlyBeatmapData beatmapData = null;
-            await Task.Run(delegate ()
-            {
-                beatmapData = BeatmapDataLoader.GetBeatmapDataFromSaveData(customDifficultyBeatmap.beatmapSaveData, customDifficultyBeatmap.difficulty, customDifficultyBeatmap.level.beatsPerMinute, false, null, null);
-            });
-
-            IEnumerable<NoteData> beatmapDataItems = beatmapData.GetBeatmapDataItems<NoteData>(0);
-            IEnumerable<SliderData> beatmapDataItems2 = beatmapData.GetBeatmapDataItems<SliderData>(0);
-
-            Type maxScoreCounterElementType = typeof(ScoreModel).GetNestedType("MaxScoreCounterElement", System.Reflection.BindingFlags.NonPublic);
-            ConstructorInfo maxScoreCounterConstructorInfo = maxScoreCounterElementType.GetConstructor(AccessTools.all, null, new Type[] { typeof(NoteData.ScoringType), typeof(float) }, null);
-            List<object> elements = new List<object>(1000);
-
-
-            foreach (NoteData noteData in beatmapDataItems)
-            {
-                if (noteData.scoringType != NoteData.ScoringType.Ignore && noteData.gameplayType != NoteData.GameplayType.Bomb)
-                {
-                    elements.Add(maxScoreCounterConstructorInfo?.Invoke(new object[] { noteData.scoringType, noteData.time }));
-                }
-            }
-
-            foreach (SliderData sliderData in beatmapDataItems2)
-            {
-                if (sliderData.sliderType == SliderData.Type.Burst)
-                {
-                    elements.Add(maxScoreCounterConstructorInfo?.Invoke(new object[] { NoteData.ScoringType.BurstSliderHead, sliderData.tailTime }));
-                    for (int i = 1; i < sliderData.sliceCount; i++)
-                    {
-                        float t = (float) i / (float) (sliderData.sliceCount - 1);
-                        elements.Add(maxScoreCounterConstructorInfo?.Invoke(new object[] { NoteData.ScoringType.BurstSliderElement, Mathf.LerpUnclamped(sliderData.time, sliderData.tailTime, t) }));
-                    }
-                }
-            }
-            elements.Sort();
-            int maxScore = 0;
-
-            scoreMultiplierCounter.Reset();
-
-            PropertyInfo noteScoreDefinitionProperty = maxScoreCounterElementType.GetProperty("noteScoreDefinition", AccessTools.all);
-            PropertyInfo maxCutScoreProperty = typeof(ScoreModel.NoteScoreDefinition).GetProperty("maxCutScore", AccessTools.all);
-
-            foreach (object maxScoreCounterElement in elements)
-            {
-                scoreMultiplierCounter.ProcessMultiplierEvent(ScoreMultiplierCounter.MultiplierEventType.Positive);
-                object noteScoreDefinition = noteScoreDefinitionProperty?.GetValue(maxScoreCounterElement);
-                int maxCutScore = (int?)maxCutScoreProperty?.GetValue(noteScoreDefinition) ?? 0;
-
-                maxScore += maxCutScore * scoreMultiplierCounter.multiplier;
-            }
-
-            return maxScore;
+            return ScoreModel.ComputeMaxMultipliedScoreForBeatmap(await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.GetEnvironmentInfo(), null));
         }
     }
 }
