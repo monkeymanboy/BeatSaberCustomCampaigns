@@ -1,6 +1,6 @@
 ﻿<settings-container xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
   <checkbox-setting text="Disable Objective Particles" value="objectiveParticles" hover-hint="Removes the distracting particles that show up when you meet the requirements of an objective during a campaign mission." apply-on-change="true" />
   <checkbox-setting text="Disable Objective UI" value="objectiveUI" hover-hint="Removes the in-game UI that shows whether or not you are passing the mission objectives" apply-on-change="true" />
-  <checkbox-setting text="Floor Leaderboard" value="floorLeaderboard" hover-hint="Moves the ScoreSaber Leaderboard to the floor (Requires returning to the main menu to take effect)" apply-on-change="true" active="~globalLeaderboardEnabled"/>
+  <checkbox-setting text="Floor Leaderboard" value="floorLeaderboard" hover-hint="Moves the External Leaderboards to the floor (Requires returning to the main menu to take effect)" apply-on-change="true" active="~globalLeaderboardEnabled"/>
   <slider-setting text="Leaderboard Position" min="-50" max="-10" value="floorLeaderboardPosition" increment="1" apply-on-change="true" active="~leaderboardPositionVisible"/>
 </settings-container>

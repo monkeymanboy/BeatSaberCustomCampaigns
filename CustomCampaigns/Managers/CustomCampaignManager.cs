@@ -476,14 +476,18 @@ namespace CustomCampaigns.Managers
             GameplaySetupViewController gameplaySetupViewController = _campaignFlowCoordinator.GetField<GameplaySetupViewController, CampaignFlowCoordinator>("_gameplaySetupViewController");
             PlayerSpecificSettings playerSettings = gameplaySetupViewController.playerSettings;
             ColorScheme overrideColorScheme = gameplaySetupViewController.colorSchemesSettings.GetOverrideColorScheme();
+            ColorScheme beatmapOverrideColorScheme = null;
+            if (beatmapLevel is CustomBeatmapLevel customBeatmapLevel && difficultyBeatmap is CustomDifficultyBeatmap customDifficultyBeatmap)
+            {
+                beatmapOverrideColorScheme = customBeatmapLevel.GetBeatmapLevelColorScheme(customDifficultyBeatmap.beatmapColorSchemeIdx);
+            }
 
             _menuTransitionsHelper.StartStandardLevel("Solo",
                                                         difficultyBeatmap,
                                                         beatmapLevel,
                                                         gameplaySetupViewController.environmentOverrideSettings,
                                                         overrideColorScheme,
-                                                        //TODO: Maybe add the real beatmapOverrideColorScheme instead of passing the playerOverrideColorScheme
-                                                        overrideColorScheme,
+                                                        beatmapOverrideColorScheme,
                                                         gameplayModifiers,
                                                         playerSettings,
                                                         null,
