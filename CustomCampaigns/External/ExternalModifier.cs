@@ -10,7 +10,7 @@ namespace CustomCampaigns.External
         public string Name;
         [JsonProperty(Required = Required.Always)]
         public List<ExternalModifierInfo> Infos;
-        [JsonProperty(Required = Required.AllowNull)]
+        [JsonProperty(Required = Required.Always)]
         internal string HandlerLocation;
         [JsonProperty(Required = Required.AllowNull)]
         internal string ModifierLocation;

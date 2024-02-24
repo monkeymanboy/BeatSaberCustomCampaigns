@@ -42,6 +42,9 @@ namespace CustomCampaigns.Campaign.Missions
         [JsonIgnore]
         private CustomMissionDataSO missionData = null;
 
+        private static Dictionary<string, BeatmapCharacteristicSO> _customCharacteristicMap  = new Dictionary<string, BeatmapCharacteristicSO>();
+        public static Action<string> OnUnkownCharacteristic;
+
         public MissionObjective[] GetMissionObjectives()
         {
             MissionObjective[] objectives = new MissionObjective[requirements.Length];
@@ -80,7 +83,7 @@ namespace CustomCampaigns.Campaign.Missions
 
         public MissionDataSO GetMissionData(Campaign campaign)
         {
-            if (missionData != null)
+            if (missionData != null && missionData.beatmapCharacteristic.descriptionLocalizationKey != "ERROR NOT FOUND")
             {
                 return missionData;
             }
@@ -131,14 +134,24 @@ namespace CustomCampaigns.Campaign.Missions
                 {
                     try
                     {
-                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.ToArray().GetBeatmapCharacteristics().First(x => x.serializedName == characteristic));
+                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.First(x => x.beatmapCharacteristic.serializedName == characteristic).beatmapCharacteristic);
                     }
                     catch
                     {
-                        BeatmapCharacteristicSO characteristicSO = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
-                        characteristicSO.SetField("_characteristicNameLocalizationKey", characteristic);
-                        characteristicSO.SetField("_descriptionLocalizationKey", "ERROR NOT FOUND");
-                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", characteristicSO);
+                        if (_customCharacteristicMap.ContainsKey(characteristic))
+                        {
+
+                            missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", _customCharacteristicMap[characteristic]);
+                        }
+                        else
+                        {
+                            OnUnkownCharacteristic?.Invoke(characteristic);
+
+                            BeatmapCharacteristicSO characteristicSO = ScriptableObject.CreateInstance<BeatmapCharacteristicSO>();
+                            characteristicSO.SetField("_characteristicNameLocalizationKey", characteristic);
+                            characteristicSO.SetField("_descriptionLocalizationKey", "ERROR NOT FOUND");
+                            missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", characteristicSO);
+                        }
                     }
                 }
 
@@ -180,6 +193,11 @@ namespace CustomCampaigns.Campaign.Missions
             }
 
             return altNames;
+        }
+
+        public static void AddCustomCharacteristicSO(string characteristic, BeatmapCharacteristicSO beatmapCharacteristicSO)
+        {
+            _customCharacteristicMap[characteristic] = beatmapCharacteristicSO;
         }
 
         private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)

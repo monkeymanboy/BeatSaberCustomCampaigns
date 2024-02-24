@@ -70,7 +70,6 @@ namespace CustomCampaigns.Installers
             foreach (var externalModifier in ExternalModifierManager.ExternalModifiers.Values)
             {
                 InstallExternalLoader(externalModifier);
-                break;
             }
         }
 

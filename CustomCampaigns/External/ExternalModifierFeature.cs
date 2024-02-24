@@ -29,7 +29,6 @@ namespace CustomCampaigns.External
 
         public override void AfterInit(PluginMetadata meta)
         {
-            Plugin.logger.Debug("????");
             if (externalModifiers.TryGetValue(meta, out ExternalModifier externalModifier))
             {
                 if (externalModifier.HandlerLocation != null && !TryLoadType(ref externalModifier.HandlerType, meta, externalModifier.HandlerLocation))

@@ -16,15 +16,21 @@ namespace CustomCampaigns.Utils
 
             var levelDifficultyBeatmapSets = beatmapLevel.beatmapLevelData.difficultyBeatmapSets;
 
-            var levelDifficultyBeatmaps = levelDifficultyBeatmapSets.First(x => x.beatmapCharacteristic.Equals(beatmapCharacteristic)).difficultyBeatmaps;
-            foreach (var diff in levelDifficultyBeatmaps)
+            foreach (var difficultyBeatmap in levelDifficultyBeatmapSets)
             {
-                if (diff.difficulty.Equals(beatmapDifficulty))
+                if (difficultyBeatmap.beatmapCharacteristic.Equals(beatmapCharacteristic))
                 {
-                    return diff;
-
+                    var levelDifficultyBeatmaps = difficultyBeatmap.difficultyBeatmaps;
+                    foreach (var diff in levelDifficultyBeatmaps)
+                    {
+                        if (diff.difficulty.Equals(beatmapDifficulty))
+                        {
+                            return diff;
+                        }
+                    }
                 }
             }
+            
             return null;
         }
     }

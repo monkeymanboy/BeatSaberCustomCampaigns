@@ -610,12 +610,12 @@ namespace CustomCampaigns.Managers
 
         private void SetMissionAltSelection(Mission mission)
         {
-
             _missionAlts = mission.GetMissionAlts();
             missionAlts = _missionAlts.Select(x => x.Key).ToList<object>();
 
             MissionAltSelect.values = missionAlts;
             MissionAltSelect.UpdateChoices();
+            MissionAltSelect.Value = mission.name;
 
             alts = mission.missionAlts.Count > 0 || mission.missionParent != null;
         }
@@ -921,7 +921,7 @@ namespace CustomCampaigns.Managers
                 {
                     foreach (ExternalModifier.ExternalModifierInfo modInfo in externalModifier.Infos)
                     {
-                        modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.ModifierType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
+                        modifierParams.Add(ModifierUtils.CreateModifierParam(SpriteUtils.LoadSpriteFromExternalAssembly(externalModifier.HandlerType.Assembly, modInfo.Icon), modInfo.Name, modInfo.Description));
                     }
 
                     break;

@@ -774,11 +774,15 @@ namespace CustomCampaigns.Managers
                 else
                 {
                     DifficultyData difficultyData = Collections.RetrieveDifficultyData(difficultyBeatmap);
-                    foreach (string requirement in difficultyData.additionalDifficultyData._requirements)
+                    if (difficultyData != null)
                     {
-                        if (Collections.capabilities.Contains(requirement) || requirement.StartsWith("Complete Campaign Challenge - ")) continue;
-                        errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, MISSING_CAPABILITY_ERROR_TITLE, $"{MISSING_CAPABILITY_ERROR_DESCRIPTION}{requirement}"));
+                        foreach (string requirement in difficultyData.additionalDifficultyData._requirements)
+                        {
+                            if (Collections.capabilities.Contains(requirement) || requirement.StartsWith("Complete Campaign Challenge - ")) continue;
+                            errorList.Add(ModifierUtils.CreateModifierParam(AssetsManager.ErrorIcon, MISSING_CAPABILITY_ERROR_TITLE, $"{MISSING_CAPABILITY_ERROR_DESCRIPTION}{requirement}"));
+                        }
                     }
+                    
                 }
             }
 
