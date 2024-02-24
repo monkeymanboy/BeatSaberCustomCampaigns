@@ -13,6 +13,7 @@ namespace CustomCampaigns.Managers
     {
         private BeatmapObjectManager _beatmapObjectManager;
         private IScoreController _scoreController;
+        private ComboController _comboController;
         private SaberActivityCounter _saberActivityCounter;
 
         private CustomMissionObjectivesUIController _customMissionObjectivesUIController;
@@ -26,13 +27,14 @@ namespace CustomCampaigns.Managers
         private Config _config;
 
         public CustomMissionObjectivesStandardLevelManager(CustomMissionObjectivesUIController customMissionObjectivesUIController, List<ICustomMissionObjectiveChecker> customMissionObjectiveCheckers,
-                                                           ILevelEndActions gameplayManager, BeatmapObjectManager beatmapObjectManager, IScoreController scoreController,
+                                                           ILevelEndActions gameplayManager, BeatmapObjectManager beatmapObjectManager, IScoreController scoreController, ComboController comboController,
                                                            SaberActivityCounter saberActivityCounter, List<IMissionModifier> missionModifiers, Config config)
         {
             _customMissionObjectiveCheckers = customMissionObjectiveCheckers;
 
             _beatmapObjectManager = beatmapObjectManager;
             _scoreController = scoreController;
+            _comboController = comboController;
             _saberActivityCounter = saberActivityCounter;
 
             _customMissionObjectivesUIController = customMissionObjectivesUIController;
@@ -84,7 +86,6 @@ namespace CustomCampaigns.Managers
 
         private MissionObjectiveChecker GetBaseGameCheckerForObjective(MissionObjective missionObjective)
         {
-            Plugin.logger.Debug($"Looking for: {missionObjective.type.objectiveName}");
             switch (missionObjective.type.objectiveName)
             {
                 case "OBJECTIVE_MISS":
@@ -104,12 +105,12 @@ namespace CustomCampaigns.Managers
 
                 case "OBJECTIVE_COMBO":
                     var comboMissionObjectiveChecker = new GameObject().AddComponent<ComboMissionObjectiveChecker>();
-                    comboMissionObjectiveChecker.SetField("_scoreController", _scoreController);
+                    comboMissionObjectiveChecker.SetField("_comboController", _comboController);
                     return comboMissionObjectiveChecker;
 
                 case "OBJECTIVE_FULL_COMBO":
                     var fullComboMissionObjectiveChecker = new GameObject().AddComponent<FullComboMissionObjectiveChecker>();
-                    fullComboMissionObjectiveChecker.SetField("_scoreController", _scoreController);
+                    fullComboMissionObjectiveChecker.SetField("_comboController", _comboController);
                     return fullComboMissionObjectiveChecker;
 
                 case "OBJECTIVE_BAD_CUTS":
