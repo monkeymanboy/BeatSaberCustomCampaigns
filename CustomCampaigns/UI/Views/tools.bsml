@@ -1,4 +1,5 @@
 ﻿<vertical spacing="5" vertical-fit="PreferredSize" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <button id='fetch-progress-button' text='Fetch Campaign Progress' hover-hint='Automatically unlocks any locked levels where you have a score on the custom campaigns leaderboard.' on-click='fetch-progress-click' pref-height='7.5'/>
   <button id='download-button' text='Download Missing Songs' on-click='download-click' pref-height='7.5'/>
   <button id='playlist-button' text='Export to Playlist' on-click='playlist-click' active='~playlists-visible' pref-height='7.5'/>
   <action-button text="View Campaign Credits" on-click='credits-click' id='credits-button' active='~credits-visible-unviewed' pref-height='7.5'/>

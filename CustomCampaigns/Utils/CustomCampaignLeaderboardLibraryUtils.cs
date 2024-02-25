@@ -46,6 +46,16 @@ namespace CustomCampaigns.Utils
             return sb.ToString();
         }
 
+        public static string GetURL(Mission mission, string customURL)
+        {
+            string url = customURL.Replace("{missionHash}", CustomCampaignLeaderboardLibraryUtils.GetHash(mission))
+                                  .Replace("{mapHash}", mission.hash)
+                                  .Replace("{characteristic}", mission.characteristic)
+                                  .Replace("{difficulty}", ((int) mission.difficulty).ToString())
+                                  .Replace("{userID}", UserInfoManager.UserInfo.platformUserId);
+            return url;
+        }
+
         public static string GetSpecialName(string id, string name)
         {
             if (IsRainbowName(id))

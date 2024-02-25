@@ -854,7 +854,7 @@ namespace CustomCampaigns.Managers
 
         private void AddCustomTab()
         {
-            _gameplaySetupManager.Setup(CustomCampaignFlowCoordinator.CustomCampaignManager.Campaign);
+            _gameplaySetupManager.Setup(CustomCampaignFlowCoordinator.CustomCampaignManager.Campaign, _currentCampaignNodes);
         }
 
         private void OnViewActivated()

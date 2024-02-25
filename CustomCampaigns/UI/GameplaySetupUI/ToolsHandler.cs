@@ -1,12 +1,21 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using CustomCampaignLeaderboardLibrary;
+using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using CustomCampaigns.UI.FlowCoordinators;
+using CustomCampaigns.Utils;
+using HarmonyLib;
+using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomCampaigns.UI.GameplaySetupUI
@@ -22,6 +31,12 @@ namespace CustomCampaigns.UI.GameplaySetupUI
 
         private Campaign.Campaign _campaign;
 
+        private CampaignProgressModel _campaignProgressModel;
+        private List<MissionNode> _campaignNodes;
+        private MissionMapAnimationController _missionMapAnimationController;
+
+        private HashSet<MissionNode> _checkedMissions = new HashSet<MissionNode>();
+
         private int songsDownloaded;
         private int downloadsFailed;
 
@@ -34,25 +49,32 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         [UIValue("playlists-visible")]
         public bool PlaylistsVisible { get; private set; }
 
+        [UIComponent("fetch-progress-button")]
+        Button fetchProgressButton;
+
         [UIComponent("download-button")]
         Button downloadButton;
 
         [UIComponent("playlist-button")]
         Button playlistButton;
 
-        public ToolsHandler(MenuTransitionsHelper menuTransitionsHelper, CreditsManager creditsManager, DownloadManager downloadManager, Config config)
+        public ToolsHandler(MenuTransitionsHelper menuTransitionsHelper, CreditsManager creditsManager, DownloadManager downloadManager, CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, Config config)
         {
             _menuTransitionsHelper = menuTransitionsHelper;
             _creditsManager = creditsManager;
             _downloadManager = downloadManager;
             _config = config;
 
+            _campaignProgressModel = campaignFlowCoordinator.GetField<CampaignProgressModel, CampaignFlowCoordinator>("_campaignProgressModel");
+            _missionMapAnimationController = missionSelectionMapViewController.GetField<MissionMapAnimationController, MissionSelectionMapViewController>("_missionMapAnimationController");
+
             PlaylistsVisible = Plugin.isPlaylistLibInstalled;
         }
 
-        internal void SetCampaign(Campaign.Campaign campaign)
+        internal void SetCampaign(Campaign.Campaign campaign, MissionNode[] campaignNodes)
         {
             _campaign = campaign;
+            _campaignNodes = campaignNodes.ToList();
 
             var creditsVisible = File.Exists(campaign.campaignPath + "/" + "credits.json");
             CreditsVisibleUnViewed = creditsVisible && !_config.creditsViewed.Contains(_campaign.info.name);
@@ -61,13 +83,108 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisibleUnViewed)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CreditsVisibleViewed)));
 
-            downloadButton.interactable = true;
-            downloadButton.SetButtonText("Download Missing Songs");
+            if (_campaign.missions.Count > 0)
+            {
+                fetchProgressButton.interactable = true;
+                fetchProgressButton.SetButtonText("Fetch Campaign Progress");
+
+                downloadButton.interactable = true;
+                downloadButton.SetButtonText("Download Missing Songs");
+            }
 
             playlistButton.interactable = true;
-
             playlistButton.SetButtonText(GetDoesPlaylistExist(_campaign) ? "Update Playlist" : "Create Playlist");
         }
+
+        #region Progress Button
+        private Mission GetMatchingMissionFromMissionNode(MissionNode node)
+        {
+            foreach (var mission in _campaign.missions)
+            {
+                MissionDataSO missionDataSO = mission.TryGetMissionData();
+                if (missionDataSO != null && missionDataSO == node.missionData)
+                {
+                    return mission;
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<bool> GetIsMissionNodeOnLeaderboard(MissionNode node)
+        {
+            Mission mission = GetMatchingMissionFromMissionNode(node);
+            if (mission == null)
+            {
+                Plugin.logger.Debug($"Could not find matching mission - {node.name}");
+                return false;
+            }
+
+            LeaderboardResponse response;
+            if (_campaign.info.customMissionLeaderboard == "")
+            {
+                var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
+                response = await CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
+            }
+
+            else
+            {
+                string url = CustomCampaignLeaderboardLibraryUtils.GetURL(mission, _campaign.info.customMissionLeaderboard);
+                response = await CustomCampaignLeaderboard.LoadLeaderboards(url);
+            }
+
+            return response != null && response.you.position > 0;
+        }
+
+        [UIAction("fetch-progress-click")]
+        public async void FetchCampaignProgress()
+        {
+            fetchProgressButton.interactable = false;
+            fetchProgressButton.SetButtonText("Fetching Progress...");
+
+            Queue<MissionNode> missions = new Queue<MissionNode>();
+            missions.Enqueue(_campaignNodes[0]);
+            int i = 0;
+            while (missions.Count > 0)
+            {
+                MissionNode node = missions.Dequeue();
+                if (_checkedMissions.Contains(node))
+                {
+                    continue;
+                }
+
+                i++;
+                fetchProgressButton.SetButtonText($"Fetching {i} / {_campaignNodes.Count}...");
+                _checkedMissions.Add(node);
+
+                bool isCleared = false;
+
+                if (_campaignProgressModel.IsMissionCleared(node.missionId))
+                {
+                    isCleared = true;
+                }
+                else if (await GetIsMissionNodeOnLeaderboard(node))
+                {
+                    _campaignProgressModel.SetMissionCleared(node.missionId);
+                    isCleared = true;
+                }
+
+                if (isCleared)
+                {
+                    foreach (var child in node.childNodes)
+                    {
+                        if (!_checkedMissions.Contains(child))
+                        {
+                            missions.Enqueue(child);
+                        }
+                    }
+                }
+            }
+
+            _missionMapAnimationController.UpdateMissionMapAfterMissionWasCleared(false, null);
+            fetchProgressButton.SetButtonText("Campaign Progress Fetched");
+        }
+        #endregion
 
         #region Download Buton
         [UIAction("download-click")]

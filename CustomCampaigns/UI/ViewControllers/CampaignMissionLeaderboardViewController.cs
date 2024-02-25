@@ -78,15 +78,13 @@ namespace CustomCampaigns.UI.ViewControllers
                 Task<LeaderboardResponse> task;
                 if (customURL == "")
                 {
-                    Plugin.logger.Debug("normal leaderboard");
                     var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
                     task = CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
                 }
 
                 else
                 {
-                    Plugin.logger.Debug("custom leaderboard");
-                    string url = GetURL(mission, customURL);
+                    string url = CustomCampaignLeaderboardLibraryUtils.GetURL(mission, customURL);
                     task = CustomCampaignLeaderboard.LoadLeaderboards(url);
                 }
 
@@ -97,16 +95,6 @@ namespace CustomCampaigns.UI.ViewControllers
                 isLoaded = true;
 
             }
-        }
-
-        private string GetURL(Mission mission, string customURL)
-        {
-            string url = customURL.Replace("{missionHash}", CustomCampaignLeaderboardLibraryUtils.GetHash(mission))
-                                  .Replace("{mapHash}", mission.hash)
-                                  .Replace("{characteristic}", mission.characteristic)
-                                  .Replace("{difficulty}", ((int) mission.difficulty).ToString())
-                                  .Replace("{userID}", UserInfoManager.UserInfo.platformUserId);
-            return url;
         }
 
         private async void UpdateScores(LeaderboardResponse response)

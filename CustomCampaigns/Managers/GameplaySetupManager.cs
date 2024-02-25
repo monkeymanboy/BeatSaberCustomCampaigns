@@ -33,7 +33,7 @@ namespace CustomCampaigns.Managers
             _toolsHandler = toolsHandler;
         }
 
-        public void Setup(Campaign.Campaign campaign)
+        public void Setup(Campaign.Campaign campaign, MissionNode[] campaignNodes)
         {
             if (_mainTab == null)
             {
@@ -54,7 +54,7 @@ namespace CustomCampaigns.Managers
             _mainTab.gameObject.SetActive(false);
             _mainTab.IsVisible = true;
 
-            _toolsHandler.SetCampaign(campaign);
+            _toolsHandler.SetCampaign(campaign, campaignNodes);
         }
 
         public void CampaignExit()
