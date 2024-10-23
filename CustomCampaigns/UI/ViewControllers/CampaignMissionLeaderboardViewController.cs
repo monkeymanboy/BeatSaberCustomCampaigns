@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -22,6 +23,10 @@ namespace CustomCampaigns.UI.ViewControllers
     [HotReload(RelativePathToLayout = @"..\Views\mission-leaderboard.bsml")]
     public class CampaignMissionLeaderboardViewController : BSMLAutomaticViewController, INotifyPropertyChanged
     {
+        private BeatmapLevelLoader _beatmapLevelLoader;
+        private BeatmapDataLoader _beatmapDataLoader;
+        private BeatmapLevelsEntitlementModel _beatmapLevelsEntitlementModel;
+
         [UIComponent("leaderboard")]
         internal LeaderboardTableView table;
         [UIComponent("leaderboard")]
@@ -58,6 +63,13 @@ namespace CustomCampaigns.UI.ViewControllers
             GameObject.Destroy(_leaderboardTransform.Find("LoadingControl").gameObject);
 
             scoreMultiplierCounter = new ScoreMultiplierCounter();
+        }
+
+        public CampaignMissionLeaderboardViewController(BeatmapLevelLoader beatmapLevelLoader, BeatmapDataLoader beatmapDataLoader, BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel) : base()
+        {
+            _beatmapLevelLoader = beatmapLevelLoader;
+            _beatmapDataLoader = beatmapDataLoader;
+            _beatmapLevelsEntitlementModel = beatmapLevelsEntitlementModel;
         }
 
         public void UpdateLeaderboards()
@@ -103,25 +115,33 @@ namespace CustomCampaigns.UI.ViewControllers
             int specialPos = -1;
 
             var maxScore = await GetMaxScore();
-            foreach (OtherData score in response.scores)
+
+            if (response is null)
             {
-                if (score.id == UserInfoManager.UserInfo.platformUserId + "")
+                scores.Add(new ScoreData(0, "Unable to find scores", 0, false));
+            }
+            else
+            {
+                foreach (OtherData score in response.scores)
                 {
-                    specialPos = scores.Count;
+                    if (score.id == UserInfoManager.UserInfo.platformUserId + "")
+                    {
+                        specialPos = scores.Count;
+                    }
+
+                    scores.Add(GetScoreData(score, maxScore, scores.Count + 1));
                 }
 
-                scores.Add(GetScoreData(score, maxScore, scores.Count + 1));
-            }
+                if (response.you.position > 0 && specialPos == -1)
+                {
+                    specialPos = scores.Count;
+                    scores.Add(GetScoreData(response.you, maxScore));
+                }
 
-            if (response.you.position > 0 && specialPos == -1)
-            {
-                specialPos = scores.Count;
-                scores.Add(GetScoreData(response.you, maxScore));
-            }
-
-            if (scores.Count == 0)
-            {
-                scores.Add(new ScoreData(0, "No scores for this challenge", 0, false));
+                if (scores.Count == 0)
+                {
+                    scores.Add(new ScoreData(0, "No scores for this challenge", 0, false));
+                }
             }
 
             table.SetScores(scores, specialPos);
@@ -167,7 +187,7 @@ namespace CustomCampaigns.UI.ViewControllers
                 return 0;
             }
             var levelId = level.levelID;
-            var beatmapLevel = Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(levelId);
+            var beatmapLevel = Loader.BeatmapLevelsModelSO.GetBeatmapLevel(levelId);
             if (beatmapLevel == null)
             {
                 return 0;
@@ -184,14 +204,24 @@ namespace CustomCampaigns.UI.ViewControllers
                 return 0;
             }
 
-
-            IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(levelId, missionData.beatmapCharacteristic, mission.difficulty);
-            if (difficultyBeatmap == null)
+            if (_beatmapLevelLoader == null)
             {
                 return 0;
             }
 
-            return ScoreModel.ComputeMaxMultipliedScoreForBeatmap(await difficultyBeatmap.GetBeatmapDataAsync(difficultyBeatmap.GetEnvironmentInfo(), null));
+            BeatmapLevelDataVersion beatmapLevelDataVersion = (await _beatmapLevelsEntitlementModel.GetLevelDataVersionAsync(levelId, CancellationToken.None));
+            IBeatmapLevelData beatmapLevelData = (await _beatmapLevelLoader.LoadBeatmapLevelDataAsync(beatmapLevel, beatmapLevelDataVersion, CancellationToken.None)).beatmapLevelData;
+            BeatmapKey beatmapKey = BeatmapUtils.GetMatchingBeatmapKey(levelId, missionData.beatmapCharacteristic, mission.difficulty);
+            return ScoreModel.ComputeMaxMultipliedScoreForBeatmap(await _beatmapDataLoader.LoadBeatmapDataAsync(beatmapLevelData: beatmapLevelData,
+                                                                                                                beatmapKey: beatmapKey,
+                                                                                                                startBpm: beatmapLevel.beatsPerMinute,
+                                                                                                                loadingForDesignatedEnvironment: false,
+                                                                                                                targetEnvironmentInfo: null,
+                                                                                                                originalEnvironmentInfo: null,
+                                                                                                                beatmapLevelDataVersion,
+                                                                                                                gameplayModifiers: null,
+                                                                                                                playerSpecificSettings: null,
+                                                                                                                enableBeatmapDataCaching: false));
         }
     }
 }

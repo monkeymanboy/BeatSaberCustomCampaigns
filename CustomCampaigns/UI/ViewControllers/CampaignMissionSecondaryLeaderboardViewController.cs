@@ -9,6 +9,12 @@ namespace CustomCampaigns.UI.ViewControllers
     {
         private Mission _lastLoadedMission = null;
 
+        public CampaignMissionSecondaryLeaderboardViewController(BeatmapLevelLoader beatmapLevelLoader, BeatmapDataLoader beatmapDataLoader, BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel) :
+                base(beatmapLevelLoader, beatmapDataLoader, beatmapLevelsEntitlementModel)
+        {
+
+        }
+
         internal void Shown()
         {
             Plugin.logger.Debug("shown :D");

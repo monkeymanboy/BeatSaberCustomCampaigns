@@ -30,7 +30,6 @@ namespace CustomCampaigns.HarmonyPatches
                 MissionInfo missionInfo = (missionHelp as CustomMissionHelpSO).missionInfo;
                 if (missionInfo.lightColor != null)
                 {
-                    Plugin.logger.Debug("custom lights in mission help");
                     customObjectiveLights = UnityEngine.Object.Instantiate(baseObjectiveLightsPreset);
 
                     SimpleColorSO color = ScriptableObject.CreateInstance<SimpleColorSO>();
@@ -43,14 +42,12 @@ namespace CustomCampaigns.HarmonyPatches
                 }
             }
 
-            Plugin.logger.Debug("press play button");
             if (CustomCampaignManager.isCampaignLevel)
             {
                 __instance.GetField<MenuLightsManager, CampaignFlowCoordinator>("_menuLightsManager").SetColorPreset(customObjectiveLights, true);
                 MissionHelpViewController missionHelpViewController = __instance.GetField<MissionHelpViewController, CampaignFlowCoordinator>("_missionHelpViewController");
                 missionHelpViewController.Setup(missionHelp);
                 __instance.InvokeMethod<object, CampaignFlowCoordinator>("PresentViewController", missionHelpViewController, null, ViewController.AnimationDirection.Horizontal, false);
-                Plugin.logger.Debug("standard level");
                 return false;
             }
 

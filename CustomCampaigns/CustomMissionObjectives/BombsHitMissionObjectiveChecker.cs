@@ -13,7 +13,7 @@ namespace CustomCampaigns.CustomMissionObjectives
             _beatmapObjectManager = beatmapObjectManager;
         }
 
-        protected override void Init()
+        public override void Init()
         {
             Plugin.logger.Debug("init bombs hit");
 

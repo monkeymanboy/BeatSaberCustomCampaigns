@@ -90,7 +90,7 @@ namespace CustomCampaigns
             statusCallback?.Invoke("Downloading map...");
 
             var www = await MakeRequestAsync(downloadUrl, cancellationToken, progressCallback);
-            if (www == null || www.isNetworkError || www.isHttpError)
+            if (www == null || www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 onDownloadFail?.Invoke();
                 return;
@@ -150,7 +150,7 @@ namespace CustomCampaigns
             var url = BEATSAVER_PREFIX + ID_ENDPOINT + id.ToLower();
             var www = await MakeRequestAsync(url, cancellationToken, progressCallback);
 
-            if (www == null || www.isNetworkError || www.isHttpError)
+            if (www == null || www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 return null;
             }
@@ -181,7 +181,7 @@ namespace CustomCampaigns
             }
 
             isDownloading = false;
-            if (www.isNetworkError || www.isHttpError)
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 Plugin.logger.Debug(www.error);
 

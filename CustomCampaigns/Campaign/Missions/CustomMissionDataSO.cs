@@ -4,6 +4,6 @@
     {
         public Campaign campaign;
         public Mission mission;
-        public CustomPreviewBeatmapLevel customLevel;
+        public BeatmapLevel beatmapLevel;
     }
 }

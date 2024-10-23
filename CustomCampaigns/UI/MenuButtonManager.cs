@@ -21,7 +21,7 @@ namespace CustomCampaigns.UI
 
         public void Initialize()
         {
-            MenuButtons.instance.RegisterButton(_menuButton);
+            MenuButtons.Instance.RegisterButton(_menuButton);
         }
 
         private void PresentFlowCoordinator()
@@ -31,9 +31,9 @@ namespace CustomCampaigns.UI
 
         public void Dispose()
         {
-            if (MenuButtons.instance != null && BSMLParser.instance != null)
+            if (MenuButtons.Instance != null && BSMLParser.Instance != null)
             {
-                MenuButtons.instance.UnregisterButton(_menuButton);
+                MenuButtons.Instance.UnregisterButton(_menuButton);
             }
         }
     }

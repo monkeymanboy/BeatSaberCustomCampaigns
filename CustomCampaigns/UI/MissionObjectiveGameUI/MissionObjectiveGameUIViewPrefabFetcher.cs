@@ -4,7 +4,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace CustomCampaigns.UI.MissionObjectiveGameUI
 {
@@ -12,9 +16,7 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
     {
         public Action OnPrefabFetched;
 
-        private const string SCENE_NAME = "MissionGameplay";
-
-        public void FetchPrefab()
+        public void FetchPrefab(string SceneName, ZenjectSceneLoader zenjectSceneLoader)
         {
             if (CustomCampaignManager.missionObjectiveGameUIViewPrefab != null)
             {
@@ -22,29 +24,29 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
                 return;
             }
 
-            StartCoroutine(FetchPrefabCoroutine());
+            StartCoroutine(FetchPrefabCoroutine(SceneName, zenjectSceneLoader));
         }
 
-        private IEnumerator FetchPrefabCoroutine()
+        private IEnumerator FetchPrefabCoroutine(string SceneName, ZenjectSceneLoader zenjectSceneLoader)
         {
-            AsyncOperation loadScene = SceneManager.LoadSceneAsync(SCENE_NAME, LoadSceneMode.Additive);
-            while (!loadScene.isDone)
-            {
-                yield return null;
-            }
+            AsyncOperationHandle<SceneInstance> asyncOperationHandle = Addressables.LoadSceneAsync(SceneName, LoadSceneMode.Additive);
+            yield return asyncOperationHandle;
 
-            Scene missionGameplayScene = SceneManager.GetSceneByName(SCENE_NAME);
+            Scene missionGameplayScene = SceneManager.GetSceneByName(SceneName);
             List<GameObject> gameObjects = new List<GameObject>(0);
             GameObject wrapper = null;
             missionGameplayScene.GetRootGameObjects(gameObjects);
+
             foreach (var gameObject in gameObjects)
             {
+                Plugin.logger.Debug($"Prefab gameObject name: {gameObject.name}");
                 if (gameObject.name == "Wrapper")
                 {
                     wrapper = gameObject;
                     break;
                 }
             }
+
             if (wrapper == null)
             {
                 Plugin.logger.Error("Couldn't find prefab - couldn't find wrapper GO");
@@ -66,7 +68,9 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
                 }
             }
 
-            SceneManager.UnloadSceneAsync(SCENE_NAME);
+            Plugin.logger.Debug("Going to unload now");
+
+            SceneManager.UnloadSceneAsync(SceneName);
             OnPrefabFetched?.Invoke();
         }
     }

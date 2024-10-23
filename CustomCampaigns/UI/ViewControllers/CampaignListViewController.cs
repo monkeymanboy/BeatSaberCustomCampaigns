@@ -43,7 +43,7 @@ namespace CustomCampaigns.UI.ViewControllers
         [UIAction("campaign-click")]
         protected void ClickedCampaign(TableView table, int row)
         {
-            DidClickCampaignEvent?.Invoke(customListTableData.data[row] as Campaign.Campaign);
+            DidClickCampaignEvent?.Invoke(customListTableData.Data[row] as Campaign.Campaign);
         }
 
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
@@ -64,7 +64,7 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private IEnumerator LoadCampaigns()
         {
-            customListTableData.data.Clear();
+            customListTableData.Data.Clear();
             var path = ConvertPath(Environment.CurrentDirectory);
             path += CustomCampaignsPathName;
             Directory.CreateDirectory(path);
@@ -78,7 +78,7 @@ namespace CustomCampaigns.UI.ViewControllers
                     try
                     {
                         Campaign.Campaign currentCampaign = new Campaign.Campaign(this, campaignPath);
-                        customListTableData.data.Add(currentCampaign);
+                        customListTableData.Data.Add(currentCampaign);
                     }
                     catch (Exception e)
                     {
@@ -88,8 +88,8 @@ namespace CustomCampaigns.UI.ViewControllers
                 }
             }
 
-            customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ClearSelection();
+            customListTableData.TableView.ReloadData();
+            customListTableData.TableView.ClearSelection();
             isLoaded = true;
         }
 

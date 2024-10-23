@@ -127,11 +127,11 @@ namespace CustomCampaigns.UI.ViewControllers
             OnViewLoaded(true);
         }
 
-        private void AdjustIcon()
+        private async void AdjustIcon()
         {
             if (ssShown)
             {
-                _toggleButtonImage.SetImage("#CampaignIcon");
+                await _toggleButtonImage.SetImageAsync("#CampaignIcon");
                 _toggleButtonImage.GetComponent<HoverHint>().text = "View Campaign Leaderboard";
             }
             else

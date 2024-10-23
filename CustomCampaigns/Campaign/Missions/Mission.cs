@@ -6,9 +6,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
+using static CustomLevelLoader;
+using static IPA.Logging.Logger;
 
 namespace CustomCampaigns.Campaign.Missions
 {
@@ -55,23 +58,31 @@ namespace CustomCampaigns.Campaign.Missions
             return objectives;
         }
 
-        public CustomPreviewBeatmapLevel FindSong()
+        public BeatmapLevel FindSong()
         {
             try
             {
                 if (hash != "")
                 {
                     List<string> levelIDs = SongCore.Collections.levelIDsForHash(hash);
-                    CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
-                    return level;
+                    BeatmapLevel beatmapLevel = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
+
+                    return beatmapLevel;
                 }
                 // VS >:(
                 else
                 {
                     // Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
                     string songidSearch = "\\" + songid + (customDownloadURL == "" ? " " : "");
-                    CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelPath, songidSearch, CompareOptions.IgnoreCase) >= 0);
-                    return level;
+                    string songPath = Loader.CustomLevelLoader.GetField<Dictionary<string, LoadedSaveData>, CustomLevelLoader>("_loadedBeatmapSaveData").Values
+                                                              .First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelFolderInfo.folderPath, songidSearch, CompareOptions.IgnoreCase) >= 0).customLevelFolderInfo.folderPath;
+                    (string, BeatmapLevel)? output = Loader.LoadCustomLevel(songPath);
+                    
+                    if (output.HasValue)
+                    {
+                        return output.Value.Item2;
+                    }
+                    return null;
                 }
             }
 
@@ -128,13 +139,13 @@ namespace CustomCampaigns.Campaign.Missions
 
             else
             {
-                CustomPreviewBeatmapLevel level = FindSong();
-                missionData.customLevel = level;
-                if (level != null)
+                BeatmapLevel beatmapLevel = FindSong();
+                missionData.beatmapLevel = beatmapLevel;
+                if (beatmapLevel != null)
                 {
                     try
                     {
-                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", level.previewDifficultyBeatmapSets.First(x => x.beatmapCharacteristic.serializedName == characteristic).beatmapCharacteristic);
+                        missionData.SetField<MissionDataSO, BeatmapCharacteristicSO>("_beatmapCharacteristic", beatmapLevel.GetCharacteristics().First(x => x.serializedName == characteristic));
                     }
                     catch
                     {
@@ -200,7 +211,7 @@ namespace CustomCampaigns.Campaign.Missions
             _customCharacteristicMap[characteristic] = beatmapCharacteristicSO;
         }
 
-        private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)
+        private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, BeatmapLevel> levels)
         {
             SetCustomLevel();
         }

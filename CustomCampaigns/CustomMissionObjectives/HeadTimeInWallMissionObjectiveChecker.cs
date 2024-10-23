@@ -18,7 +18,7 @@ namespace CustomCampaigns.CustomMissionObjectives
             _pauseMenuManager = pauseMenuManager;
         }
 
-        protected override void Init()
+        public override void Init()
         {
             Plugin.logger.Debug("init head time in wall");
 

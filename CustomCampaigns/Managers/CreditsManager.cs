@@ -22,7 +22,7 @@ namespace CustomCampaigns.Managers
 
         private List<Transform> _credits = new List<Transform>(0);
 
-        private Action<string> AudioLoaded;
+        private Action<AudioClip> AudioLoaded;
         private CreditsController _creditsController;
 
         [AffinityPrefix]
@@ -218,8 +218,8 @@ namespace CustomCampaigns.Managers
                 return;
             }
 
-            CustomPreviewBeatmapLevel level = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
-            if (level == null)
+            BeatmapLevel beatmapLevel = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
+            if (beatmapLevel == null)
             {
                 Plugin.logger.Debug("no levels matching");
                 return;
@@ -227,14 +227,11 @@ namespace CustomCampaigns.Managers
 
             AudioLoaded -= OnAudioLoad;
             AudioLoaded += OnAudioLoad;
-            LoadBeatmap(level.levelID);
+            LoadAudio(beatmapLevel.levelID);
         }
 
-        private void OnAudioLoad(string levelID)
+        private void OnAudioLoad(AudioClip audioClip)
         {
-            var beatmapLevel = SongCore.Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(levelID);
-            var audioClip = beatmapLevel.beatmapLevelData.audioClip;
-
             Plugin.logger.Debug("got audio clip");
             var audioPlayer = _creditsController.GetField<AudioPlayerBase, CreditsController>("_audioPlayer") as SimpleAudioPlayer;
             if (audioPlayer == null)
@@ -248,11 +245,11 @@ namespace CustomCampaigns.Managers
             audioPlayer.GetField<AudioSource, SimpleAudioPlayer>("_audioSource").Play();
         }
 
-        private async void LoadBeatmap(string levelID)
+        private async void LoadAudio(string levelID)
         {
             Plugin.logger.Debug($"Loading beatmap: {levelID}");
-            await Loader.BeatmapLevelsModelSO.GetBeatmapLevelAsync(levelID, CancellationToken.None);
-            AudioLoaded?.Invoke(levelID);
+            AudioClip audioClip = await Loader.BeatmapLevelsModelSO.GetBeatmapLevel(levelID).previewMediaData.GetPreviewAudioClip();
+            AudioLoaded?.Invoke(audioClip);
         }
     }
 

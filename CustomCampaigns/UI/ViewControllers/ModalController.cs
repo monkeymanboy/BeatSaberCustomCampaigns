@@ -46,20 +46,20 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private void ParseCancelDownloads()
         {
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.cancel-downloads-modal.bsml"), _missionSelectionMapViewController.transform.Find("ScrollView").gameObject, this);
+            BSMLParser.Instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.cancel-downloads-modal.bsml"), _missionSelectionMapViewController.transform.Find("ScrollView").gameObject, this);
             _parsedCancelDownloads = true;
         }
 
         private void ParseMissingOptionalModWarning()
         {
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.missing-optional-mod-warning.bsml"), _missionSelectionMapViewController.transform.Find("ScrollView").gameObject, this);
+            BSMLParser.Instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.missing-optional-mod-warning.bsml"), _missionSelectionMapViewController.transform.Find("ScrollView").gameObject, this);
             _parsedMissingOptionalModWarning = true;
         }
 
         private void ParseOptionalModFailureWarning()
         {
             Plugin.logger.Debug("parsing optional mod failure");
-            BSMLParser.instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.optional-mod-failure-warning.bsml"), _missionSelectionMapViewController.transform.Find("ScrollView").gameObject, this);
+            BSMLParser.Instance.Parse(BeatSaberMarkupLanguage.Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.optional-mod-failure-warning.bsml"), _missionSelectionMapViewController.transform.Find("ScrollView").gameObject, this);
             _parsedOptionalModFailureWarning = true;
         }
 

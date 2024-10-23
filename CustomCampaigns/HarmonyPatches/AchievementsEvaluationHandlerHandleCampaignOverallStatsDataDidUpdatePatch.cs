@@ -1,5 +1,6 @@
 ﻿using CustomCampaigns.Campaign.Missions;
 using HarmonyLib;
+using IPA.Utilities;
 using SongCore;
 
 namespace CustomCampaigns.HarmonyPatches
@@ -12,10 +13,8 @@ namespace CustomCampaigns.HarmonyPatches
             var missionData = missionNode.missionData as CustomMissionDataSO;
             if (missionData != null)
             {
-                __instance.GetType().GetMethod("ProcessMissionFinishData", AccessTools.all)?.Invoke(__instance, new object[] { missionNode, missionCompletionResults });
-                var level = missionData.customLevel.levelID;
-                IDifficultyBeatmap difficultyBeatmap = BeatmapLevelDataExtensions.GetDifficultyBeatmap(Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(level).beatmapLevelData, missionData.beatmapCharacteristic, missionData.beatmapDifficulty);
-                __instance.GetType().GetMethod("ProcessLevelFinishData", AccessTools.all)?.Invoke(__instance, new object[] { difficultyBeatmap, missionCompletionResults.levelCompletionResults });
+                __instance.InvokeMethod<object, AchievementsEvaluationHandler>("ProcessMissionFinishData", missionNode, missionCompletionResults);
+                __instance.InvokeMethod<object, AchievementsEvaluationHandler>("ProcessLevelFinishData", missionNode.missionData.beatmapDifficulty, missionCompletionResults.levelCompletionResults);
                 return false;
             }
             return true;

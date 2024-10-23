@@ -37,14 +37,14 @@ namespace CustomCampaigns.Managers
         {
             if (_mainTab == null)
             {
-                BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.gameplay-setup-settings.bsml"), _gameplaySetupViewController.transform.Find("BSMLBackground").gameObject, this);
-                BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.settings.bsml"), _settingsTab.gameObject, _settingsHandler);
-                BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.tools.bsml"), _toolsTab.gameObject, _toolsHandler);
+                BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.gameplay-setup-settings.bsml"), _gameplaySetupViewController.transform.Find("BSMLBackground").gameObject, this);
+                BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.settings.bsml"), _settingsTab.gameObject, _settingsHandler);
+                BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.tools.bsml"), _toolsTab.gameObject, _toolsHandler);
 
                 _tabSelector = _gameplaySetupViewController.transform.Find("BSMLBackground/BSMLTabSelector").GetComponent<TabSelector>();
                 _tabIndex = _tabSelector.GetField<List<Tab>, TabSelector>("tabs").Count;
                 _tabSelector.GetField<List<Tab>, TabSelector>("tabs").Add(_mainTab);
-                _mainTab.selector = _tabSelector;
+                _mainTab.Selector = _tabSelector;
                 _tabSelector.Refresh();
             }
 

@@ -43,7 +43,7 @@ namespace CustomCampaigns.Campaign.Missions
                 await Task.Yield();
             }
 
-            if (www.isNetworkError || www.isHttpError)
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
                 Plugin.logger.Debug($"Error submitting completion post: {www.error}");
             }

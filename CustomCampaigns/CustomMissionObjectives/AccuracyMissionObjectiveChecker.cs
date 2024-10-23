@@ -15,7 +15,7 @@ namespace CustomCampaigns.CustomMissionObjectives
             _relativeScoreAndImmediateRankCounter = relativeScoreAndImmediateRankCounter;
         }
 
-        protected override void Init()
+        public override void Init()
         {
             Plugin.logger.Debug("init acc");
             checkedValue = _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min ? 10000 : 0;

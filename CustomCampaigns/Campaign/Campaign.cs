@@ -33,8 +33,8 @@ namespace CustomCampaigns.Campaign
             this.campaignPath = campaignPath;
 
             info = JsonConvert.DeserializeObject<CampaignInfo>(File.ReadAllText(campaignPath + INFO_LOCATION));
-            text = info.name;
-            subtext = info.desc;
+            Text = info.name;
+            Subtext = info.desc;
 
             GetSprites(campaignListViewController);
 
@@ -71,7 +71,7 @@ namespace CustomCampaigns.Campaign
 
         private async void GetSprites(CampaignListViewController viewController)
         {
-            icon = await LoadSprite(campaignPath + COVER_LOCATION, true);
+            Icon = await LoadSprite(campaignPath + COVER_LOCATION, true);
         }
 
         public async Task LoadBackground()

@@ -44,7 +44,7 @@ namespace CustomCampaigns.HarmonyPatches
             var missionData = ____missionNode.missionData as CustomMissionDataSO;
             if (missionData != null)
             {
-                ____songNameText.text = missionData.customLevel.songName;
+                ____songNameText.text = missionData.beatmapLevel.songName;
             }
         }
     }

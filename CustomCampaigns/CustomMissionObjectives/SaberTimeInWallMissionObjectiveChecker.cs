@@ -24,7 +24,7 @@ namespace CustomCampaigns.CustomMissionObjectives
             _pauseMenuManager = pauseMenuManager;
         }
 
-        protected override void Init()
+        public override void Init()
         {
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min || _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Equal)
             {

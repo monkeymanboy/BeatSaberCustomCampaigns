@@ -12,7 +12,7 @@ using CustomCampaigns.Utils;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
-using Polyglot;
+using BGLib.Polyglot;
 using SiraUtil.Affinity;
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
+using System.Threading;
 
 namespace CustomCampaigns.Managers
 {
@@ -192,7 +193,7 @@ namespace CustomCampaigns.Managers
         #region UI Setup
         internal void FirstActivation()
         {
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.mission-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
+            BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), "CustomCampaigns.UI.Views.mission-detail.bsml"), _missionLevelDetailViewController.gameObject, this);
             if (!_missionNodesManager.IsInitialized)
             {
                 _missionNodesManager.GetType().GetMethod("Awake", AccessTools.all)?.Invoke(_missionNodesManager, null);
@@ -450,7 +451,7 @@ namespace CustomCampaigns.Managers
             gameplaySetupViewController.GetType().GetMethod("RefreshContent", AccessTools.all)?.Invoke(gameplaySetupViewController, null);
         }
 
-        private void InitializeLevelParamsPanel()
+        private async void InitializeLevelParamsPanel()
         {
             if (_levelParamsPanel != null)
             {
@@ -474,8 +475,8 @@ namespace CustomCampaigns.Managers
             var obstacles = _levelParamsPanel.transform.GetChild(2);
             var bombs = _levelParamsPanel.transform.GetChild(3);
 
-            obstacles.Find("Icon").GetComponent<ImageView>().SetImage("#ClockIcon");
-            bombs.Find("Icon").GetComponent<ImageView>().SetImage("#FastNotesIcon");
+            await obstacles.Find("Icon").GetComponent<ImageView>().SetImageAsync("#ClockIcon");
+            await bombs.Find("Icon").GetComponent<ImageView>().SetImageAsync("#FastNotesIcon");
             obstacles.GetComponent<HoverHint>().text = "Song Length";
             bombs.GetComponent<HoverHint>().text = "Note Jump Speed";
 
@@ -513,7 +514,7 @@ namespace CustomCampaigns.Managers
 
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
             Mission mission = missionData.mission;
-            CustomPreviewBeatmapLevel level = missionData.customLevel;
+            BeatmapLevel level = missionData.beatmapLevel;
 
             bool showGlobalLeaderboard = mission.allowStandardLevel && level != null && Plugin.isScoreSaberInstalled;
 
@@ -522,14 +523,14 @@ namespace CustomCampaigns.Managers
             {
                 Plugin.logger.Debug("showing global leaderboard");
 
-                IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
-                if (difficultyBeatmap == null)
+                BeatmapKey beatmapKey = BeatmapUtils.GetMatchingBeatmapKey(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
+                if (beatmapKey == null)
                 {
-                    Plugin.logger.Debug("couldn't find matching difficultybeatmap");
+                    Plugin.logger.Debug("couldn't find matching beatmapKey");
                 }
                 else
                 {
-                    _globalLeaderboardViewController.SetData(difficultyBeatmap);
+                    _globalLeaderboardViewController.SetData(beatmapKey);
                     if (_config.floorLeaderboard)
                     {
                         Plugin.logger.Debug("floor leaderboard");
@@ -564,47 +565,24 @@ namespace CustomCampaigns.Managers
             }
         }
 
-        private async void UpdateLevelParamsPanel()
+        private void UpdateLevelParamsPanel()
         {
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
             Mission mission = missionData.mission;
-            CustomPreviewBeatmapLevel level = missionData.customLevel;
+            BeatmapLevel beatmapLevel = missionData.beatmapLevel;
 
-            if (level == null)
+            if (beatmapLevel == null)
             {
                 SetLevelParamsTextNotAvailable();
             }
             else
             {
-                IDifficultyBeatmap difficultyBeatmap = BeatmapUtils.GetMatchingBeatmapDifficulty(level.levelID, missionData.beatmapCharacteristic, mission.difficulty);
-                if (difficultyBeatmap == null)
-                {
-                    Plugin.logger.Debug("couldn't find matching difficultybeatmap");
-                    SetLevelParamsTextNotAvailable();
-                    return;
-                }
+                BeatmapBasicData beatmapBasicData = beatmapLevel.GetDifficultyBeatmapData(missionData.beatmapCharacteristic, mission.difficulty);
+                _levelParamsPanel.notesCount = beatmapBasicData.notesCount;
+                _levelParamsPanel.notesPerSecond = beatmapBasicData.notesCount / beatmapLevel.songDuration;
 
-                var audioClip = SongCore.Loader.BeatmapLevelsModelSO.GetBeatmapLevelIfLoaded(level.levelID).beatmapLevelData.audioClip;
-
-                CustomDifficultyBeatmap customDifficultyBeatmap = difficultyBeatmap as CustomDifficultyBeatmap;
-
-                if (customDifficultyBeatmap == null)
-                {
-                    Plugin.logger.Error("difficulty beatmap was not a custom beatmap??????!111");
-                    return;
-                }
-
-                IReadonlyBeatmapData beatmapData = null;
-                await Task.Run(delegate ()
-                {
-                    beatmapData = BeatmapDataLoader.GetBeatmapDataFromSaveData(customDifficultyBeatmap.beatmapSaveData, customDifficultyBeatmap.difficulty, customDifficultyBeatmap.level.beatsPerMinute, false, null, null);
-                });
-
-                _levelParamsPanel.notesPerSecond = beatmapData.cuttableNotesCount / audioClip.length;
-                _levelParamsPanel.notesCount = beatmapData.cuttableNotesCount;
-
-                SetTime(audioClip);
-                SetNJS(difficultyBeatmap.noteJumpMovementSpeed);
+                SetTime(beatmapLevel.songDuration);
+                SetNJS(beatmapBasicData.noteJumpMovementSpeed);
             }
         }
 
@@ -613,7 +591,7 @@ namespace CustomCampaigns.Managers
             _missionAlts = mission.GetMissionAlts();
             missionAlts = _missionAlts.Select(x => x.Key).ToList<object>();
 
-            MissionAltSelect.values = missionAlts;
+            MissionAltSelect.Values = missionAlts;
             MissionAltSelect.UpdateChoices();
             MissionAltSelect.Value = mission.name;
 
@@ -646,10 +624,10 @@ namespace CustomCampaigns.Managers
         [UIAction("#post-parse")]
         void Parsed()
         {
-            MissionAltSelect.dropdown.GetField<TextMeshProUGUI, SimpleTextDropdown>("_text").richText = true;
-            MissionAltSelect.dropdown.GetField<SimpleTextTableCell, SimpleTextDropdown>("_cellPrefab").GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").richText = true;
+            MissionAltSelect.Dropdown.GetField<TextMeshProUGUI, SimpleTextDropdown>("_text").richText = true;
+            MissionAltSelect.Dropdown.GetField<SimpleTextTableCell, SimpleTextDropdown>("_cellPrefab").GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").richText = true;
 
-            var tableView = MissionAltSelect.dropdown.GetField<TableView, DropdownWithTableView>("_tableView");
+            var tableView = MissionAltSelect.Dropdown.GetField<TableView, DropdownWithTableView>("_tableView");
 
             foreach (var reusableCells in tableView.GetField<Dictionary<string, List<TableCell>>, TableView>("_reusableCells").Values)
             {
@@ -679,9 +657,9 @@ namespace CustomCampaigns.Managers
             MissionAltSelect.transform.parent.gameObject.SetActive(dropdownActive);
         }
 
-        private void SetTime(AudioClip audioClip)
+        private void SetTime(float songDuration)
         {
-            TimeSpan timeSpan = TimeSpan.FromSeconds(audioClip.length);
+            TimeSpan timeSpan = TimeSpan.FromSeconds(songDuration);
             _levelParamsPanel.GetField<TextMeshProUGUI, LevelParamsPanel>("_obstaclesCountText").text = timeSpan.ToString(@"mm\:ss");
         }
 
@@ -958,7 +936,7 @@ namespace CustomCampaigns.Managers
             MissionName.alignment = TextAlignmentOptions.Bottom;
             ToggleDropdown(false);
 
-            MissionAltSelect.dropdown.ReloadData();
+            MissionAltSelect.Dropdown.ReloadData();
         }
         #endregion
 
@@ -1064,15 +1042,14 @@ namespace CustomCampaigns.Managers
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MissionSelectionNavigationController), "HandleMissionSelectionMapViewControllerDidSelectMissionLevel")]
-        private bool MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelPrefix(MissionSelectionNavigationController __instance, MissionNode _missionNode, MissionLevelDetailViewController ____missionLevelDetailViewController)
+        private bool MissionSelectionNavigationControllerHandleMissionSelectionMapViewControllerDidSelectMissionLevelPrefix(MissionSelectionNavigationController __instance, MissionNode missionNode, MissionLevelDetailViewController ____missionLevelDetailViewController)
         {
-            Plugin.logger.Debug("HandleMissionSelectionMapViewControllerDidSelectMissionLevel");
             if (_levelParamsPanel == null)
             {
                 return true;
             }
 
-            ____missionLevelDetailViewController.Setup(_missionNode);
+            ____missionLevelDetailViewController.Setup(missionNode);
             if (!____missionLevelDetailViewController.isInViewControllerHierarchy)
             {
                 __instance.PushViewController(this._missionLevelDetailViewController, ChangePosition, false);
@@ -1100,8 +1077,8 @@ namespace CustomCampaigns.Managers
             if (____missionNode.missionData is CustomMissionDataSO && _inCustomCampaign)
             {
                 _missionData = ____missionNode.missionData as CustomMissionDataSO;
-                CustomPreviewBeatmapLevel level = _missionData.customLevel;
-                if (level == null)
+                BeatmapLevel beatmapLevel = _missionData.beatmapLevel;
+                if (beatmapLevel == null)
                 {
                     ____levelBar.GetField<TextMeshProUGUI, LevelBar>("_songNameText").text = "SONG NOT FOUND";
                     ____levelBar.GetField<TextMeshProUGUI, LevelBar>("_difficultyText").text = "SONG NOT FOUND";
@@ -1110,7 +1087,8 @@ namespace CustomCampaigns.Managers
                 }
                 else
                 {
-                    ____levelBar.Setup(level, _missionData.beatmapCharacteristic, _missionData.beatmapDifficulty);
+                    // why tf did they swap the order of the input here, and not just use BeatmapKey????
+                    ____levelBar.Setup(beatmapLevel, _missionData.beatmapDifficulty, _missionData.beatmapCharacteristic);
                 }
                 ChangePosition();
 

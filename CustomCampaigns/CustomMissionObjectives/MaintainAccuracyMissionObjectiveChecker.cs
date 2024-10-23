@@ -14,7 +14,7 @@ namespace CustomCampaigns.CustomMissionObjectives
             _relativeScoreAndImmediateRankCounter = relativeScoreAndImmediateRankCounter;
         }
 
-        protected override void Init()
+        public override void Init()
         {
             checkedValue = _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min ? 10000 : 0;
             status = Status.NotFailedYet;
