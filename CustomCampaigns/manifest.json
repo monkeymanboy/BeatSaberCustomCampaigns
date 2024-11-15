@@ -3,13 +3,12 @@
   "id": "CustomCampaigns",
   "name": "CustomCampaigns",
   "author": "PulseLane",
-  "version": "3.6.0-alpha.1",
+  "version": "3.6.0-alpha.2",
   "description": "Adds the ability to load custom campaigns into the game.",
   "gameVersion": "1.38.0",
   "dependsOn": {
     "SongCore": "^3.12.2",
     "BeatSaberMarkupLanguage": "^1.11.2",
-    "CustomCampaignLeaderboardLibrary": "^2.1.0",
     "BSIPA": "^4.3.4",
     "SiraUtil": "^3.1.10"
   },

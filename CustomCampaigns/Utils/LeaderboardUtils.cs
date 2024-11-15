@@ -1,35 +1,83 @@
-﻿using CustomCampaignLeaderboardLibrary;
-using CustomCampaigns.Campaign.Missions;
+﻿using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using Newtonsoft.Json;
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace CustomCampaigns.Utils
 {
-    public static class CustomCampaignLeaderboardLibraryUtils
+
+    public class LeaderboardResponse
     {
+        public List<OtherData> scores;
+        public YourData you;
+    }
+
+    public class OtherData
+    {
+        public string name;
+        public string id;
+        public int score;
+        public int count = 0;
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            name = Regex.Replace(name, "<[^>]*(>|$)", "");
+        }
+    }
+
+    public class YourData
+    {
+        public int position;
+        public int score;
+        public int count = 0;
+    }
+
+    public struct SubmissionData
+    {
+        public string id;
+        public string challengeHash;
+        public int score;
+        public string user;
+        public string hash;
+    }
+
+    public class CustomCampaignLeaderboard
+    {
+        private static string USER_AGENT = $"CustomCampaigns/v{Plugin.version}";
         private static Color[] RainbowArray;
 
-        public static async void SubmitScoreAsync(Mission mission, MissionCompletionResults missionCompletionResults)
+        public static async Task<LeaderboardResponse> LoadLeaderboards(string url)
         {
-            SubmissionData submissionData = new SubmissionData();
-            submissionData.challengeHash = GetHash(mission);
-            submissionData.score = missionCompletionResults.levelCompletionResults.multipliedScore;
-            submissionData.id = UserInfoManager.UserInfo.platformUserId;
-            submissionData.user = UserInfoManager.UserInfo.userName + "";
-            submissionData.hash = GetHash(submissionData.id + submissionData.user + submissionData.score + submissionData.challengeHash);
+            UnityWebRequest www = UnityWebRequest.Get(url);
+            www.SetRequestHeader("User-Agent", USER_AGENT);
 
-            await CustomCampaignLeaderboard.SubmitScore(submissionData);
-        }
+            www.SendWebRequest();
+            while (!www.isDone)
+            {
+                await Task.Yield();
+            }
 
-        public static string GetHash(Mission mission)
-        {
-            return GetHash(mission.rawJSON);
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Plugin.logger.Debug($"Error loading leaderboard: {www.error}");
+            }
+            else
+            {
+                LeaderboardResponse response = JsonConvert.DeserializeObject<LeaderboardResponse>(www.downloadHandler.text);
+                return response;
+            }
+
+            return null;
         }
 
         public static string GetHash(string s)
@@ -46,9 +94,15 @@ namespace CustomCampaigns.Utils
             return sb.ToString();
         }
 
+        public static string GetHash(Mission mission)
+        {
+            return GetHash(mission.rawJSON);
+        }
+
+
         public static string GetURL(Mission mission, string customURL)
         {
-            string url = customURL.Replace("{missionHash}", CustomCampaignLeaderboardLibraryUtils.GetHash(mission))
+            string url = customURL.Replace("{missionHash}", GetHash(mission))
                                   .Replace("{mapHash}", mission.hash)
                                   .Replace("{characteristic}", mission.characteristic)
                                   .Replace("{difficulty}", ((int) mission.difficulty).ToString())
@@ -105,12 +159,12 @@ namespace CustomCampaigns.Utils
         private static void InitializeRainbowArray()
         {
             RainbowArray = new Color[] { Color.red,
-                                         new Color(1, 0.647f, 0), // Orange
-                                         Color.yellow,
-                                         Color.green,
-                                         Color.blue,
-                                         new Color(0.29f, 0, 0.51f), // Indigo
-                                         new Color(0.56f, 0, 1f) }; // Violet
+                                                 new Color(1, 0.647f, 0), // Orange
+                                                 Color.yellow,
+                                                 Color.green,
+                                                 Color.blue,
+                                                 new Color(0.29f, 0, 0.51f), // Indigo
+                                                 new Color(0.56f, 0, 1f) }; // Violet
         }
 
         public static string GetSpecialPlayerColor(string userID)
@@ -130,29 +184,5 @@ namespace CustomCampaigns.Utils
         {
             return id == "76561198182060577"; // :)
         }
-
-    }
-
-    class CompleteSubmission
-    {
-        public string userID;
-        public string challengeHash;
-        public int score;
-        public List<Requirement> requirements = new List<Requirement>();
-
-        internal IEnumerator Submit(string completionPost)
-        {
-            UnityWebRequest www = UnityWebRequest.Post(completionPost, JsonConvert.SerializeObject(this));
-            yield return www.SendWebRequest();
-            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.Log(www.error);
-            }
-        }
-    }
-    class Requirement
-    {
-        public string name;
-        public int value;
     }
 }

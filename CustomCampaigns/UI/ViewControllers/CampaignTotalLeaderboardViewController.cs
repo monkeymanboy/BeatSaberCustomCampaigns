@@ -1,6 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Managers;
 using CustomCampaigns.Utils;
 using System.Collections;
@@ -43,21 +42,22 @@ namespace CustomCampaigns.UI.ViewControllers
 
         public string campaignID = "";
 
+        // bsaber killed campaign leaderboards, RIP
         public void UpdateLeaderboards()
         {
-            isLoaded = false;
-            StartCoroutine(UpdateLeaderboardCoroutine());
+            //isLoaded = false;
+            //StartCoroutine(UpdateLeaderboardCoroutine());
         }
 
-        public IEnumerator UpdateLeaderboardCoroutine()
-        {
-            Task<LeaderboardResponse> task = CustomCampaignLeaderboard.LoadTotalLeaderboards(UserInfoManager.UserInfo.platformUserId, campaignID);
-            yield return new WaitUntil(() => task.IsCompleted);
-            LeaderboardResponse response = task.Result;
+        //public IEnumerator UpdateLeaderboardCoroutine()
+        //{
+        //    Task<LeaderboardResponse> task = CustomCampaignLeaderboard.LoadTotalLeaderboards(UserInfoManager.UserInfo.platformUserId, campaignID);
+        //    yield return new WaitUntil(() => task.IsCompleted);
+        //    LeaderboardResponse response = task.Result;
 
-            UpdateScores(response);
-            isLoaded = true;
-        }
+        //    UpdateScores(response);
+        //    isLoaded = true;
+        //}
 
         private void UpdateScores(LeaderboardResponse response)
         {
@@ -115,7 +115,7 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private ScoreData GetScoreData(OtherData score, int rank)
         {
-            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(score.id, score.name);
+            var name = CustomCampaignLeaderboard.GetSpecialName(score.id, score.name);
             name = $"{name}<size=50%> (Completed - {score.count})</size>";
 
             return new ScoreData(score.score, name, rank, false);
@@ -126,7 +126,7 @@ namespace CustomCampaigns.UI.ViewControllers
             var id = UserInfoManager.UserInfo.platformUserId;
             var username = UserInfoManager.UserInfo.userName;
 
-            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(id, username);
+            var name = CustomCampaignLeaderboard.GetSpecialName(id, username);
             name = $"{name}<size=50%> (Completed - {yourData.count})</size>";
 
             return new ScoreData(yourData.score, name, yourData.position, false);

@@ -1,21 +1,16 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using CustomCampaignLeaderboardLibrary;
-using CustomCampaigns.Campaign;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using CustomCampaigns.UI.FlowCoordinators;
 using CustomCampaigns.Utils;
-using HarmonyLib;
 using IPA.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace CustomCampaigns.UI.GameplaySetupUI
@@ -123,13 +118,15 @@ namespace CustomCampaigns.UI.GameplaySetupUI
             LeaderboardResponse response;
             if (_campaign.info.customMissionLeaderboard == "")
             {
-                var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
-                response = await CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
+                return false;
+                // Bsaber killed custom campaign leaderboards :(
+                //var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
+                //response = await CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
             }
 
             else
             {
-                string url = CustomCampaignLeaderboardLibraryUtils.GetURL(mission, _campaign.info.customMissionLeaderboard);
+                string url = CustomCampaignLeaderboard.GetURL(mission, _campaign.info.customMissionLeaderboard);
                 response = await CustomCampaignLeaderboard.LoadLeaderboards(url);
             }
 

@@ -1,6 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
-using CustomCampaignLeaderboardLibrary;
 using CustomCampaigns.Campaign.Missions;
 using CustomCampaigns.Managers;
 using CustomCampaigns.Utils;
@@ -74,10 +73,8 @@ namespace CustomCampaigns.UI.ViewControllers
 
         public void UpdateLeaderboards()
         {
-            Plugin.logger.Debug("update leaderboards");
             if (mission != null && _leaderboardTransform != null)
             {
-                Plugin.logger.Debug("updating leaderboard");
                 isLoaded = false;
                 StartCoroutine(UpdateLeaderboardsCoroutine());
             }
@@ -90,13 +87,16 @@ namespace CustomCampaigns.UI.ViewControllers
                 Task<LeaderboardResponse> task;
                 if (customURL == "")
                 {
-                    var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
-                    task = CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
+                    // Bsaber killed custom campaign leaderboards :(
+                    //var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
+                    //task = CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
+
+                    yield break;
                 }
 
                 else
                 {
-                    string url = CustomCampaignLeaderboardLibraryUtils.GetURL(mission, customURL);
+                    string url = CustomCampaignLeaderboard.GetURL(mission, customURL);
                     task = CustomCampaignLeaderboard.LoadLeaderboards(url);
                 }
 
@@ -153,7 +153,7 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private ScoreData GetScoreData(OtherData score, int maxScore, int rank)
         {
-            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(score.id, score.name);
+            var name = CustomCampaignLeaderboard.GetSpecialName(score.id, score.name);
             if (maxScore > 0)
             {
                 Double acc = Math.Round((double) score.score / (double) maxScore * 100, 2);
@@ -168,7 +168,7 @@ namespace CustomCampaigns.UI.ViewControllers
             var id = UserInfoManager.UserInfo.platformUserId;
             var username = UserInfoManager.UserInfo.userName;
 
-            var name = CustomCampaignLeaderboardLibraryUtils.GetSpecialName(id, username);
+            var name = CustomCampaignLeaderboard.GetSpecialName(id, username);
 
             if (maxScore > 0)
             {

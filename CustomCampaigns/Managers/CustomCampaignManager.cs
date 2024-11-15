@@ -617,7 +617,7 @@ namespace CustomCampaigns.Managers
 
                 if (!string.IsNullOrWhiteSpace(_currentCampaign.completionPost))
                 {
-                    var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission.rawJSON);
+                    var hash = CustomCampaignLeaderboard.GetHash(mission.rawJSON);
                     var score = missionCompletionResults.levelCompletionResults.multipliedScore;
                     var requirements = new List<CompletionSubmission.Requirement>();
                     foreach (MissionObjectiveResult objective in missionCompletionResults.missionObjectiveResults)
@@ -628,15 +628,15 @@ namespace CustomCampaigns.Managers
                         requirements.Add(requirement);
                     }
 
-                    CompletionSubmission submission = new CompletionSubmission(CustomCampaignLeaderboardLibraryUtils.GetHash(mission.rawJSON), score, requirements);
+                    CompletionSubmission submission = new CompletionSubmission(CustomCampaignLeaderboard.GetHash(mission.rawJSON), score, requirements);
 
                     submission.Submit(_currentCampaign.completionPost);
                 }
 
                 if (_currentCampaign.info.customMissionLeaderboard == "")
                 {
-                    Plugin.logger.Debug("submitting score...");
-                    CustomCampaignLeaderboardLibraryUtils.SubmitScoreAsync(mission, missionCompletionResults);
+                    Plugin.logger.Debug("score submission is not possible (requires custom leaderboard), ignoring...");
+                    //CustomCampaignLeaderboard.SubmitScoreAsync(mission, missionCompletionResults);
                 }
             }
             else
