@@ -3,7 +3,7 @@
   "id": "CustomCampaigns",
   "name": "CustomCampaigns",
   "author": "PulseLane",
-  "version": "3.6.0-alpha.2",
+  "version": "3.6.0-alpha.3",
   "description": "Adds the ability to load custom campaigns into the game.",
   "gameVersion": "1.38.0",
   "dependsOn": {
