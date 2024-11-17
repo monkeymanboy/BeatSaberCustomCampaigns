@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using Zenject;
 using static LeaderboardTableView;
 
 namespace CustomCampaigns.UI.ViewControllers
@@ -22,8 +23,9 @@ namespace CustomCampaigns.UI.ViewControllers
     [HotReload(RelativePathToLayout = @"..\Views\mission-leaderboard.bsml")]
     public class CampaignMissionLeaderboardViewController : BSMLAutomaticViewController, INotifyPropertyChanged
     {
-        private BeatmapLevelLoader _beatmapLevelLoader;
+        [Inject]
         private BeatmapDataLoader _beatmapDataLoader;
+        [Inject]
         private BeatmapLevelsEntitlementModel _beatmapLevelsEntitlementModel;
 
         [UIComponent("leaderboard")]
@@ -61,13 +63,6 @@ namespace CustomCampaigns.UI.ViewControllers
             GameObject.Destroy(_leaderboardTransform.Find("LoadingControl").gameObject);
 
             scoreMultiplierCounter = new ScoreMultiplierCounter();
-        }
-
-        public CampaignMissionLeaderboardViewController(BeatmapLevelLoader beatmapLevelLoader, BeatmapDataLoader beatmapDataLoader, BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel) : base()
-        {
-            _beatmapLevelLoader = beatmapLevelLoader;
-            _beatmapDataLoader = beatmapDataLoader;
-            _beatmapLevelsEntitlementModel = beatmapLevelsEntitlementModel;
         }
 
         public void UpdateLeaderboards()
@@ -143,7 +138,7 @@ namespace CustomCampaigns.UI.ViewControllers
 
                 if (scores.Count == 0)
                 {
-                    scores.Add(new ScoreData(0, "No scores for this challenge", 0, false));
+                    scores.Add(new ScoreData(0, "No scores for this mission", 0, false));
                 }
             }
 
@@ -159,6 +154,7 @@ namespace CustomCampaigns.UI.ViewControllers
             var name = CustomCampaignLeaderboard.GetSpecialName(score.id, score.name);
             if (maxScore > 0)
             {
+                
                 Double acc = Math.Round((double) score.score / (double) maxScore * 100, 2);
                 name = $"{name} - <size=75%> (<color=#FFD42A>{acc}%</color>)</size>";
             }
@@ -187,12 +183,14 @@ namespace CustomCampaigns.UI.ViewControllers
             var level = mission.FindSong();
             if (level == null)
             {
+                Plugin.logger.Debug("level null");
                 return 0;
             }
             var levelId = level.levelID;
             var beatmapLevel = Loader.BeatmapLevelsModelSO.GetBeatmapLevel(levelId);
             if (beatmapLevel == null)
             {
+                Plugin.logger.Debug("beatmaplevel null");
                 return 0;
             }
 
@@ -207,15 +205,27 @@ namespace CustomCampaigns.UI.ViewControllers
                 return 0;
             }
 
-            if (_beatmapLevelLoader == null)
+            if (!(missionData is CustomMissionDataSO))
             {
+                Plugin.logger.Debug("mission data is not custom");
+                return 0;
+            }
+
+            if (_beatmapLevelsEntitlementModel is null)
+            {
+                Plugin.logger.Debug("_beatmapLevelsEntitlementModel null");
+                return 0;
+            }
+
+            if (_beatmapDataLoader is null)
+            {
+                Plugin.logger.Debug("_beatmapDataLoader null");
                 return 0;
             }
 
             BeatmapLevelDataVersion beatmapLevelDataVersion = (await _beatmapLevelsEntitlementModel.GetLevelDataVersionAsync(levelId, CancellationToken.None));
-            IBeatmapLevelData beatmapLevelData = (await _beatmapLevelLoader.LoadBeatmapLevelDataAsync(beatmapLevel, beatmapLevelDataVersion, CancellationToken.None)).beatmapLevelData;
             BeatmapKey beatmapKey = BeatmapUtils.GetMatchingBeatmapKey(levelId, missionData.beatmapCharacteristic, mission.difficulty);
-            return ScoreModel.ComputeMaxMultipliedScoreForBeatmap(await _beatmapDataLoader.LoadBeatmapDataAsync(beatmapLevelData: beatmapLevelData,
+            return ScoreModel.ComputeMaxMultipliedScoreForBeatmap(await _beatmapDataLoader.LoadBeatmapDataAsync(beatmapLevelData: (missionData as CustomMissionDataSO).beatmapLevelData,
                                                                                                                 beatmapKey: beatmapKey,
                                                                                                                 startBpm: beatmapLevel.beatsPerMinute,
                                                                                                                 loadingForDesignatedEnvironment: false,

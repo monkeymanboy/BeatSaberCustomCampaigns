@@ -8,13 +8,6 @@ namespace CustomCampaigns.UI.ViewControllers
     public class CampaignMissionSecondaryLeaderboardViewController : CampaignMissionLeaderboardViewController
     {
         private Mission _lastLoadedMission = null;
-
-        public CampaignMissionSecondaryLeaderboardViewController(BeatmapLevelLoader beatmapLevelLoader, BeatmapDataLoader beatmapDataLoader, BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel) :
-                base(beatmapLevelLoader, beatmapDataLoader, beatmapLevelsEntitlementModel)
-        {
-
-        }
-
         internal void Shown()
         {
             if (_lastLoadedMission != mission)
