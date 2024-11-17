@@ -885,13 +885,12 @@ namespace CustomCampaigns.Managers
                                                                       GameplayModifiers gameplayModifiers,
                                                                       PlayerSpecificSettings playerSpecificSettings,
                                                                       EnvironmentsListModel environmentsListModel,
+                                                                      BeatmapLevelsModel beatmapLevelsModel,
                                                                       AudioClipAsyncLoader audioClipAsyncLoader,
                                                                       SettingsManager settingsManager,
                                                                       BeatmapDataLoader beatmapDataLoader,
                                                                       string backButtonText)
         {
-            Plugin.logger.Debug($"SCENE NAME::: {____missionGameplaySceneInfo.name}");
-            
             __instance.SetProperty("missionId", missionId);
             EnvironmentInfoSO environmentInfoBySerializedNameSafe = environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty));
 
@@ -915,7 +914,7 @@ namespace CustomCampaigns.Managers
                 }
             }
 
-            ColorScheme colorScheme = overrideColorScheme ?? new ColorScheme(environmentInfoBySerializedNameSafe.colorScheme);
+            ColorScheme colorScheme = ((overrideColorScheme != null) ? new ColorScheme(overrideColorScheme, environmentInfoBySerializedNameSafe.colorScheme) : new ColorScheme(environmentInfoBySerializedNameSafe.colorScheme));
 
             __instance.SetProperty<LevelScenesTransitionSetupDataSO, GameplayCoreSceneSetupData>("gameplayCoreSceneSetupData",
                     new GameplayCoreSceneSetupData(beatmapKey: beatmapKey,
@@ -925,14 +924,16 @@ namespace CustomCampaigns.Managers
                                                    practiceSettings: null,
                                                    useTestNoteCutSoundEffects: false,
                                                    targetEnvironmentInfo: environmentInfoBySerializedNameSafe,
-                                                   originalEnvironmentInfo: null,
+                                                   originalEnvironmentInfo: environmentInfoBySerializedNameSafe,
                                                    colorScheme,
                                                    settingsManager,
                                                    audioClipAsyncLoader,
                                                    beatmapDataLoader,
-                                                   _beatmapLevelsEntitlementModel,
+                                                   beatmapLevelsModel,
+                                                   null,
                                                    enableBeatmapDataCaching: true,
-                                                   environmentsListModel: null));
+                                                   environmentsListModel,
+                                                   null));
             SceneInfo[] scenes = new SceneInfo[]
             {
                 environmentInfoBySerializedNameSafe.sceneInfo,

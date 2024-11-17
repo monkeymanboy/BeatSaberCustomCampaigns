@@ -71,7 +71,6 @@ namespace CustomCampaigns.Campaign.Missions
                     LoadedSaveData loadedSaveData = Loader.CustomLevelLoader.GetField<Dictionary<string, LoadedSaveData>, CustomLevelLoader>("_loadedBeatmapSaveData")
                                                         .Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelFolderInfo.folderPath, songidSearch, CompareOptions.IgnoreCase) >= 0);
                     missionHash = SongCore.Utilities.Hashing.GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
-                    Plugin.logger.Debug($"Mission hash: {missionHash}");
                 }
 
                 if (missionHash != "")
@@ -92,8 +91,6 @@ namespace CustomCampaigns.Campaign.Missions
                             break;
                         }
                     }
-
-                    Plugin.logger.Debug($"returning beatmaplevel");
 
                     return beatmapLevel;
                 }
