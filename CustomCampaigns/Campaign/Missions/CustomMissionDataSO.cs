@@ -5,5 +5,6 @@
         public Campaign campaign;
         public Mission mission;
         public BeatmapLevel beatmapLevel;
+        public IBeatmapLevelData beatmapLevelData;
     }
 }

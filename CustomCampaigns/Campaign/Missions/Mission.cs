@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
+using static BeatmapLevelSaveDataVersion4.BeatmapLevelSaveData;
 using static CustomLevelLoader;
 using static IPA.Logging.Logger;
 
@@ -62,28 +63,42 @@ namespace CustomCampaigns.Campaign.Missions
         {
             try
             {
-                if (hash != "")
+                string missionHash = hash;
+                if (missionHash == "")
                 {
-                    List<string> levelIDs = SongCore.Collections.levelIDsForHash(hash);
+                    string songidSearch = "\\" + songid + (customDownloadURL == "" ? " " : "");
+                    Dictionary<string, LoadedSaveData> loadedBeatmapSaveData = Loader.CustomLevelLoader.GetField<Dictionary<string, LoadedSaveData>, CustomLevelLoader>("_loadedBeatmapSaveData");
+                    LoadedSaveData loadedSaveData = Loader.CustomLevelLoader.GetField<Dictionary<string, LoadedSaveData>, CustomLevelLoader>("_loadedBeatmapSaveData")
+                                                        .Values.First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelFolderInfo.folderPath, songidSearch, CompareOptions.IgnoreCase) >= 0);
+                    missionHash = SongCore.Utilities.Hashing.GetCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
+                    Plugin.logger.Debug($"Mission hash: {missionHash}");
+                }
+
+                if (missionHash != "")
+                {
+                    List<string> levelIDs = SongCore.Collections.levelIDsForHash(missionHash);
                     BeatmapLevel beatmapLevel = Loader.CustomLevels.Values.First(x => levelIDs.Contains(x.levelID));
+                    foreach (var kvp in Loader.CustomLevelLoader.GetField<Dictionary<string, IBeatmapLevelData>, CustomLevelLoader>("_loadedBeatmapLevelsData"))
+                    {
+                        if (levelIDs.Contains(kvp.Key))
+                        {
+                            if (missionData == null)
+                            {
+                                Plugin.logger.Error("missionData should not be null here!");
+                                return null;
+                            }
+
+                            missionData.beatmapLevelData = kvp.Value;
+                            break;
+                        }
+                    }
+
+                    Plugin.logger.Debug($"returning beatmaplevel");
 
                     return beatmapLevel;
                 }
-                // VS >:(
-                else
-                {
-                    // Including the space is to ensure that if they have a map with an old style beatsaver id it won't be falsely detected
-                    string songidSearch = "\\" + songid + (customDownloadURL == "" ? " " : "");
-                    string songPath = Loader.CustomLevelLoader.GetField<Dictionary<string, LoadedSaveData>, CustomLevelLoader>("_loadedBeatmapSaveData").Values
-                                                              .First(x => CultureInfo.CurrentCulture.CompareInfo.IndexOf(x.customLevelFolderInfo.folderPath, songidSearch, CompareOptions.IgnoreCase) >= 0).customLevelFolderInfo.folderPath;
-                    (string, BeatmapLevel)? output = Loader.LoadCustomLevel(songPath);
-                    
-                    if (output.HasValue)
-                    {
-                        return output.Value.Item2;
-                    }
-                    return null;
-                }
+
+                return null;
             }
 
             catch

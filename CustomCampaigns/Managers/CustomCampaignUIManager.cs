@@ -25,6 +25,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 using System.Threading;
+using static IPA.Logging.Logger;
+using SongCore;
 
 namespace CustomCampaigns.Managers
 {
@@ -125,6 +127,10 @@ namespace CustomCampaigns.Managers
 
         private HoverHintController _hoverHintController;
 
+        private readonly BeatmapDataLoader _beatmapDataLoader;
+        private readonly BeatmapLevelsModel _beatmapLevelsModel;
+        private readonly BeatmapLevelsEntitlementModel _beatmapLevelsEntitlementModel;
+
         private Vector2 _objectivesSizeDelta;
 
         private Config _config;
@@ -138,7 +144,8 @@ namespace CustomCampaigns.Managers
         public CustomCampaignUIManager(CampaignFlowCoordinator campaignFlowCoordinator, MissionSelectionMapViewController missionSelectionMapViewController, MissionSelectionNavigationController missionSelectionNavigationController,
                                         MissionLevelDetailViewController missionLevelDetailViewController, MissionResultsViewController missionResultsViewController, StandardLevelDetailViewController standardLevelDetailViewController,
                                         CampaignMissionLeaderboardViewController campaignMissionLeaderboardViewController, PlatformLeaderboardViewController globalLeaderboardViewController,
-                                        Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler, HoverHintController hoverHintController)
+                                        Config config, GameplaySetupManager gameplaySetupManager, SettingsHandler settingsHandler, HoverHintController hoverHintController,
+                                        BeatmapDataLoader beatmapDataLoader, BeatmapLevelsModel beatmapLevelsModel, BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel)
         {
             _campaignFlowCoordinator = campaignFlowCoordinator;
             _missionSelectionMapViewController = missionSelectionMapViewController;
@@ -188,6 +195,9 @@ namespace CustomCampaigns.Managers
             _highProgressColor = new Color(Color.green.r, Color.green.g, Color.green.b, 0.25f);
 
             _levelBarBackground.sprite = Sprite.Create(new Texture2D(1, 1), new Rect(0, 0, 1, 1), Vector2.one / 2f);
+            _beatmapDataLoader = beatmapDataLoader;
+            _beatmapLevelsModel = beatmapLevelsModel;
+            _beatmapLevelsEntitlementModel = beatmapLevelsEntitlementModel;
         }
 
         #region UI Setup
@@ -565,7 +575,7 @@ namespace CustomCampaigns.Managers
             }
         }
 
-        private void UpdateLevelParamsPanel()
+        private async void UpdateLevelParamsPanel()
         {
             CustomMissionDataSO missionData = _missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO;
             Mission mission = missionData.mission;
@@ -577,9 +587,12 @@ namespace CustomCampaigns.Managers
             }
             else
             {
+                BeatmapKey beatmapKey = BeatmapUtils.GetMatchingBeatmapKey(mission.songid, missionData.beatmapCharacteristic, missionData.beatmapDifficulty);
                 BeatmapBasicData beatmapBasicData = beatmapLevel.GetDifficultyBeatmapData(missionData.beatmapCharacteristic, mission.difficulty);
-                _levelParamsPanel.notesCount = beatmapBasicData.notesCount;
-                _levelParamsPanel.notesPerSecond = beatmapBasicData.notesCount / beatmapLevel.songDuration;
+
+                BeatmapDataBasicInfo beatmapDataBasicInfo = await _beatmapDataLoader.LoadBasicBeatmapDataAsync(missionData.beatmapLevelData, beatmapKey);
+                _levelParamsPanel.notesCount = beatmapDataBasicInfo.cuttableNotesCount;
+                _levelParamsPanel.notesPerSecond = beatmapDataBasicInfo.cuttableNotesCount / beatmapLevel.songDuration;
 
                 SetTime(beatmapLevel.songDuration);
                 SetNJS(beatmapBasicData.noteJumpMovementSpeed);
