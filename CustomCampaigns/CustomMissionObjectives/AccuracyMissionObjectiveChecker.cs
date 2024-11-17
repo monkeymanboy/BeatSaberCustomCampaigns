@@ -11,13 +11,11 @@ namespace CustomCampaigns.CustomMissionObjectives
         [Inject]
         public void Construct(RelativeScoreAndImmediateRankCounter relativeScoreAndImmediateRankCounter)
         {
-            Plugin.logger.Debug("construct acc");
             _relativeScoreAndImmediateRankCounter = relativeScoreAndImmediateRankCounter;
         }
 
         public override void Init()
         {
-            Plugin.logger.Debug("init acc");
             checkedValue = _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min ? 10000 : 0;
             status = Status.NotClearedYet;
             if (_relativeScoreAndImmediateRankCounter != null)

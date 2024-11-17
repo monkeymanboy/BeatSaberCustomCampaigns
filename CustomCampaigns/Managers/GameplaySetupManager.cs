@@ -67,7 +67,6 @@ namespace CustomCampaigns.Managers
 
                 if (_tabSelector.GetField<int, TabSelector>("currentPage") == _tabIndex)
                 {
-                    Plugin.logger.Debug("reselected index");
                     _tabSelector.InvokeMethod<object, TabSelector>("TabSelected", null, 0);
                 }
             }

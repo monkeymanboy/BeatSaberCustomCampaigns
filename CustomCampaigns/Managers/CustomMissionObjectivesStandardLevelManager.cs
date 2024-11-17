@@ -131,13 +131,11 @@ namespace CustomCampaigns.Managers
 
         private void OnLevelFinished()
         {
-            Plugin.logger.Debug("on level finished");
             CustomCampaignManager.missionObjectiveResults = GetResults();
         }
 
         private void OnLevelFailed()
         {
-            Plugin.logger.Debug("on level failed");
             CustomCampaignManager.missionObjectiveResults = GetResults();
         }
 

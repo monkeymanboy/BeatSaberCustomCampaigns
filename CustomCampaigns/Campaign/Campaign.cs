@@ -84,7 +84,6 @@ namespace CustomCampaigns.Campaign
 
         public async Task LoadNodeSprites()
         {
-            Plugin.logger.Debug("loading node sprites");
             foreach (var mapPosition in info.mapPositions)
             {
                 if (mapPosition.nodeOutlineLocation != null)
@@ -97,7 +96,6 @@ namespace CustomCampaigns.Campaign
                     mapPosition.nodeBackground = await LoadSprite(campaignPath + "/" + mapPosition.nodeBackgroundLocation);
                 }
             }
-            Plugin.logger.Debug("loaded node sprites");
         }
 
         private async Task<Sprite> LoadSprite(string spritePath, bool allowDownscaling = false)

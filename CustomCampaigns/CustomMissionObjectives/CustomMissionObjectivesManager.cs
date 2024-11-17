@@ -28,11 +28,8 @@ namespace CustomCampaigns.CustomMissionObjectives
 
         private void OnObjectivesListDidChange()
         {
-            Plugin.logger.Debug("objective list change");
-
             _missionObjectiveCheckersManager.objectivesListDidChangeEvent -= OnObjectivesListDidChange;
             var activeMissionObjectiveCheckers = _missionObjectiveCheckersManager.GetField<MissionObjectiveChecker[], MissionObjectiveCheckersManager>("_activeMissionObjectiveCheckers");
-            Plugin.logger.Debug($"active mission objective checkers: {activeMissionObjectiveCheckers.Length}");
             var missionObjectives = _missionObjectiveCheckersManager.GetField<MissionObjectiveCheckersManager.InitData, MissionObjectiveCheckersManager>("_initData").missionObjectives;
             _activeMissionObjectiveCheckers = activeMissionObjectiveCheckers.ToList();
             _missionObjectives = missionObjectives.ToList();
@@ -93,7 +90,6 @@ namespace CustomCampaigns.CustomMissionObjectives
                 var customObjectiveChecker = missionObjectiveChecker as ICustomMissionObjectiveChecker;
                 if (customObjectiveChecker.GetMissionObjectiveType() == missionObjective.type.objectiveName)
                 {
-                    Plugin.logger.Debug($"Found custom: { missionObjective.type.objectiveName}");
                     missionObjectiveChecker.SetCheckedMissionObjective(missionObjective);
 
                     _activeMissionObjectiveCheckers.Add(missionObjectiveChecker);

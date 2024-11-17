@@ -17,7 +17,6 @@ namespace CustomCampaigns.UI.ViewControllers
 
         internal void Shown()
         {
-            Plugin.logger.Debug("shown :D");
             if (_lastLoadedMission != mission)
             {
                 UpdateLeaderboards();

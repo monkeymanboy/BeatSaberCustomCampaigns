@@ -15,8 +15,6 @@ namespace CustomCampaigns.CustomMissionObjectives
 
         public override void Init()
         {
-            Plugin.logger.Debug("init bombs hit");
-
             if (_missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Min || _missionObjective.referenceValueComparisonType == MissionObjective.ReferenceValueComparisonType.Equal)
             {
                 status = Status.NotClearedYet;

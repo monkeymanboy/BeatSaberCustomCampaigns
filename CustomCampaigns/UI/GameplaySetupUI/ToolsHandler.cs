@@ -352,7 +352,6 @@ namespace CustomCampaigns.UI.GameplaySetupUI
         [UIAction("credits-click")]
         public void ShowCredits()
         {
-            Plugin.logger.Debug("credits :D");
             _creditsManager.StartingCustomCampaignCredits(CustomCampaignFlowCoordinator.CustomCampaignManager.Campaign);
             _menuTransitionsHelper.ShowCredits();
 

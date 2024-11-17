@@ -10,7 +10,6 @@ namespace CustomCampaigns.Managers
 
         public UserInfoManager(IPlatformUserModel platformUserModel)
         {
-            Plugin.logger.Debug("user info manager");
             _platformUserModel = platformUserModel;
             GetUserInfo();
         }

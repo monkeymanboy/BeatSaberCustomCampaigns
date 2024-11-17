@@ -7,7 +7,6 @@ namespace CustomCampaigns.HarmonyPatches.ScoreSaber
         public static event Action ViewShown;
         public static void Postfix()
         {
-            Plugin.logger.Debug("view shown");
             ViewShown?.Invoke();
         }
     }

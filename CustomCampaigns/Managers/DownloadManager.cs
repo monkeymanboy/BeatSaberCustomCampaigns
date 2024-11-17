@@ -99,7 +99,6 @@ namespace CustomCampaigns.Managers
 
         public void CancelDownloads()
         {
-            Plugin.logger.Debug("cancel time");
             _cancellationTokenSource?.Cancel();
         }
 

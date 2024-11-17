@@ -39,7 +39,6 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
 
             foreach (var gameObject in gameObjects)
             {
-                Plugin.logger.Debug($"Prefab gameObject name: {gameObject.name}");
                 if (gameObject.name == "Wrapper")
                 {
                     wrapper = gameObject;
@@ -61,14 +60,11 @@ namespace CustomCampaigns.UI.MissionObjectiveGameUI
                 else
                 {
                     MissionObjectiveGameUIView missionObjectiveGameUIView = missionObjectivesGameUIController.GetField<MissionObjectiveGameUIView, MissionObjectivesGameUIController>("_missionObjectiveGameUIViewPrefab");
-                    Plugin.logger.Debug("Found prefab");
                     MissionObjectiveGameUIView missionObjectiveGameUIViewPrefab = GameObject.Instantiate(missionObjectiveGameUIView);
                     missionObjectiveGameUIViewPrefab.gameObject.SetActive(false);
                     CustomCampaignManager.missionObjectiveGameUIViewPrefab = missionObjectiveGameUIViewPrefab;
                 }
             }
-
-            Plugin.logger.Debug("Going to unload now");
 
             SceneManager.UnloadSceneAsync(SceneName);
             OnPrefabFetched?.Invoke();

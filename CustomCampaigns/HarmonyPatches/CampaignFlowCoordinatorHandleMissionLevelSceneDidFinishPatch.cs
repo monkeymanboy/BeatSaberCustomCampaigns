@@ -11,7 +11,6 @@ namespace CustomCampaigns.HarmonyPatches
         public static void Postfix(CampaignFlowCoordinator __instance, MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupData,
                                     MissionCompletionResults missionCompletionResults, MissionSelectionNavigationController ____missionSelectionNavigationController)
         {
-            Plugin.logger.Debug("HandleMissionLevelSceneDidFinish postfix");
             onMissionSceneFinish?.Invoke(missionLevelScenesTransitionSetupData, missionCompletionResults);
         }
     }

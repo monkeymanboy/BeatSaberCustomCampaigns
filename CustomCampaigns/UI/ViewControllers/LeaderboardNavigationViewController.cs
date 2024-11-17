@@ -95,7 +95,6 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private void OnViewLoaded(bool isLoaded)
         {
-            Plugin.logger.Debug("view loaded");
             if (!isLoaded || ssShown)
             {
                 UnYeetSS();
@@ -145,7 +144,6 @@ namespace CustomCampaigns.UI.ViewControllers
         {
             if (_containerTransform != null && _ssLeaderboardElementsTransform != null && _ssPanelScreenTransform != null)
             {
-                Plugin.logger.Debug("yeeting ss");
                 _containerTransform.localPosition = new Vector3(-999, -999);
                 _ssLeaderboardElementsTransform.localPosition = new Vector3(-999, -999);
                 _ssPanelScreenTransform.localPosition = new Vector3(-999, -999);
@@ -156,7 +154,6 @@ namespace CustomCampaigns.UI.ViewControllers
         {
             if (_containerTransform != null && _ssLeaderboardElementsTransform != null && _ssPanelScreenTransform != null)
             {
-                Plugin.logger.Debug("unyeeting ss");
                 _containerTransform.localPosition = _containerPosition;
                 _ssLeaderboardElementsTransform.localPosition = _ssLeaderboardElementsPosition;
                 _ssPanelScreenTransform.localPosition = _ssPanelScreenPosition;
@@ -165,7 +162,6 @@ namespace CustomCampaigns.UI.ViewControllers
 
         private void ShowMissionLeaderboard()
         {
-            Plugin.logger.Debug("showing mission leaderboard");
             _campaignMissionSecondaryLeaderboardViewController.transform.localPosition = _containerPosition;
             if (_campaignMissionSecondaryLeaderboardViewController.screen == null)
             {
@@ -180,7 +176,6 @@ namespace CustomCampaigns.UI.ViewControllers
         {
             if (_campaignMissionSecondaryLeaderboardViewController != null)
             {
-                Plugin.logger.Debug("hiding mission leaderboard");
                 _campaignMissionSecondaryLeaderboardViewController.__Deactivate(false, true, false);
             }
         }
@@ -192,8 +187,6 @@ namespace CustomCampaigns.UI.ViewControllers
                 return;
             }
 
-            Plugin.logger.Debug("custom campaign enabled");
-
             PanelViewShowPatch.ViewShown -= OnViewActivated;
             PanelViewsIsLoadedSetterPatch.ViewLoaded -= OnViewLoaded;
             PanelViewShowPatch.ViewShown += OnViewActivated;
@@ -201,7 +194,6 @@ namespace CustomCampaigns.UI.ViewControllers
 
             if (_toggleButtonImage)
             {
-                Plugin.logger.Debug("activating toggle button image");
                 _toggleButtonImage.gameObject.SetActive(true);
             }
             //Initialize();
@@ -209,11 +201,8 @@ namespace CustomCampaigns.UI.ViewControllers
 
         internal void CustomCampaignDisabled()
         {
-            Plugin.logger.Debug("custom campaign disabled");
-
             if (_toggleButtonImage)
             {
-                Plugin.logger.Debug("deactivating toggle button");
                 _toggleButtonImage.gameObject.SetActive(false);
             }
 
@@ -222,7 +211,6 @@ namespace CustomCampaigns.UI.ViewControllers
 
             if (_initializedWithGlobalLeaderboards)
             {
-                Plugin.logger.Debug("was initialized");
                 UnYeetSS();
                 //Dispose();
                 _initializedWithGlobalLeaderboards = false;
@@ -232,10 +220,8 @@ namespace CustomCampaigns.UI.ViewControllers
 
         internal void SetGlobalLeaderboardViewController()
         {
-            Plugin.logger.Debug("in SetGlobalLeaderboardViewController");
             if (!_initializedWithGlobalLeaderboards)
             {
-                Plugin.logger.Debug("not initialized with global leaderboards");
                 OnViewActivated();
             }
             else if (!ssShown)

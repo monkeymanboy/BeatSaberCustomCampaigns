@@ -40,7 +40,6 @@ namespace CustomCampaigns.HarmonyPatches
 
         public static void Postfix(TextMeshProUGUI ____songNameText, MissionNode ____missionNode)
         {
-            Plugin.logger.Debug("setdatatoui");
             var missionData = ____missionNode.missionData as CustomMissionDataSO;
             if (missionData != null)
             {

@@ -348,7 +348,6 @@ namespace CustomCampaigns.Managers
 
         private void OnSongsLoaded(Loader loader, ConcurrentDictionary<string, BeatmapLevel> levels)
         {
-            Plugin.logger.Debug("songs loaded");
             (_missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO).mission.SetCustomLevel();
             _customCampaignUIManager.RefreshMissionNodeData();
             _customCampaignUIManager.ClearProgressBar();
@@ -361,7 +360,6 @@ namespace CustomCampaigns.Managers
 
         private async void PlayMap(MissionLevelDetailViewController missionLevelDetailViewController)
         {
-            Plugin.logger.Debug("play");
             _currentNode = missionLevelDetailViewController.missionNode;
             MissionDataSO missionDataSO = _currentNode.missionData;
             _currentMissionDataSO = missionDataSO as CustomMissionDataSO;
@@ -388,7 +386,6 @@ namespace CustomCampaigns.Managers
             if (mission.allowStandardLevel)
             {
                 isCampaignLevel = true;
-                Plugin.logger.Debug("allow stadard level");
                 if (missionObjectiveGameUIViewPrefab == null)
                 {
                     Plugin.logger.Debug("null prefab");
@@ -418,7 +415,6 @@ namespace CustomCampaigns.Managers
 
         private void HelpControllerDismissed(MissionHelpViewController missionHelpViewController)
         {
-            Plugin.logger.Debug("help controller dismissed");
             missionHelpViewController.didFinishEvent -= HelpControllerDismissed;
             StartCampaignLevel(HideMissionHelp);
         }
@@ -485,7 +481,6 @@ namespace CustomCampaigns.Managers
 
         private void OnFinishedStandardLevel(StandardLevelScenesTransitionSetupDataSO standardLevelScenesTransitionSetupDataSO, LevelCompletionResults levelCompletionResults)
         {
-            Plugin.logger.Debug("on finish standard level");
             if (levelCompletionResults.levelEndAction == LevelCompletionResults.LevelEndAction.Restart)
             {
                 StartCampaignLevel(null);
@@ -511,8 +506,6 @@ namespace CustomCampaigns.Managers
 
         private async void OnRetryButtonPressed(MissionResultsViewController missionResultsViewController)
         {
-            Plugin.logger.Debug("retry button pressed");
-
             Mission mission = _currentMissionDataSO.mission;
             (Dictionary<string, string>, HashSet<string>, Dictionary<string, string>) failedMods = await LoadExternalModifiers(mission);
 
@@ -555,7 +548,6 @@ namespace CustomCampaigns.Managers
 
         private void OnDidCloseCampaign(CampaignFlowCoordinator campaignFlowCoordinator)
         {
-            Plugin.logger.Debug("closed campaign");
             unlockAllMissions = false;
 
             _cancellationTokenSource.Cancel();
@@ -576,7 +568,6 @@ namespace CustomCampaigns.Managers
 
         public void OnMissionLevelSceneDidFinish(MissionLevelScenesTransitionSetupDataSO missionLevelScenesTransitionSetupDataSO, MissionCompletionResults missionCompletionResults)
         {
-            Plugin.logger.Debug("updating player stats");
             var level = (_missionLevelDetailViewController.missionNode.missionData as CustomMissionDataSO).beatmapLevel.levelID;
             var beatmapLevel = Loader.BeatmapLevelsModelSO.GetBeatmapLevel(level);
             BeatmapKey beatmapKey = BeatmapUtils.GetMatchingBeatmapKey(level, _currentMissionDataSO.beatmapCharacteristic, _currentMissionDataSO.beatmapDifficulty);

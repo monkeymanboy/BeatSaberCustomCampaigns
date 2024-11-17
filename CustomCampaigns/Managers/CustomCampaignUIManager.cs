@@ -220,8 +220,6 @@ namespace CustomCampaigns.Managers
 
         internal void CustomCampaignEnabled()
         {
-            Plugin.logger.Debug("custom campaign enabled");
-
             InitializeMissionDetails();
            
             if (!_config.floorLeaderboard)
@@ -543,7 +541,6 @@ namespace CustomCampaigns.Managers
                     _globalLeaderboardViewController.SetData(beatmapKey);
                     if (_config.floorLeaderboard)
                     {
-                        Plugin.logger.Debug("floor leaderboard");
                         _campaignMissionLeaderboardViewController.customURL = missionData.campaign.info.customMissionLeaderboard;
                         _campaignMissionLeaderboardViewController.mission = mission;
                         _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _campaignMissionLeaderboardViewController, ViewController.AnimationType.In);
@@ -554,7 +551,6 @@ namespace CustomCampaigns.Managers
                     }
                     else
                     {
-                        Plugin.logger.Debug("boring leaderboard");
                         _campaignFlowCoordinator.InvokeMethod<object, CampaignFlowCoordinator>("SetRightScreenViewController", _globalLeaderboardViewController, ViewController.AnimationType.In);
 
                         missionDataReadyEvent?.Invoke(mission, missionData.campaign.info.customMissionLeaderboard, GetNodeColor(_missionLevelDetailViewController.missionNode));
@@ -850,7 +846,6 @@ namespace CustomCampaigns.Managers
 
         private void OnViewActivated()
         {
-            Plugin.logger.Debug("view activated");
             _globalLeaderboardViewController.transform.localPosition = _leaderboardPosition;
         }
 
@@ -1027,7 +1022,6 @@ namespace CustomCampaigns.Managers
                 else
                 {
                     string spritePath = imagePath + infoSegment.imageName;
-                    Plugin.logger.Debug(spritePath);
                     SetupImage(imageView, spritePath);
                 }
 
