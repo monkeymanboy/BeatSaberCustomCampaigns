@@ -58,7 +58,6 @@ namespace CustomCampaigns.UI.ViewControllers
         [UIAction("#post-parse")]
         public void PostParse()
         {
-            Plugin.logger.Debug("destroying...");
             GameObject.Destroy(_leaderboardTransform.Find("LoadingControl").gameObject);
 
             scoreMultiplierCounter = new ScoreMultiplierCounter();
@@ -91,6 +90,10 @@ namespace CustomCampaigns.UI.ViewControllers
                     //var hash = CustomCampaignLeaderboardLibraryUtils.GetHash(mission);
                     //task = CustomCampaignLeaderboard.LoadLeaderboards(UserInfoManager.UserInfo.platformUserId, hash);
 
+                    List<ScoreData> scores = new List<ScoreData>();
+                    scores.Add(new ScoreData(0, "Leaderboards are unavailable for this campaign", 0, false));
+                    table.SetScores(scores, -1);
+                    isLoaded = true;
                     yield break;
                 }
 

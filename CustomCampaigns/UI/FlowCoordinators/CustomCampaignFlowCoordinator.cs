@@ -67,19 +67,16 @@ namespace CustomCampaigns.UI.FlowCoordinators
 
         private void OnClickCampaign(Campaign.Campaign campaign)
         {
-            Plugin.logger.Debug("clicked campaign");
             _campaignDetailViewController.SelectedCampaign = campaign;
-            _campaignTotalLeaderboardViewController.campaignID = campaign.leaderboardId;
+            //_campaignTotalLeaderboardViewController.campaignID = campaign.leaderboardId;
             if (!_campaignDetailViewController.isInViewControllerHierarchy)
             {
-                Plugin.logger.Debug("pushing view controller");
                 PushViewControllerToNavigationController(_campaignListNavigationController, _campaignDetailViewController);
-                SetRightScreenViewController(_campaignTotalLeaderboardViewController, ViewController.AnimationType.None);
+                //    SetRightScreenViewController(_campaignTotalLeaderboardViewController, ViewController.AnimationType.None);
 
-                (_campaignTotalLeaderboardViewController.table.transform.GetChild(1).GetChild(0).transform as RectTransform).localScale = new Vector3(1, 0.9f, 1);
+                //    (_campaignTotalLeaderboardViewController.table.transform.GetChild(1).GetChild(0).transform as RectTransform).localScale = new Vector3(1, 0.9f, 1);
             }
-
-            _campaignTotalLeaderboardViewController.UpdateLeaderboards();
+            //_campaignTotalLeaderboardViewController.UpdateLeaderboards();
         }
 
         private void OnClickPlay(Campaign.Campaign campaign)
